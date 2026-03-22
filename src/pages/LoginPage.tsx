@@ -2,6 +2,8 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './LoginPage.module.css'
+import { login } from '../api/auth'
+
 
 function EyeOn() {
   return (
@@ -59,18 +61,9 @@ export default function LoginPage() {
 
     setIsLoading(true)
     try {
-      // ЗАГЛУШКА — заменить на реальный вызов когда бэкенд готов:
-      // const data = await login({ email: email.trim(), password })
-      // localStorage.setItem('access_token', data.access_token)
-      // setUser(data.user)
-      await new Promise(r => setTimeout(r, 500))
-      localStorage.setItem('access_token', 'mock-token')
-      setUser({
-        name: 'Алексей',
-        surname: 'Иванов',
-        email: email,
-        role: 'USER',
-      })
+      const data = await login({ email: email.trim(), password })
+      localStorage.setItem('access_token', data.access_token)
+      setUser(data.user)
       navigate('/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {

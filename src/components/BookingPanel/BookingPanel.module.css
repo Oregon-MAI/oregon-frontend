@@ -159,3 +159,16 @@
   cursor: pointer;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
+
+
+.slotSelected {
+  background: #1A56DB;
+  color: #fff;
+  border-color: #1245B5;
+}
+
+.slotRange {
+  background: #EBF2FF;
+  color: #1A56DB;
+  border-color: #1A56DB;
+}

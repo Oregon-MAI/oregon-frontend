@@ -1,5 +1,6 @@
 import type { Desk } from '../../types/map'
 import styles from './BookingPanel.module.css'
+import { useState } from 'react'
 
 // Все слоты по 15 минут с 09:00 до 15:30
 const ALL_SLOTS = [
@@ -17,12 +18,52 @@ interface Props {
 }
 
 export default function BookingPanel({ desk, onClose }: Props) {
-  if (!desk) return null
+  const [startSlot, setStartSlot] = useState<string | null>(null)
+  const [endSlot, setEndSlot] = useState<string | null>(null)
 
+  if (!desk) return null
+  function handleClose() {
+  setStartSlot(null)
+  setEndSlot(null)
+  onClose()
+  }
+
+  function handleSlotClick(slot: string) {
+  // Первый клик — начало
+  if (!startSlot) {
+    setStartSlot(slot)
+    setEndSlot(null)
+    return
+  }
+
+  // Клик на тот же слот — сброс
+  if (slot === startSlot) {
+    setStartSlot(null)
+    setEndSlot(null)
+    return
+  }
+
+  // Если кликнули раньше начала — меняем начало
+  if (ALL_SLOTS.indexOf(slot) < ALL_SLOTS.indexOf(startSlot)) {
+    setStartSlot(slot)
+    setEndSlot(null)
+    return
+  }
+
+  // Второй клик — конец
+  setEndSlot(slot)
+  }
+  function isInRange(slot: string): boolean {
+  if (!startSlot || !endSlot) return false
+  const i = ALL_SLOTS.indexOf(slot)
+  const start = ALL_SLOTS.indexOf(startSlot)
+  const end = ALL_SLOTS.indexOf(endSlot)
+  return i >= start && i <= end
+}
   return (
     <>
       {/* Затемнение фона */}
-      <div className={styles.overlay} onClick={onClose} />
+      <div className={styles.overlay} onClick={handleClose} />
 
       {/* Панель */}
       <div className={styles.panel}>
@@ -36,7 +77,7 @@ export default function BookingPanel({ desk, onClose }: Props) {
               БЦ «Арена» · 11 этаж · Зона {desk.zone} — {desk.zoneName}
             </div>
           </div>
-          <button className={styles.closeBtn} onClick={onClose}>×</button>
+          <button className={styles.closeBtn} onClick={handleClose}>×</button>
         </div>
 
         {/* Удобства */}
@@ -59,17 +100,27 @@ export default function BookingPanel({ desk, onClose }: Props) {
           </div>
           <div className={styles.slots}>
             {ALL_SLOTS.map(slot => {
-              const isBusy = desk.bookedSlots.includes(slot)
-              return (
-                <button
-                  key={slot}
-                  className={`${styles.slot} ${isBusy ? styles.slotBusy : ''}`}
-                  disabled={isBusy}
-                >
-                  {slot}
-                </button>
-              )
-            })}
+                const isBusy = desk.bookedSlots.includes(slot)
+                const isStart = slot === startSlot
+                const isEnd = slot === endSlot
+                const inRange = isInRange(slot)
+
+        return (
+            <button
+              key={slot}
+              disabled={isBusy}
+              onClick={() => !isBusy && handleSlotClick(slot)}
+              className={`
+                ${styles.slot}
+                ${isBusy ? styles.slotBusy : ''}
+                ${(isStart || isEnd) ? styles.slotSelected : ''}
+                ${(inRange && !isStart && !isEnd) ? styles.slotRange : ''}
+              `}
+            >
+              {slot}
+            </button>
+          )
+        })}
           </div>
         </div>
 
