@@ -1,6 +1,11 @@
 import Layout from '../components/Layout'
 import OfficeMap from '../components/OfficeMap/OfficeMap'
 import type { Zone, Desk } from '../types/map'
+import styles from './MapPage.module.css'
+import { useState } from 'react'
+import BookingPanel from '../components/BookingPanel/BookingPanel'
+
+
 
 // ЗАГЛУШКА — заменить на fetch() когда бэкенд готов
 // GET /api/v1/floors/11/zones
@@ -65,14 +70,66 @@ const MOCK_ZONES: Zone[] = [
 ]
 
 export default function MapPage() {
-  function handleDeskClick(desk: Desk) {
-    console.log('Клик на место:', desk.id)
-    // TODO: открыть панель бронирования
-  }
+  const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null)
 
+  function handleDeskClick(desk: Desk) {
+    setSelectedDesk(desk)
+  }
+  function IconPin() {
   return (
-    <Layout>
-      <OfficeMap zones={MOCK_ZONES} onDeskClick={handleDeskClick} />
-    </Layout>
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+      <circle cx="12" cy="10" r="3"/>
+    </svg>
   )
+}
+  return (
+  <Layout>
+    {/* Заголовок */}
+    <div className={styles.pageHeader}>
+      <div className={styles.pageHeaderLeft}>
+        <h1 className={styles.pageTitle}>Карта офиса</h1>
+        <div className={styles.pageLocation}>
+          <IconPin />
+          БЦ «Арена», 11 этаж
+        </div>
+      </div>
+      <div className={styles.pageHint}>
+        Нажмите на стол или переговорную чтобы забронировать
+      </div>
+    </div>
+
+    {/* Вкладки */}
+    <div className={styles.tabs}>
+      <button className={`${styles.tab} ${styles.tabActive}`}>Рабочие места</button>
+      <button className={styles.tab}>Переговорные</button>
+    </div>
+
+    {/* Легенда */}
+    <div className={styles.legend}>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotFree}`} />
+        Свободно
+      </div>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotBusy}`} />
+        Занято
+      </div>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotMine}`} />
+        Моё место
+      </div>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotRoom}`} />
+        Переговорная
+      </div>
+    </div>
+
+    <OfficeMap zones={MOCK_ZONES} onDeskClick={handleDeskClick} />
+      <BookingPanel
+        desk={selectedDesk}
+        onClose={() => setSelectedDesk(null)}
+      />
+    </Layout>
+)
 }

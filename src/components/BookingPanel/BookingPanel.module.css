@@ -1,0 +1,161 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17,24,39,.3);
+  backdrop-filter: blur(2px);
+  z-index: 40;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  background: #fff;
+  box-shadow: -4px 0 24px rgba(17,24,39,.12);
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 800;
+  color: #111827;
+  margin-bottom: 4px;
+}
+
+.titleAccent { color: #1A56DB; }
+
+.subtitle {
+  font-size: 12px;
+  color: #6B7280;
+}
+
+.closeBtn {
+  background: none;
+  border: 1px solid #E5E7EB;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 18px;
+  color: #6B7280;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.section {
+  padding: 14px 20px;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.sectionLabel {
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: #9CA3AF;
+  margin-bottom: 8px;
+}
+
+.amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.amenity {
+  padding: 4px 10px;
+  background: #F3F5F9;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.slotsHint {
+  font-size: 11.5px;
+  color: #9CA3AF;
+  margin-bottom: 10px;
+}
+
+.slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.slot {
+  padding: 5px 10px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #374151;
+  background: #fff;
+  cursor: pointer;
+  font-family: 'DM Mono', monospace;
+  transition: all .15s;
+}
+
+.slot:hover:not(:disabled) {
+  border-color: #1A56DB;
+  color: #1A56DB;
+  background: #EBF2FF;
+}
+
+.slotBusy {
+  background: #F3F5F9;
+  color: #9CA3AF;
+  border-color: transparent;
+  cursor: default;
+  text-decoration: line-through;
+}
+
+.footer {
+  padding: 14px 20px;
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+  border-top: 1px solid #E5E7EB;
+}
+
+.btnBook {
+  flex: 1;
+  background: #1A56DB;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+.btnBook:hover { background: #1245B5; }
+
+.btnCancel {
+  background: #111827;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
