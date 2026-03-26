@@ -1,6 +1,7 @@
 import type { Desk } from '../../types/map'
 import styles from './BookingPanel.module.css'
 import { useState } from 'react'
+import { createBooking } from '../../api/resourceApi'
 
 // Все слоты по 15 минут с 09:00 до 15:30
 const ALL_SLOTS = [
@@ -15,11 +16,13 @@ const ALL_SLOTS = [
 interface Props {
   desk: Desk | null
   onClose: () => void
+  onBooked?: () => void
 }
 
-export default function BookingPanel({ desk, onClose }: Props) {
+export default function BookingPanel({ desk, onClose, onBooked }: Props) {
   const [startSlot, setStartSlot] = useState<string | null>(null)
   const [endSlot, setEndSlot] = useState<string | null>(null)
+  const [booking, setBooking] = useState<'idle' | 'loading' | 'error'>('idle')
 
   if (!desk) return null
   function handleClose() {
@@ -74,7 +77,7 @@ export default function BookingPanel({ desk, onClose }: Props) {
               Рабочее место <span className={styles.titleAccent}>{desk.id}</span>
             </div>
             <div className={styles.subtitle}>
-              БЦ «Арена» · 11 этаж · Зона {desk.zone} — {desk.zoneName}
+              БЦ «Арена» · 11 этаж · Зона {desk.zone} — {desk.zoneName ?? `Зона ${desk.zone}`}
             </div>
           </div>
           <button className={styles.closeBtn} onClick={handleClose}>×</button>
@@ -126,9 +129,34 @@ export default function BookingPanel({ desk, onClose }: Props) {
 
         {/* Кнопки */}
         <div className={styles.footer}>
-          <button className={styles.btnBook}>Забронировать</button>
+          <button
+            className={styles.btnBook}
+            disabled={!startSlot || !endSlot || booking === 'loading'}
+            onClick={async () => {
+              if (!startSlot || !endSlot || !desk?.resourceId) return
+              setBooking('loading')
+              try {
+                await createBooking({
+                  resource_id: desk.resourceId,
+                  date: new Date().toISOString().slice(0, 10),
+                  time_from: startSlot,
+                  time_to: endSlot,
+                })
+                setBooking('idle')
+                onBooked?.()
+                handleClose()
+              } catch {
+                setBooking('error')
+              }
+            }}
+          >
+            {booking === 'loading' ? 'Бронирование...' : 'Забронировать'}
+          </button>
           <button className={styles.btnCancel} onClick={onClose}>Отмена</button>
         </div>
+        {booking === 'error' && (
+          <div className={styles.bookingError}>Не удалось забронировать. Попробуйте ещё раз.</div>
+        )}
       </div>
     </>
   )

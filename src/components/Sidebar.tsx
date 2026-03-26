@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import styles from './Sidebar.module.css'
-
+import { useNavigate } from 'react-router-dom'
 function IconMap() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -38,6 +38,7 @@ export default function Sidebar() {
   // Брони на сегодня для виджета
   const today = new Date().toISOString().slice(0, 10)
   const todayBookings = bookings.filter(b => b.date === today)
+  const navigate = useNavigate()
 
   return (
     <aside className={styles.sidebar}>
@@ -53,7 +54,7 @@ export default function Sidebar() {
       <button
         type="button"
         className={`${styles.sideBtn} ${activeNav === 'equipment' ? styles.sideBtnActive : ''}`}
-        onClick={() => setActiveNav('equipment')}
+        onClick={() => navigate('/equipment')}
       >
         <IconMonitor />
         Техника

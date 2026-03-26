@@ -1,8 +1,8 @@
 import { useState, FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './LoginPage.module.css'
-import { login } from '../api/authApi'
+import { login, validate as validateToken } from '../api/authApi'
 
 
 function EyeOn() {
@@ -61,9 +61,11 @@ export default function LoginPage() {
 
     setIsLoading(true)
     try {
-      const data = await login({ login: email.trim(), password })
-      localStorage.setItem('access_token', data.access_token)
-      setUser(data.user)
+      const tokens = await login({ login: email.trim(), password })
+      localStorage.setItem('access_token', tokens.access_token)
+      localStorage.setItem('refresh_token', tokens.refresh_token)
+      const userData = await validateToken()
+      setUser(userData)
       navigate('/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
@@ -139,11 +141,14 @@ export default function LoginPage() {
             {isLoading ? 'Входим…' : 'Войти'}
           </button>
 
-          <div className={styles.divider}>
-            <div className={styles.divLine} />
-            <div className={styles.divLine} />
-          </div>
         </form>
+
+        <p style={{ fontSize: 13, color: '#6B7280', textAlign: 'center', marginTop: 4 }}>
+          Нет аккаунта?{' '}
+          <Link to="/register" style={{ color: '#1A56DB', fontWeight: 600, textDecoration: 'none' }}>
+            Зарегистрироваться
+          </Link>
+        </p>
       </div>
 
       <div className={styles.right} />

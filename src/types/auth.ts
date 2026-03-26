@@ -6,11 +6,21 @@ export interface LoginRequest {
 export interface LoginResponse {
   access_token: string
   refresh_token: string
-  user: {
-    uuid: string
-    name: string
-    surname: string
-    email: string
-    role: 'USER' | 'ADMIN'
-  }
+}
+
+export interface RegisterRequest {
+  login: string
+  password: string
+  name: string
+  surname: string
+  email: string
+}
+
+export interface ValidateResponse {
+  id: string
+  login: string
+  name: string
+  surname: string
+  email: string
+  roles: string[]
 }

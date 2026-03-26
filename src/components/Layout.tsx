@@ -20,7 +20,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
-          <span>{user ? `${user.surname} ${user.name[0]}.` : ''}</span>
+          <span>{user ? `${user.surname}${user.name?.[0] ? ` ${user.name[0]}.` : ''}` : ''}</span>
           <button type="button" className={styles.logoutBtn} onClick={logout}>
             Выйти
           </button>

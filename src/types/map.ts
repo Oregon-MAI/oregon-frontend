@@ -1,6 +1,8 @@
 export interface Desk {
-  id: string
+  resourceId?: string   // backend resource_id (undefined for mock data)
+  id: string            // display name, e.g. "A1"
   zone: 'A' | 'B' | 'D'
+  zoneName?: string
   status: 'free' | 'busy' | 'mine'
   amenities: string[]
   bookedSlots: string[]

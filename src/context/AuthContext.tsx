@@ -1,11 +1,14 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { Booking } from '../types/map'
+import { validate } from '../api/authApi'
 
-interface User {
+export interface User {
+  id: string
+  login: string
   name: string
   surname: string
-  login: string
-  role: 'USER' | 'ADMIN'
+  email: string
+  roles: string[]
 }
 
 interface AuthContextType {
@@ -13,6 +16,7 @@ interface AuthContextType {
   setUser: (user: User | null) => void
   bookings: Booking[]
   setBookings: (bookings: Booking[]) => void
+  isAdmin: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -25,35 +29,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const token = localStorage.getItem('access_token')
     if (!token) return
 
-    // ЗАГЛУШКА — заменить на GET /auth/me + GET /bookings/my когда бэкенд готов
-    setUser({
-      name: 'Алексей',
-      surname: 'Иванов',
-      email: 'ivanov@t1.ru',
-      role: 'USER',
-    })
-    setBookings([
-      {
-        id: '1',
-        resourceId: 'B-07',
-        resourceName: 'Место B-07',
-        timeFrom: '09:00',
-        timeTo: '18:00',
-        date: '2026-03-20',
-      },
-      {
-        id: '2',
-        resourceId: 'zaryadye',
-        resourceName: 'Зарядье',
-        timeFrom: '14:00',
-        timeTo: '16:00',
-        date: '2026-03-20',
-      },
-    ])
+    validate()
+      .then(data => setUser(data))
+      .catch(() => {
+        localStorage.removeItem('access_token')
+        localStorage.removeItem('refresh_token')
+      })
   }, [])
 
+  const isAdmin = user?.roles?.includes('ADMIN') ?? false
+
   return (
-    <AuthContext.Provider value={{ user, setUser, bookings, setBookings }}>
+    <AuthContext.Provider value={{ user, setUser, bookings, setBookings, isAdmin }}>
       {children}
     </AuthContext.Provider>
   )

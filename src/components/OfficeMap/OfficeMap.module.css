@@ -1,206 +1,78 @@
 .map {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
   gap: 16px;
   padding: 20px;
-  flex: 1;
-  overflow: hidden;  /* было: auto */
-  align-items: start;
+  overflow: auto;
+  align-items: flex-start;
 }
-.left, .right {
+
+.zoneCard {
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px 20px 20px;
+  flex: 1;
+  min-width: 0;
+}
+
+.rightCol {
   display: flex;
   flex-direction: column;
   gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
-/* ── Зоны ── */
-.zoneA, .zoneB, .zoneD {
-  background: #fff;
-  border: 1px solid #E5E7EB;
-  border-radius: 10px;
-  padding: 16px;
-  box-shadow: 0 1px 3px rgba(17,24,39,.07);
+.rightCol .zoneCard {
+  flex: 1;
 }
 
 .zoneLabel {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: .14em;
+  letter-spacing: .12em;
   color: #9CA3AF;
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 
-/* Зона A — блоки вертикально */
+/* Зона A */
 .zoneAGrid {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
-  max-width: 800px;
-}
-/* Зона D — блоки в сетку 2 колонки */
-.zoneDGrid {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 24px;
-  justify-content: start;
 }
 
-/* Зона B — блоки в ряд */
+.blockA {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+.deskRow {
+  display: flex;
+  gap: 4px;
+}
+
+/* Зона D */
+.zoneDGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.blockD {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.blockDRow {
+  display: flex;
+  gap: 6px;
+}
+
+/* Зона B */
 .zoneBGrid {
   display: flex;
   flex-wrap: wrap;
   gap: 16px;
 }
-
-
-/* ── Блоки ── */
-/* Блок A: 3 стола в ряд */
-.blockA {
-  display: grid;
-  grid-template-columns: repeat(3, 72px);
-  gap: 6px;
-  border-radius: 8px;
-  padding: 8px;
-}
-
-/* Блок D: 3 стола в ряд */
-.blockD {
-  display: flex;
-  gap: 8px;
-}
-
-/* Блок B: 2×2 */
-.blockB {
-  display: grid;
-  grid-template-columns: repeat(2, auto);
-  gap: 4px;
-}
-
-/* ── Стол A (сиденья сверху) ── */
-.deskA {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  gap: 2px;
-}
-
-.deskABusy { cursor: default; }
-.deskAMine .tableBody { background: #1A56DB; }
-
-/* ── Стол D (сиденья снизу) ── */
-.deskD {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  gap: 2px;
-}
-
-.deskDBusy { cursor: default; }
-.deskDMine .tableBody { background: #1A56DB; }
-
-/* ── Стол B (крест) ── */
-.deskB {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  cursor: pointer;
-  gap: 2px;
-}
-
-.deskBBusy { cursor: default; }
-.deskBMine .tableBodyB { background: #1A56DB; }
-
-/* ── Тело стола ── */
-.tableBody {
-  width: 72px;
-  height: 32px;
-  background: #F3F5F9;
-  border: 1.5px solid #E5E7EB;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color .15s, background .15s;
-}
-
-.deskA:not(.deskABusy):hover .tableBody,
-.deskD:not(.deskDBusy):hover .tableBody {
-  border-color: #1A56DB;
-  background: #EBF2FF;
-}
-
-.tableBodyB {
-  width: 48px;
-  height: 48px;
-  background: #F3F5F9;
-  border: 1.5px solid #E5E7EB;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: border-color .15s, background .15s;
-}
-
-.deskB:not(.deskBBusy):hover .tableBodyB {
-  border-color: #1A56DB;
-  background: #EBF2FF;
-}
-
-/* Занятые тела столов */
-.deskABusy .tableBody,
-.deskDBusy .tableBody { background: #9CA3AF; border-color: transparent; }
-.deskBBusy .tableBodyB { background: #9CA3AF; border-color: transparent; }
-
-/* Синий для моего места */
-.deskAMine .tableBody,
-.deskDMine .tableBody { background: #1A56DB; border-color: #1245B5; }
-.deskBMine .tableBodyB { background: #1A56DB; border-color: #1245B5; }
-
-/* ── ID стола ── */
-.deskId {
-  font-size: 10px;
-  font-weight: 700;
-  color: #374151;
-}
-
-.deskAMine .deskId,
-.deskDMine .deskId,
-.deskBMine .deskId { color: #fff; }
-
-/* ── Сиденья (кружки) ── */
-.seatsRowTop, .seatsRowBottom, .crossTop, .crossBot {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.crossMid {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.seat {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: #D1D5DB;
-  flex-shrink: 0;
-}
-
-.blockD {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.blockDRow {
-  display: flex;
-  gap: 4px;
-}
-
-.seatBusy { background: #6B7280; }
-.seatMine { background: #93C5FD; }
