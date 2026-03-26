@@ -17,6 +17,7 @@ interface AuthContextType {
   bookings: Booking[]
   setBookings: (bookings: Booking[]) => void
   isAdmin: boolean
+  isLoading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -24,23 +25,34 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem('access_token')
-    if (!token) return
+    if (!token) {
+      setIsLoading(false)
+      return
+    }
 
     validate()
-      .then(data => setUser(data))
+      .then(data => {
+        if (data?.id && data?.login) setUser(data)
+        else {
+          localStorage.removeItem('access_token')
+          localStorage.removeItem('refresh_token')
+        }
+      })
       .catch(() => {
         localStorage.removeItem('access_token')
         localStorage.removeItem('refresh_token')
       })
+      .finally(() => setIsLoading(false))
   }, [])
 
   const isAdmin = user?.roles?.includes('ADMIN') ?? false
 
   return (
-    <AuthContext.Provider value={{ user, setUser, bookings, setBookings, isAdmin }}>
+    <AuthContext.Provider value={{ user, setUser, bookings, setBookings, isAdmin, isLoading }}>
       {children}
     </AuthContext.Provider>
   )

@@ -10,10 +10,6 @@ import MeetingRoomsPage from './pages/MeetingRoomsPage'
 import EquipmentPage from './pages/EquipmentPage'
 import RegisterPage from './pages/RegisterPage'
 
-<Route path="/rooms" element={
-  <ProtectedRoute><MeetingRoomsPage /></ProtectedRoute>
-} />
-
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <BrowserRouter>
