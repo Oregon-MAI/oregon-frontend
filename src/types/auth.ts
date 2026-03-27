@@ -6,6 +6,7 @@ export interface LoginRequest {
 export interface LoginResponse {
   access_token: string
   refresh_token: string
+  user_id?: string
 }
 
 export interface RegisterRequest {
@@ -23,4 +24,5 @@ export interface ValidateResponse {
   surname: string
   email: string
   roles: string[]
+  is_valid: 'True' | 'False'
 }

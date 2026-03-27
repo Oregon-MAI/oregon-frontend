@@ -94,8 +94,12 @@ export default function RegisterPage() {
       navigate('/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
-        const res = (err as { response?: { data?: { message?: string } } }).response
-        setError(res?.data?.message ?? 'Ошибка регистрации')
+        const res = (err as { response?: { status?: number; data?: { message?: string; detail?: string } } }).response
+        if (res?.status === 500) {
+          setError('Пользователь с такими данными уже существует')
+        } else {
+          setError(res?.data?.detail ?? res?.data?.message ?? 'Ошибка регистрации')
+        }
       } else {
         setError('Нет связи с сервером')
       }

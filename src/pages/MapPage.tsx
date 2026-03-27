@@ -9,6 +9,51 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { getResourcesList } from '../api/resourceApi'
 
+// TODO: remove stub when backend is ready
+const STUB_RESOURCES: Resource[] = [
+  { resource_id: 'stub-resource-a1', name: 'A-1', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a2', name: 'A-2', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a3', name: 'A-3', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a4', name: 'A-4', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a5', name: 'A-5', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a6', name: 'A-6', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a7', name: 'A-7', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a8', name: 'A-8', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a9', name: 'A-9', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a10', name: 'A-10', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a11', name: 'A-11', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a12', name: 'A-12', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a13', name: 'A-13', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: true }, created_at:'', updated_at:'' },
+  { resource_id: 'stub-resource-a14', name: 'A-14', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-a15', name: 'A-15', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+
+
+  { resource_id: 'stub-resource-b1', name: 'B-1', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-b2', name: 'B-2', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-b3', name: 'B-3', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-b4', name: 'B-4', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_MAINTENANCE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  
+  
+  { resource_id: 'stub-resource-d1', name: 'D-1', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d2', name: 'D-2', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d3', name: 'D-3', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d4', name: 'D-4', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d5', name: 'D-5', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d6', name: 'D-6', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d7', name: 'D-7', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d8', name: 'D-8', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d9', name: 'D-9', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d10', name: 'D-10', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d11', name: 'D-11', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d12', name: 'D-12', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d13', name: 'D-13', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d14', name: 'D-14', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d15', name: 'D-15', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' }, 
+  { resource_id: 'stub-resource-d16', name: 'D-16', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d17', name: 'D-17', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
+  { resource_id: 'stub-resource-d18', name: 'D-18', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
+]
+
 function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zone[] {
   const zoneMap = new Map<'A' | 'B' | 'D', Desk[]>()
 
@@ -47,7 +92,7 @@ function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zo
 export default function MapPage() {
   const [zones, setZones] = useState<Zone[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [error] = useState<string | null>(null)
   const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null)
   const { bookings } = useAuth()
   const navigate = useNavigate()
@@ -55,8 +100,8 @@ export default function MapPage() {
   useEffect(() => {
     const myResourceIds = new Set(bookings.map(b => b.resourceId))
     getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(resources => setZones(resourcesToZones(resources, myResourceIds)))
-      .catch(() => setError('Не удалось загрузить карту рабочих мест'))
+      .then(resources => setZones(resourcesToZones(STUB_RESOURCES, myResourceIds)))
+      .catch(() => setZones(resourcesToZones(STUB_RESOURCES, myResourceIds)))
       .finally(() => setLoading(false))
   }, [bookings])
   function handleDeskClick(desk: Desk) {
@@ -108,6 +153,7 @@ export default function MapPage() {
         <div className={`${styles.legendDot} ${styles.dotMine}`} />
         Моё место
       </div>
+      
     </div>
 
     {error && <div className={styles.error}>{error}</div>}

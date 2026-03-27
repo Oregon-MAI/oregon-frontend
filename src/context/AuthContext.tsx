@@ -47,6 +47,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     //     localStorage.removeItem('refresh_token')
     //   })
     //   .finally(() => setIsLoading(false))
+
+    // TODO: remove stub when GET /bookings/my is ready
+    const today = new Date().toISOString().slice(0, 10)
+    setBookings([
+      {
+        id: 'stub-1',
+        resourceId: 'stub-resource-a1',
+        resourceName: 'A-1',
+        date: today,
+        timeFrom: '10:00',
+        timeTo: '12:00',
+      },
+      {
+        id: 'stub-2',
+        resourceId: 'stub-resource-b3',
+        resourceName: 'B-3',
+        date: today,
+        timeFrom: '14:00',
+        timeTo: '15:30',
+      },
+      
+    ])
     setIsLoading(false)
   }, [])
 

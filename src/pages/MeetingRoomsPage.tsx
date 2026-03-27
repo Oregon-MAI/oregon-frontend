@@ -360,7 +360,8 @@ function ConfirmModal({
 
 export default function MeetingRoomsPage() {
   const navigate = useNavigate()
-  const { bookings } = useAuth()
+  const { bookings, user } = useAuth()
+  const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
 
   const [minCapacity,       setMinCapacity]       = useState(0)
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
@@ -420,7 +421,7 @@ export default function MeetingRoomsPage() {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
-          <span>Иванов А.</span>
+          {displayName && <span>{displayName}</span>}
           <button className={styles.logoutBtn} onClick={() => {
             localStorage.removeItem('access_token')
             navigate('/login')

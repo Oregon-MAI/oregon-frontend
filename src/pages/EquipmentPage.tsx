@@ -233,11 +233,12 @@ function ConfirmModal({
 
 export default function EquipmentPage() {
   const navigate = useNavigate()
-  const { bookings } = useAuth()
+  const { bookings, user } = useAuth()
+  const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
 
   const [tab,      setTab]      = useState<'all' | 'mine'>('all')
   const [typeFilter, setTypeFilter] = useState<Equipment['type'] | 'all'>('all')
-  const [date,     setDate]     = useState('2026-03-01')
+  const [date,     setDate]     = useState(new Date().toISOString().slice(0, 10))
   const [timeFrom, setTimeFrom] = useState('11:00')
   const [timeTo,   setTimeTo]   = useState('13:00')
   const [floorsOpen, setFloorsOpen] = useState(false)
@@ -296,7 +297,7 @@ export default function EquipmentPage() {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
-          <span>Иванов А.</span>
+          {displayName && <span>{displayName}</span>}
           <button className={styles.logoutBtn} onClick={() => {
             localStorage.removeItem('access_token')
             navigate('/login')

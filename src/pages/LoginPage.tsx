@@ -3,7 +3,8 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './LoginPage.module.css'
 import { login } from '../api/authApi'
-
+import { validate as validateToken } from '../api/authApi'
+import { setUser } from '../context/AuthContext'
 
 function EyeOn() {
   return (
@@ -73,14 +74,14 @@ export default function LoginPage() {
       if (!tokens?.access_token) throw new Error('no_backend')
       localStorage.setItem('access_token', tokens.access_token)
       localStorage.setItem('refresh_token', tokens.refresh_token)
-      // const userData = await validateToken()
+      //const userData = await validateToken()
       // if (!userData?.id) throw new Error('no_backend')
-      // setUser(userData)
+      //setUser(userData)
       navigate('/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
-        const res = (err as { response?: { data?: { message?: string } } }).response
-        setError(res?.data?.message ?? 'Неверный email или пароль')
+        const res = (err as { response?: { status?: number; data?: { message?: string; detail?: string } } }).response
+        setError(res?.data?.detail ?? res?.data?.message ?? 'Неверный логин или пароль')
       } else {
         setError('Нет связи с сервером')
       }

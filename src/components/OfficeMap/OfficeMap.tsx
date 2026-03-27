@@ -6,10 +6,10 @@ interface Props {
   onDeskClick?: (desk: Desk) => void
 }
 
-// ── Точные размеры из Figma SVG ──
+// ── Figma SVG ──
 // Стол: 60×28, rx=4
-// Стул: полукруг path, rx~=8.26 от центра стола (половина ширины стола)
-// Стул сверху: path "M cx-8.26,chairY A 8.26,8.26 0 0 1 cx+8.26,chairY Z" выпуклость вверх
+// Стул: полукруг path, rx~=8.26 от центра стола 
+// Стул сверху: path "M cx-8.26,chairY A 8.26,8.26 0 0 1 cx+8.26,chairY Z" 
 // Стул снизу: sweep=0, выпуклость вниз
 // Зазор стул-стол: ~2px
 
@@ -20,7 +20,7 @@ function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: 
   const isBusy = desk.status === 'busy'
   const isMine = desk.status === 'mine'
 
-  const fill = isBusy ? '#F3F5F9' : isMine ? '#1A56DB' : '#fff'
+  const fill = isBusy ? '#9CA3AF' : isMine ? '#1A56DB' : '#A7F3D0'
   const stroke = isBusy ? '#E5E7EB' : isMine ? '#1245B5' : '#E5E7EB'
   const textColor = isMine ? '#fff' : '#374151'
   const circleColor = isMine ? '#F97316' : '#D1D5DB'
@@ -69,7 +69,7 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
   const isMine = desk.status === 'mine'
 
   const deskFill  = isMine ? '#1A56DB' : isBusy ? '#9CA3AF' : '#A7F3D0'
-  const chairFill = isMine ? '#D97706' : '#9CA3AF'
+  const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
   const textFill  = isMine ? '#ffffff' : isBusy ? 'transparent' : '#059669'
 
   // Из Figma: W=59.47, H=28.087, стул rx=8.26 ry=8.26
@@ -125,9 +125,7 @@ function DeskBBlock({ desks, onClick }: { desks: Desk[]; onClick?: (d: Desk) => 
   const TL = getDeskStyle(tl), TR = getDeskStyle(tr)
   const BL = getDeskStyle(bl), BR = getDeskStyle(br)
 
-  // Из Figma: блок ~100×100, разделитель 5px посередине
-  // Каждый L-квадрант занимает 44×44, стул — кружок r=7 в наружном углу
-  // Разделитель горизонтальный (5px) и вертикальный (5px) посередине
+  
 
   const Q = 44  // размер квадранта
   const D = 5   // размер разделителя
