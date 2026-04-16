@@ -38,10 +38,20 @@ export async function getResourcesList(types?: ResourceType[]): Promise<Resource
   return data.resources.map(normalizeResource)
 }
 
-// GET /resources?type[]=...&location=...
-export async function getAvailableResources(types?: ResourceType[], location?: string): Promise<{ resources: Resource[]; total_count: number }> {
+// GET /resources?type[]=...&location=...&starts_at=...&ends_at=...
+export async function getAvailableResources(
+  types?: ResourceType[],
+  location?: string,
+  startsAt?: string,
+  endsAt?: string,
+): Promise<{ resources: Resource[]; total_count: number }> {
   const { data } = await api.get<{ resources: Resource[]; total_count: number }>('/resources', {
-    params: { ...(types?.length ? { type: types } : {}), ...(location ? { location } : {}) },
+    params: {
+      ...(types?.length ? { type: types } : {}),
+      ...(location ? { location } : {}),
+      ...(startsAt ? { starts_at: startsAt } : {}),
+      ...(endsAt ? { ends_at: endsAt } : {}),
+    },
   })
   return data
 }
@@ -164,8 +174,13 @@ export async function getMyBookings(userId: string): Promise<Booking[]> {
     '/bookings',
     { params: { user_id: userId } },
   )
+  const now = new Date()
   const list = Array.isArray(data) ? data : (data.bookings ?? [])
-  return list.map(normalizeBooking)
+  return list
+    .filter(b => b.status !== 'BOOKING_STATUS_CANCELED')
+    .filter(b => !b.user_id || b.user_id === userId)
+    .filter(b => !b.ends_at || new Date(b.ends_at) > now)
+    .map(normalizeBooking)
 }
 
 // POST /bookings/{booking_id}/cancel  (UserCancelBooking)

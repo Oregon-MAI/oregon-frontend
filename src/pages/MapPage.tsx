@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { createBooking } from '../api/resourceApi'
 import OfficeMap from '../components/OfficeMap/OfficeMap'
 import type { Zone, Desk } from '../types/map'
 import type { Resource } from '../types/resource'
@@ -21,9 +22,10 @@ function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zo
     if (r.workspace?.has_monitor) amenities.push('Монитор')
 
     const isMine = myResourceIds.has(r.resource_id)
+    const isUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
     const status: 'free' | 'busy' | 'mine' =
       isMine ? 'mine' :
-      r.status === 'RESOURCE_STATUS_AVAILABLE' ? 'free' : 'busy'
+      isUnavailable ? 'busy' : 'free'
 
     const desk: Desk = {
       resourceId: r.resource_id,
@@ -41,7 +43,11 @@ function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zo
   return Array.from(zoneMap.entries()).map(([id, desks]) => ({
     id,
     name: `Зона ${id}`,
-    desks,
+    desks: desks.sort((a, b) => {
+      const na = parseInt(a.id.replace(/\D+/g, '')) || 0
+      const nb = parseInt(b.id.replace(/\D+/g, '')) || 0
+      return na - nb
+    }),
   }))
 }
 
@@ -230,10 +236,11 @@ function ConfirmModal({
 
 export default function MapPage() {
   const navigate = useNavigate()
-  const { bookings, user } = useAuth()
+  const { bookings, setBookings, user } = useAuth()
   const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
 
   const [zones,             setZones]             = useState<Zone[]>([])
+  const [resources,         setResources]         = useState<Resource[]>([])
   const [loading,           setLoading]           = useState(true)
   const [date,              setDate]              = useState(new Date().toISOString().slice(0, 10))
   const [timeFrom,          setTimeFrom]          = useState('09:00')
@@ -242,17 +249,28 @@ export default function MapPage() {
   const [confirmDesk,       setConfirmDesk]       = useState<Desk | null>(null)
   const [toast,             setToast]             = useState<string | null>(null)
 
+  // Загружаем ресурсы при изменении фильтров
   useEffect(() => {
-    const myResourceIds = new Set(bookings.map(b => b.resourceId))
+    setLoading(true)
     getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(resources => setZones(
-        resourcesToZones(
-          resources.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE'),
-          myResourceIds,
-        )
-      ))
+      .then(r => setResources(r.filter(x => x.type === 'RESOURCE_TYPE_WORKSPACE')))
       .finally(() => setLoading(false))
-  }, [bookings])
+  }, [date, timeFrom, timeTo])
+
+  // Пересчитываем статусы мгновенно при изменении броней
+  useEffect(() => {
+    if (resources.length === 0) return
+    const myResourceIds = new Set(
+      bookings
+        .filter(b =>
+          b.date === date &&
+          b.timeFrom < timeTo &&
+          b.timeTo > timeFrom
+        )
+        .map(b => b.resourceId)
+    )
+    setZones(resourcesToZones(resources, myResourceIds))
+  }, [resources, bookings, date, timeFrom, timeTo])
 
   function toggleAmenity(a: string) {
     setSelectedAmenities(prev =>
@@ -273,20 +291,23 @@ export default function MapPage() {
       }))
 
   function handleDeskClick(desk: Desk) {
-    if (desk.status === 'busy') return
-    if (desk.status === 'mine') {
-      setToast(`Бронь места ${desk.id} отменена`)
-      setTimeout(() => setToast(null), 3000)
-      return
-    }
+    if (desk.status === 'busy' || desk.status === 'mine') return
     setConfirmDesk(desk)
   }
 
-  function handleConfirm() {
-    if (!confirmDesk) return
+  async function handleConfirm() {
+    if (!confirmDesk || !user || !confirmDesk.resourceId) return
+    const userId = user.id
+    const resourceId = confirmDesk.resourceId
     const desk = confirmDesk
     setConfirmDesk(null)
-    setToast(`Место ${desk.id} забронировано на ${timeFrom}–${timeTo}`)
+    try {
+      const newBooking = await createBooking(resourceId, userId, date, timeFrom, timeTo)
+      setBookings([...bookings, newBooking])
+      setToast(`Место ${desk.id} забронировано на ${timeFrom}–${timeTo}`)
+    } catch {
+      setToast('Не удалось забронировать. Попробуйте ещё раз.')
+    }
     setTimeout(() => setToast(null), 3500)
   }
 

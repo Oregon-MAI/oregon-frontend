@@ -68,6 +68,7 @@ export interface BookingResponse {
   // gRPC gateway fields
   booking_id?: string
   resource_id?: string
+  user_id?: string
   resource_name?: string   // convenience field, may be absent
   resource_type?: string
   resource_location?: string

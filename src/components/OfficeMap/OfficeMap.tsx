@@ -104,6 +104,13 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
 }
 
 // ── ЗОНА B ──
+// transform → {svgTransform на группу, позиция текста}
+const DESK_B_VARIANTS: Record<string, { g: string; tx: number; ty: number }> = {
+  'scaleY(-1)':   { g: 'translate(0,45) scale(1,-1)',   tx: 30, ty: 37 },
+  'scale(-1,-1)': { g: 'translate(44,45) scale(-1,-1)', tx: 11,  ty: 37 },
+  'scale(-1,1)':  { g: 'translate(44,0) scale(-1,1)',   tx: 11,  ty: 8  },
+}
+
 function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) => void; transform?: string }) {
   const isBusy = desk.status === 'busy'
   const isMine = desk.status === 'mine'
@@ -112,22 +119,29 @@ function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) =
   const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
   const textFill  = isMine ? '#ffffff' : '#059669'
 
+  const v = transform ? DESK_B_VARIANTS[transform] : undefined
+  const gTransform = v?.g
+  const tx = v?.tx ?? 30
+  const ty = v?.ty ?? 8
+
   return (
     <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
-      style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0, transform }}
+      style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
       onClick={() => !isBusy && onClick?.(desk)}
     >
-      <path d="M0 0H44V45H28V16H0Z" fill={deskFill} />
-      <path d="M17 15.4999C17 15.4999 22.5 15.5 25.5 19C28.5 22.5 28.5 27.9999 28.5 27.9999" stroke="white"/>
-      <path d="M13 39C9.13401 39 6 35.866 6 32L6 29C6 25.134 9.13401 22 13 22H16C19.866 22 23 25.134 23 29V32C23 35.866 19.866 39 16 39H13Z" fill={chairFill}/>
-      <line y1="0.5" x2="44" y2="0.5" stroke="white"/>
-      <line x1="0.5" y1="1" x2="0.5" y2="16" stroke="white"/>
-      <line x1="43.5" y1="1" x2="43.5" y2="45" stroke="white"/>
-      <path d="M43 45H28V44H43V45Z" fill="white"/>
-      <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
-      <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
+      <g transform={gTransform}>
+        <path d="M0 0H44V45H28V16H0Z" fill={deskFill} />
+        <path d="M17 15.4999C17 15.4999 22.5 15.5 25.5 19C28.5 22.5 28.5 27.9999 28.5 27.9999" stroke="white"/>
+        <path d="M13 39C9.13401 39 6 35.866 6 32L6 29C6 25.134 9.13401 22 13 22H16C19.866 22 23 25.134 23 29V32C23 35.866 19.866 39 16 39H13Z" fill={chairFill}/>
+        <line y1="0.5" x2="44" y2="0.5" stroke="white"/>
+        <line x1="0.5" y1="1" x2="0.5" y2="16" stroke="white"/>
+        <line x1="43.5" y1="1" x2="43.5" y2="45" stroke="white"/>
+        <path d="M43 45H28V44H43V45Z" fill="white"/>
+        <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
+        <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
+      </g>
       {!isBusy && (
-        <text x="36" y="8" textAnchor="middle" dominantBaseline="central"
+        <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central"
           fontSize="8" fontWeight="700" fill={textFill}
           fontFamily="Plus Jakarta Sans, sans-serif">
           {desk.id}

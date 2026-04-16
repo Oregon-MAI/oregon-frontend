@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { Booking } from '../types/map'
 import { decodeToken, getUser } from '../api/authApi'
+import { getMyBookings } from '../api/resourceApi'
 // import { validate } from '../api/authApi'
 
 export interface User {
@@ -44,6 +45,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     setIsLoading(false)
   }, [])
+
+  // Загружаем брони каждый раз когда меняется пользователь
+  useEffect(() => {
+    if (!user?.id) return
+    getMyBookings(user.id)
+      .then(setBookings)
+      .catch(() => {})
+  }, [user?.id])
 
   const isAdmin = user?.roles?.includes('ADMIN') ?? false
 
