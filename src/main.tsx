@@ -8,9 +8,12 @@ import ProtectedRoute from './components/ProtectedRoute'
 import './index.css'
 import MeetingRoomsPage from './pages/MeetingRoomsPage'
 import EquipmentPage from './pages/EquipmentPage'
-import RegisterPage from './pages/RegisterPage'
 import AdminLayout from './pages/admin/AdminLayout'
 import AdminWorkspacesPage from './pages/admin/AdminWorkspacesPage'
+import AdminRoomsPage from './pages/admin/AdminRoomsPage'
+import AdminEquipmentPage from './pages/admin/AdminEquipmentPage'
+import AdminUsersPage from './pages/admin/AdminUsersPage'
+import BookingsPage from './pages/BookingsPage'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -29,10 +32,15 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           <Route path="/equipment" element={
             <ProtectedRoute><EquipmentPage /></ProtectedRoute>
           } />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin" element={<AdminLayout />}>
+          <Route path="/bookings" element={
+            <ProtectedRoute><BookingsPage /></ProtectedRoute>
+          } />
+<Route path="/admin" element={<AdminLayout />}>
             <Route index element={<AdminWorkspacesPage />} />
             <Route path="workspaces" element={<AdminWorkspacesPage />} />
+            <Route path="rooms" element={<AdminRoomsPage />} />
+            <Route path="equipment" element={<AdminEquipmentPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
           </Route>
           <Route path="*" element={<LoginPage />} />
         </Routes>

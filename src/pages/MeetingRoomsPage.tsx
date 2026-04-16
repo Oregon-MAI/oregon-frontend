@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './MeetingRoomsPage.module.css'
+import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
-import { getResourcesList } from '../api/resourceApi'
+import { getResourcesList, createBooking } from '../api/resourceApi'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,26 +23,42 @@ interface Room {
 // ─── Converter ────────────────────────────────────────────────────────────────
 
 function resourceToRoom(r: Resource, myResourceIds: Set<string>): Room {
+  // бэкенд может вернуть camelCase
+  const raw = r as unknown as Record<string, unknown>
+  const mr = r.meeting_room ?? (raw.meetingRoom as typeof r.meeting_room)
+
   const amenities: string[] = []
-  if (r.meeting_room?.has_projector) amenities.push('Проектор')
-  if (r.meeting_room?.has_whiteboard) amenities.push('Маркерная')
+  if (mr?.has_projector) amenities.push('Проектор')
+  if (mr?.has_whiteboard) amenities.push('Маркерная')
 
   const isMine = myResourceIds.has(r.resource_id)
   const status: Room['status'] =
     isMine ? 'mine' :
     r.status === 'RESOURCE_STATUS_AVAILABLE' ? 'free' : 'busy'
 
+  // location может быть просто числом этажа ("11") — показываем как есть
+  const floor = parseInt(r.location) || 11
+  const wing = /^\d+$/.test(r.location.trim()) ? '' : r.location
+
   return {
     id: r.resource_id,
     name: r.name,
-    floor: 11,
-    wing: r.location,
-    capacity: r.meeting_room?.capacity ?? 0,
+    floor,
+    wing,
+    capacity: mr?.capacity ?? 0,
     status,
     amenities,
     bookedSlots: [],
   }
 }
+
+// TODO: remove stub when backend is ready
+const STUB_ROOMS: Room[] = [
+  { id: 'stub-room-1', name: 'Переговорная A1', floor: 11, wing: 'Крыло А', capacity: 6, status: 'free', amenities: ['Проектор', 'Маркерная', 'Wi-Fi'], bookedSlots: [] },
+  { id: 'stub-room-2', name: 'Переговорная A2', floor: 11, wing: 'Крыло А', capacity: 10, status: 'busy', busyUntil: '14:00', amenities: ['ВКС', 'Проектор', 'Wi-Fi'], bookedSlots: [{ from: '10:00', to: '14:00' }] },
+  { id: 'stub-room-3', name: 'Переговорная B1', floor: 11, wing: 'Крыло Б', capacity: 4, status: 'free', amenities: ['Маркерная', 'Wi-Fi'], bookedSlots: [] },
+  { id: 'stub-room-4', name: 'Переговорная B2', floor: 11, wing: 'Крыло Б', capacity: 15, status: 'free', amenities: ['ВКС', 'Проектор', 'Маркерная', 'Wi-Fi', 'Доска'], bookedSlots: [] },
+]
 
 const ALL_AMENITIES = ['ВКС', 'Проектор', 'Маркерная', 'Wi-Fi', 'Доска']
 
@@ -201,19 +218,9 @@ function RoomsSidebar({
   />
 </div>
         <div className={styles.timeRow}>
-          <input
-            type="time"
-            value={timeFrom}
-            onChange={e => setTimeFrom(e.target.value)}
-            className={styles.timeInput}
-          />
+          <TimeSelect value={timeFrom} onChange={setTimeFrom} className={styles.timeInput} />
           <span className={styles.timeSep}>—</span>
-          <input
-            type="time"
-            value={timeTo}
-            onChange={e => setTimeTo(e.target.value)}
-            className={styles.timeInput}
-          />
+          <TimeSelect value={timeTo} onChange={setTimeTo} className={styles.timeInput} />
         </div>
       </div>
 
@@ -297,7 +304,7 @@ function RoomCard({
           )}
         </div>
         <div className={styles.cardMeta}>
-          {room.floor} этаж · {room.wing} · до {room.capacity} чел.
+          {room.floor} этаж{room.wing ? ` · ${room.wing}` : ''}{room.capacity > 0 ? ` · до ${room.capacity} чел.` : ''}
         </div>
         <div className={styles.cardAmenities}>
           {room.amenities.map(a => <AmenityChip key={a} label={a} />)}
@@ -332,10 +339,10 @@ function ConfirmModal({
         <div className={styles.modalRoom}>{room.name}</div>
         <div className={styles.modalDetails}>
           {[
-            ['Этаж',        `${room.floor} этаж · ${room.wing}`],
-            ['Вместимость', `до ${room.capacity} чел.`],
+            ['Этаж',        `${room.floor} этаж${room.wing ? ` · ${room.wing}` : ''}`],
+            ...(room.capacity > 0 ? [['Вместимость', `до ${room.capacity} чел.`]] : []),
             ['Дата',        date],
-            ['Оснащение',   room.amenities.join(', ')],
+            ['Оснащение',   room.amenities.join(', ') || '—'],
           ].map(([label, value]) => (
             <div key={label} className={styles.modalRow}>
               <span className={styles.modalLabel}>{label}</span>
@@ -375,8 +382,12 @@ export default function MeetingRoomsPage() {
   useEffect(() => {
     const myResourceIds = new Set(bookings.map(b => b.resourceId))
     getResourcesList(['RESOURCE_TYPE_MEETING_ROOM'])
-      .then(resources => setRooms(resources.map(r => resourceToRoom(r, myResourceIds))))
-      .catch(() => setToast('Не удалось загрузить переговорные'))
+      .then(resources => setRooms(
+        resources
+          .filter(r => r.type === 'RESOURCE_TYPE_MEETING_ROOM')
+          .map(r => resourceToRoom(r, myResourceIds))
+      ))
+      .catch(() => setRooms(STUB_ROOMS))
   }, [bookings])
 
   function toggleAmenity(a: string) {
@@ -391,7 +402,7 @@ export default function MeetingRoomsPage() {
   }
 
   const filteredRooms = rooms.filter((r: Room) => {
-    if (minCapacity > 0 && r.capacity < minCapacity) return false
+    if (minCapacity > 0 && r.capacity > 0 && r.capacity < minCapacity) return false
     if (selectedAmenities.length > 0 && !selectedAmenities.every(a => r.amenities.includes(a))) return false
     return true
   })
@@ -399,11 +410,16 @@ export default function MeetingRoomsPage() {
   const freeCount  = filteredRooms.filter((r: Room) => r.status === 'free' && !isRoomBusyAt(r, timeFrom, timeTo)).length
   const totalCount = filteredRooms.length
 
-  function handleConfirm() {
-    if (!confirmRoom) return
+  async function handleConfirm() {
+    if (!confirmRoom || !user?.id) return
     const room = confirmRoom
     setConfirmRoom(null)
-    setToast(`${room.name} забронирована на ${timeFrom}–${timeTo}`)
+    try {
+      await createBooking(room.id, user.id, date, timeFrom, timeTo)
+      setToast(`${room.name} забронирована на ${timeFrom}–${timeTo}`)
+    } catch {
+      setToast('Не удалось создать бронь')
+    }
     setTimeout(() => setToast(null), 3500)
   }
 

@@ -30,6 +30,8 @@ export interface DeviceDetails {
 
 export interface Resource {
   resource_id: string
+  uuid?: string         // actual DB column name
+  id?: string           // proto field name fallback
   name: string
   type: ResourceType
   location: string
@@ -37,6 +39,7 @@ export interface Resource {
   meeting_room?: MeetingRoomDetails
   workspace?: WorkspaceDetails
   device?: DeviceDetails
+  details?: MeetingRoomDetails | WorkspaceDetails | DeviceDetails  // backend field name
   created_at?: string
   updated_at?: string
 }
@@ -45,9 +48,7 @@ export interface CreateResourceRequest {
   name: string
   type: ResourceType
   location: string
-  meeting_room?: MeetingRoomDetails
-  workspace?: WorkspaceDetails
-  device?: DeviceDetails
+  details?: MeetingRoomDetails | WorkspaceDetails | DeviceDetails
 }
 
 export interface ChangeResourceStatusRequest {
@@ -58,16 +59,24 @@ export interface ChangeResourceStatusRequest {
 
 export interface CreateBookingRequest {
   resource_id: string
-  date: string
-  time_from: string
-  time_to: string
+  user_id: string
+  starts_at: string   // RFC 3339 / ISO 8601 UTC timestamp
+  ends_at: string     // RFC 3339 / ISO 8601 UTC timestamp
 }
 
 export interface BookingResponse {
-  id: string
-  resource_id: string
-  resource_name: string
-  date: string
-  time_from: string
-  time_to: string
+  // gRPC gateway fields
+  booking_id?: string
+  resource_id?: string
+  resource_name?: string   // convenience field, may be absent
+  resource_type?: string
+  resource_location?: string
+  starts_at?: string
+  ends_at?: string
+  status?: string
+  // legacy / fallback fields
+  id?: string
+  date?: string
+  time_from?: string
+  time_to?: string
 }

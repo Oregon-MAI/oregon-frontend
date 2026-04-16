@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './EquipmentPage.module.css'
+import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
-import { getResourcesList } from '../api/resourceApi'
+import { getResourcesList, createBooking } from '../api/resourceApi'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -49,6 +50,15 @@ function resourceToEquipment(r: Resource, myResourceIds: Set<string>): Equipment
     location: r.location,
   }
 }
+
+// TODO: remove stub when backend is ready
+const STUB_EQUIPMENT: Equipment[] = [
+  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '11 этаж · Крыло А' },
+  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '11 этаж · Крыло Б' },
+  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: '11 этаж · Крыло А' },
+  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: '11 этаж · Ресепшн' },
+  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: '11 этаж · Переговорная B2' },
+]
 
 const TYPE_LABELS: Record<Equipment['type'], string> = {
   laptop:   'Ноутбук',
@@ -258,8 +268,12 @@ export default function EquipmentPage() {
   useEffect(() => {
     const myResourceIds = new Set(bookings.map(b => b.resourceId))
     getResourcesList(['RESOURCE_TYPE_DEVICE'])
-      .then(resources => setEquipment(resources.map(r => resourceToEquipment(r, myResourceIds))))
-      .catch(() => setToast('Не удалось загрузить список техники'))
+      .then(resources => setEquipment(
+        resources
+          .filter(r => r.type === 'RESOURCE_TYPE_DEVICE')
+          .map(r => resourceToEquipment(r, myResourceIds))
+      ))
+      .catch(() => setEquipment(STUB_EQUIPMENT))
   }, [bookings])
 
   const filtered = equipment.filter(e => {
@@ -275,11 +289,16 @@ export default function EquipmentPage() {
     setConfirmItem(item)
   }
 
-  function handleConfirm() {
-    if (!confirmItem) return
+  async function handleConfirm() {
+    if (!confirmItem || !user?.id) return
     const item = confirmItem
     setConfirmItem(null)
-    setToast(`${item.name} забронирована на ${timeFrom}–${timeTo}`)
+    try {
+      await createBooking(item.id, user.id, date, timeFrom, timeTo)
+      setToast(`${item.name} забронирована на ${timeFrom}–${timeTo}`)
+    } catch {
+      setToast('Не удалось создать бронь')
+    }
     setTimeout(() => setToast(null), 3500)
   }
 
@@ -372,19 +391,9 @@ export default function EquipmentPage() {
               />
             </div>
             <div className={styles.timeRow}>
-              <input
-                type="time"
-                value={timeFrom}
-                onChange={e => setTimeFrom(e.target.value)}
-                className={styles.timeInput}
-              />
+              <TimeSelect value={timeFrom} onChange={setTimeFrom} className={styles.timeInput} />
               <span className={styles.timeSep}>—</span>
-              <input
-                type="time"
-                value={timeTo}
-                onChange={e => setTimeTo(e.target.value)}
-                className={styles.timeInput}
-              />
+              <TimeSelect value={timeTo} onChange={setTimeTo} className={styles.timeInput} />
             </div>
           </div>
 

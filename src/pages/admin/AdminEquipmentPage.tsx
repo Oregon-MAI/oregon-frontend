@@ -1,24 +1,9 @@
 import { useState, useEffect } from 'react'
 import type { Resource, ResourceStatus } from '../../types/resource'
-import {
-  getResourcesList,
-  createResource,
-  updateResource,
-  deleteResource,
-  changeResourceStatus,
-} from '../../api/resourceApi'
+import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus } from '../../api/resourceApi'
 import styles from './AdminWorkspacesPage.module.css'
 
 const PAGE_SIZE = 7
-
-const ZONES = ['A', 'B', 'D'] as const
-type Zone = typeof ZONES[number]
-
-const ZONE_NAMES: Record<Zone, string> = {
-  A: 'Разработка',
-  B: 'Аналитика',
-  D: 'Дизайн',
-}
 
 function statusLabel(s: ResourceStatus): { text: string; cls: string } {
   switch (s) {
@@ -28,22 +13,20 @@ function statusLabel(s: ResourceStatus): { text: string; cls: string } {
   }
 }
 
-interface WorkspaceForm {
-  zone: Zone
-  number: string
-  floor: string
-  has_monitor: boolean
+interface EquipmentForm {
+  name: string
+  location: string
+  device_type: string
+  model: string
+  serial_number: string
+  description: string
   unavailable: boolean
   unavailableReason: string
 }
 
-const EMPTY_FORM: WorkspaceForm = {
-  zone: 'A',
-  number: '',
-  floor: '',
-  has_monitor: false,
-  unavailable: false,
-  unavailableReason: '',
+const EMPTY_FORM: EquipmentForm = {
+  name: '', location: '', device_type: '', model: '', serial_number: '', description: '',
+  unavailable: false, unavailableReason: '',
 }
 
 function IconPlus() {
@@ -60,117 +43,88 @@ function IconChevronRight() {
   return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
 }
 
-function WorkspaceModal({ mode, initial, onSave, onClose }: {
+function EquipmentModal({ mode, initial, onSave, onClose }: {
   mode: 'add' | 'edit'
-  initial: WorkspaceForm
-  onSave: (form: WorkspaceForm) => Promise<void>
+  initial: EquipmentForm
+  onSave: (form: EquipmentForm) => Promise<void>
   onClose: () => void
 }) {
-  const [form, setForm] = useState<WorkspaceForm>(initial)
+  const [form, setForm] = useState<EquipmentForm>(initial)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function set<K extends keyof WorkspaceForm>(field: K, value: WorkspaceForm[K]) {
+  function set<K extends keyof EquipmentForm>(field: K, value: EquipmentForm[K]) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
   async function handleSave() {
-    if (!form.number.trim()) { setError('Введите номер места'); return }
-    if (!/^\d+$/.test(form.number.trim())) { setError('Номер места должен быть числом'); return }
-    if (!form.floor.trim()) { setError('Введите этаж'); return }
-    if (!/^\d+$/.test(form.floor.trim())) { setError('Этаж должен быть числом'); return }
+    if (!form.name.trim()) { setError('Введите название'); return }
+    if (form.name.trim().length < 2) { setError('Название слишком короткое'); return }
+    if (!form.location.trim()) { setError('Введите локацию'); return }
+    if (!form.device_type.trim()) { setError('Выберите тип устройства'); return }
+    if (form.serial_number.trim() && !/^[\w\-]+$/.test(form.serial_number.trim())) {
+      setError('Серийный номер может содержать только буквы, цифры и дефис'); return
+    }
     setSaving(true); setError(null)
     try { await onSave(form); onClose() }
     catch (e: unknown) { setError(e instanceof Error ? e.message : 'Ошибка сохранения') }
     finally { setSaving(false) }
   }
 
-  const resourceId = `${form.zone}-${form.number}`
-
   return (
     <>
       <div className={styles.overlay} onClick={onClose} />
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            {mode === 'add' ? 'Добавить рабочее место' : `Изменить место ${initial.zone}-${initial.number}`}
-          </h2>
+          <h2 className={styles.modalTitle}>{mode === 'add' ? 'Добавить технику' : `Изменить ${initial.name}`}</h2>
           <button type="button" className={styles.modalClose} onClick={onClose}>✕</button>
         </div>
-
         <div className={styles.modalBody}>
           <div className={styles.formSection}>
             <div className={styles.formSectionLabel}>ОСНОВНАЯ ИНФОРМАЦИЯ</div>
-
             <div className={styles.formRow}>
-              {/* Выбор зоны */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Зона *</label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {ZONES.map(z => (
-                    <button
-                      key={z}
-                      type="button"
-                      disabled={mode === 'edit'}
-                      onClick={() => set('zone', z)}
-                      style={{
-                        flex: 1,
-                        padding: '8px 0',
-                        borderRadius: 6,
-                        border: form.zone === z ? '2px solid #1A56DB' : '1px solid #E5E7EB',
-                        background: form.zone === z ? '#EFF6FF' : '#fff',
-                        color: form.zone === z ? '#1A56DB' : '#374151',
-                        fontWeight: form.zone === z ? 700 : 400,
-                        cursor: mode === 'edit' ? 'default' : 'pointer',
-                        fontSize: 14,
-                      }}
-                    >
-                      {z}
-                    </button>
-                  ))}
-                </div>
-                <span className={styles.formHelper}>{ZONE_NAMES[form.zone]}</span>
+                <label className={styles.formLabel}>Название *</label>
+                <input className={styles.formInput} placeholder='MacBook Pro 14"' value={form.name}
+                  onChange={e => set('name', e.target.value)} readOnly={mode === 'edit'} />
               </div>
-
-              {/* Номер места */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Номер места *</label>
-                <input
-                  className={styles.formInput}
-                  placeholder="49"
-                  value={form.number}
-                  onChange={e => set('number', e.target.value.replace(/\D/g, ''))}
-                  readOnly={mode === 'edit'}
-                />
-                {form.number && <span className={styles.formHelper}>ID: {resourceId}</span>}
+                <label className={styles.formLabel}>Тип устройства *</label>
+                <select className={styles.formInput} value={form.device_type} onChange={e => set('device_type', e.target.value)}>
+                  <option value="">Выберите тип</option>
+                  <option value="laptop">Ноутбук</option>
+                  <option value="monitor">Монитор</option>
+                  <option value="camera">Камера</option>
+                  <option value="projector">Проектор</option>
+                  <option value="tv">Телевизор</option>
+                </select>
               </div>
             </div>
-
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Этаж *</label>
-              <input
-                className={styles.formInput}
-                placeholder="11"
-                value={form.floor}
-                onChange={e => set('floor', e.target.value.replace(/\D/g, ''))}
-              />
+              <label className={styles.formLabel}>Локация *</label>
+              <input className={styles.formInput} placeholder="11 этаж · Крыло А" value={form.location}
+                onChange={e => set('location', e.target.value)} />
             </div>
           </div>
 
           <div className={styles.formSection}>
-            <div className={styles.formSectionLabel}>ОСНАЩЕНИЕ</div>
-            <div className={styles.toggleRow}>
-              <label className={styles.toggleLabel}>
-                <div
-                  className={`${styles.toggle} ${form.has_monitor ? styles.toggleOn : ''}`}
-                  role="switch" aria-checked={form.has_monitor} tabIndex={0}
-                  onClick={() => set('has_monitor', !form.has_monitor)}
-                  onKeyDown={e => e.key === 'Enter' && set('has_monitor', !form.has_monitor)}
-                >
-                  <div className={styles.toggleThumb} />
-                </div>
-                <span className={styles.toggleText}>Монитор</span>
-              </label>
+            <div className={styles.formSectionLabel}>ХАРАКТЕРИСТИКИ</div>
+            <div className={styles.formRow}>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Модель</label>
+                <input className={styles.formInput} placeholder="Apple M3 Pro" value={form.model}
+                  onChange={e => set('model', e.target.value)} />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.formLabel}>Серийный номер</label>
+                <input className={styles.formInput} placeholder="SN123456" value={form.serial_number}
+                  onChange={e => set('serial_number', e.target.value)} />
+              </div>
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>Описание</label>
+              <textarea className={styles.formTextarea} rows={2} value={form.description}
+                onChange={e => set('description', e.target.value)} />
             </div>
           </div>
 
@@ -178,37 +132,30 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
             <div className={styles.formSectionLabel}>ВРЕМЕННАЯ НЕДОСТУПНОСТЬ</div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>
-                <div
-                  className={`${styles.toggle} ${form.unavailable ? styles.toggleOn : ''}`}
+                <div className={`${styles.toggle} ${form.unavailable ? styles.toggleOn : ''}`}
                   role="switch" aria-checked={form.unavailable} tabIndex={0}
                   onClick={() => set('unavailable', !form.unavailable)}
-                  onKeyDown={e => e.key === 'Enter' && set('unavailable', !form.unavailable)}
-                >
+                  onKeyDown={e => e.key === 'Enter' && set('unavailable', !form.unavailable)}>
                   <div className={styles.toggleThumb} />
                 </div>
-                <span className={styles.toggleText}>Отметить как временно недоступное</span>
+                <span className={styles.toggleText}>Отметить как временно недоступную</span>
               </label>
             </div>
             {form.unavailable && (
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Причина</label>
-                <textarea
-                  className={styles.formTextarea}
-                  rows={2}
-                  value={form.unavailableReason}
-                  onChange={e => set('unavailableReason', e.target.value)}
-                />
+                <textarea className={styles.formTextarea} rows={2} value={form.unavailableReason}
+                  onChange={e => set('unavailableReason', e.target.value)} />
               </div>
             )}
           </div>
 
           {error && <div className={styles.formError}>{error}</div>}
         </div>
-
         <div className={styles.modalFooter}>
           <button type="button" className={styles.btnGhost} onClick={onClose}>Отмена</button>
           <button type="button" className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-            {saving ? 'Сохранение...' : '✓ Сохранить место'}
+            {saving ? 'Сохранение...' : '✓ Сохранить'}
           </button>
         </div>
       </div>
@@ -216,7 +163,7 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
   )
 }
 
-export default function AdminWorkspacesPage() {
+export default function AdminEquipmentPage() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -228,9 +175,9 @@ export default function AdminWorkspacesPage() {
 
   useEffect(() => {
     setLoading(true)
-    getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(list => setResources(list.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')))
-      .catch(() => setError('Не удалось загрузить рабочие места'))
+    getResourcesList(['RESOURCE_TYPE_DEVICE'])
+      .then(list => setResources(list.filter(r => r.type === 'RESOURCE_TYPE_DEVICE')))
+      .catch(() => setError('Не удалось загрузить технику'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -242,39 +189,39 @@ export default function AdminWorkspacesPage() {
   const totalPages = Math.max(1, Math.ceil(resources.length / PAGE_SIZE))
   const pageItems = resources.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  function resourceToForm(r: Resource): WorkspaceForm {
-    const [zone, number] = r.name.split('-')
+  function resourceToForm(r: Resource): EquipmentForm {
     return {
-      zone: (ZONES.includes(zone as Zone) ? zone : 'A') as Zone,
-      number: number ?? '',
-      floor: r.location ?? '',
-      has_monitor: r.workspace?.has_monitor ?? false,
+      name: r.name,
+      location: r.location,
+      device_type: r.device?.device_type ?? '',
+      model: r.device?.model ?? '',
+      serial_number: r.device?.serial_number ?? '',
+      description: r.device?.description ?? '',
       unavailable: r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY',
       unavailableReason: '',
     }
   }
 
-  async function handleAdd(form: WorkspaceForm) {
-    const name = `${form.zone}-${form.number}`
+  async function handleAdd(form: EquipmentForm) {
     const created = await createResource({
-      name,
-      type: 'RESOURCE_TYPE_WORKSPACE',
-      location: `${form.floor} этаж`,
-      details: { has_monitor: form.has_monitor },
+      name: form.name,
+      type: 'RESOURCE_TYPE_DEVICE',
+      location: form.location,
+      details: { device_type: form.device_type, model: form.model, serial_number: form.serial_number, description: form.description },
     })
     if (form.unavailable) {
       await changeResourceStatus({ resource_id: created.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })
       created.status = 'RESOURCE_STATUS_MAINTENANCE'
     }
     setResources(prev => [created, ...prev])
-    showToast(`Место ${name} добавлено`)
+    showToast(`${form.name} добавлена`)
   }
 
-  async function handleEdit(form: WorkspaceForm) {
+  async function handleEdit(form: EquipmentForm) {
     if (!editTarget) return
     const updated = await updateResource(
       editTarget.resource_id,
-      { name: editTarget.name, type: 'RESOURCE_TYPE_WORKSPACE', location: `${form.floor} этаж`, details: { has_monitor: form.has_monitor } },
+      { name: form.name, type: 'RESOURCE_TYPE_DEVICE', location: form.location, details: { device_type: form.device_type, model: form.model, serial_number: form.serial_number, description: form.description } },
     )
     if (form.unavailable && editTarget.status === 'RESOURCE_STATUS_AVAILABLE') {
       await changeResourceStatus({ resource_id: editTarget.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })
@@ -284,26 +231,30 @@ export default function AdminWorkspacesPage() {
       updated.status = 'RESOURCE_STATUS_AVAILABLE'
     }
     setResources(prev => prev.map(r => r.resource_id === updated.resource_id ? updated : r))
-    showToast(`Место ${editTarget.name} обновлено`)
+    showToast(`${form.name} обновлена`)
   }
 
   async function handleDelete(id: string) {
     await deleteResource(id)
     setResources(prev => prev.filter(r => r.resource_id !== id))
     setDeleteConfirm(null)
-    showToast('Место удалено')
+    showToast('Техника удалена')
+  }
+
+  const DEVICE_TYPE_LABELS: Record<string, string> = {
+    laptop: 'Ноутбук', monitor: 'Монитор', camera: 'Камера', projector: 'Проектор', tv: 'Телевизор',
   }
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <div className={styles.headerLeft}>
-          <h1 className={styles.pageTitle}>Рабочие места</h1>
-          <p className={styles.pageSubtitle}>{resources.length} мест · БЦ «Арена»</p>
+          <h1 className={styles.pageTitle}>Техника</h1>
+          <p className={styles.pageSubtitle}>{resources.length} единиц · БЦ «Арена»</p>
         </div>
         <div className={styles.headerRight}>
           <button type="button" className={styles.btnPrimary} onClick={() => { setEditTarget(null); setShowModal(true) }}>
-            <IconPlus /> Добавить место
+            <IconPlus /> Добавить технику
           </button>
         </div>
       </div>
@@ -316,28 +267,23 @@ export default function AdminWorkspacesPage() {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th className={styles.th}>ID</th>
-                    <th className={styles.th}>ЗОНА</th>
+                    <th className={styles.th}>НАЗВАНИЕ</th>
+                    <th className={styles.th}>ТИП</th>
+                    <th className={styles.th}>МОДЕЛЬ</th>
                     <th className={styles.th}>ЛОКАЦИЯ</th>
-                    <th className={styles.th}>МОНИТОР</th>
                     <th className={styles.th}>СТАТУС</th>
                     <th className={styles.th}>ДЕЙСТВИЯ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageItems.map(r => {
-                    const [zone] = r.name.split('-')
-                    const zoneName = ZONE_NAMES[zone as Zone] ?? 'Общая зона'
                     const { text, cls } = statusLabel(r.status)
                     return (
                       <tr key={r.resource_id} className={styles.tr}>
                         <td className={styles.td}><span className={styles.idLink}>{r.name}</span></td>
-                        <td className={styles.td}>
-                          <span className={styles.zoneName}>Зона {zone}</span>
-                          <span className={styles.zoneSub}>{zoneName}</span>
-                        </td>
+                        <td className={styles.td}>{DEVICE_TYPE_LABELS[r.device?.device_type ?? ''] ?? r.device?.device_type ?? '—'}</td>
+                        <td className={styles.td}><span className={styles.amenities}>{r.device?.model || '—'}</span></td>
                         <td className={styles.td}><span className={styles.location}>{r.location || '—'}</span></td>
-                        <td className={styles.td}>{r.workspace?.has_monitor ? '✓' : '—'}</td>
                         <td className={styles.td}>
                           <span className={`${styles.statusBadge} ${styles[`status_${cls}`]}`}>● {text}</span>
                         </td>
@@ -350,7 +296,7 @@ export default function AdminWorkspacesPage() {
                       </tr>
                     )
                   })}
-                  {pageItems.length === 0 && <tr><td colSpan={6} className={styles.emptyRow}>Рабочие места не найдены</td></tr>}
+                  {pageItems.length === 0 && <tr><td colSpan={6} className={styles.emptyRow}>Техника не найдена</td></tr>}
                 </tbody>
               </table>
 
@@ -369,7 +315,7 @@ export default function AdminWorkspacesPage() {
       </div>
 
       {showModal && (
-        <WorkspaceModal
+        <EquipmentModal
           mode={editTarget ? 'edit' : 'add'}
           initial={editTarget ? resourceToForm(editTarget) : EMPTY_FORM}
           onSave={editTarget ? handleEdit : handleAdd}
@@ -381,7 +327,7 @@ export default function AdminWorkspacesPage() {
         <>
           <div className={styles.overlay} onClick={() => setDeleteConfirm(null)} />
           <div className={styles.confirmModal}>
-            <p className={styles.confirmText}>Удалить это рабочее место?</p>
+            <p className={styles.confirmText}>Удалить технику?</p>
             <div className={styles.confirmActions}>
               <button type="button" className={styles.btnGhost} onClick={() => setDeleteConfirm(null)}>Отмена</button>
               <button type="button" className={styles.btnDanger} onClick={() => handleDelete(deleteConfirm)}>Удалить</button>

@@ -1,58 +1,14 @@
-import Layout from '../components/Layout'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../context/AuthContext'
 import OfficeMap from '../components/OfficeMap/OfficeMap'
 import type { Zone, Desk } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './MapPage.module.css'
-import { useState, useEffect } from 'react'
-import BookingPanel from '../components/BookingPanel/BookingPanel'
-import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
 import { getResourcesList } from '../api/resourceApi'
+import TimeSelect from '../components/TimeSelect'
 
-// TODO: remove stub when backend is ready
-const STUB_RESOURCES: Resource[] = [
-  { resource_id: 'stub-resource-a1', name: 'A-1', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a2', name: 'A-2', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a3', name: 'A-3', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a4', name: 'A-4', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a5', name: 'A-5', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a6', name: 'A-6', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a7', name: 'A-7', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a8', name: 'A-8', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a9', name: 'A-9', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a10', name: 'A-10', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a11', name: 'A-11', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a12', name: 'A-12', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a13', name: 'A-13', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: true }, created_at:'', updated_at:'' },
-  { resource_id: 'stub-resource-a14', name: 'A-14', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-a15', name: 'A-15', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло А', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-
-
-  { resource_id: 'stub-resource-b1', name: 'B-1', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-b2', name: 'B-2', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-b3', name: 'B-3', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-b4', name: 'B-4', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Б', status: 'RESOURCE_STATUS_MAINTENANCE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  
-  
-  { resource_id: 'stub-resource-d1', name: 'D-1', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d2', name: 'D-2', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d3', name: 'D-3', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d4', name: 'D-4', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d5', name: 'D-5', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d6', name: 'D-6', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d7', name: 'D-7', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d8', name: 'D-8', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d9', name: 'D-9', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d10', name: 'D-10', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d11', name: 'D-11', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d12', name: 'D-12', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d13', name: 'D-13', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d14', name: 'D-14', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d15', name: 'D-15', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: false }, created_at: '', updated_at: '' }, 
-  { resource_id: 'stub-resource-d16', name: 'D-16', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d17', name: 'D-17', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_AVAILABLE', workspace: { has_monitor: true }, created_at: '', updated_at: '' },
-  { resource_id: 'stub-resource-d18', name: 'D-18', type: 'RESOURCE_TYPE_WORKSPACE', location: '11 этаж · Крыло Д', status: 'RESOURCE_STATUS_OCCUPIED', workspace: { has_monitor: false }, created_at: '', updated_at: '' },
-]
+// ─── Converter ────────────────────────────────────────────────────────────────
 
 function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zone[] {
   const zoneMap = new Map<'A' | 'B' | 'D', Desk[]>()
@@ -89,82 +45,339 @@ function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zo
   }))
 }
 
-export default function MapPage() {
-  const [zones, setZones] = useState<Zone[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error] = useState<string | null>(null)
-  const [selectedDesk, setSelectedDesk] = useState<Desk | null>(null)
-  const { bookings } = useAuth()
-  const navigate = useNavigate()
+// ─── Icons ────────────────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    const myResourceIds = new Set(bookings.map(b => b.resourceId))
-    getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(resources => setZones(resourcesToZones(STUB_RESOURCES, myResourceIds)))
-      .catch(() => setZones(resourcesToZones(STUB_RESOURCES, myResourceIds)))
-      .finally(() => setLoading(false))
-  }, [bookings])
-  function handleDeskClick(desk: Desk) {
-    setSelectedDesk(desk)
-  }
-  function IconPin() {
+function IconMap() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
       <circle cx="12" cy="10" r="3"/>
     </svg>
   )
 }
+
+function IconMonitor() {
   return (
-  <Layout>
-    {/* Заголовок */}
-    <div className={styles.pageHeader}>
-      <div className={styles.pageHeaderLeft}>
-        <h1 className={styles.pageTitle}>Карта офиса</h1>
-        <div className={styles.pageLocation}>
-          <IconPin />
-          БЦ «Арена», 11 этаж
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="3" width="20" height="14" rx="2"/>
+      <path d="M8 21h8M12 17v4"/>
+    </svg>
+  )
+}
+
+function IconFile() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+    </svg>
+  )
+}
+
+// ─── Sidebar ──────────────────────────────────────────────────────────────────
+
+const ALL_AMENITIES = ['Монитор']
+
+function MapSidebar({
+  selectedAmenities, toggleAmenity,
+  date, setDate,
+  timeFrom, setTimeFrom,
+  timeTo, setTimeTo,
+  bookings,
+}: {
+  selectedAmenities: string[]
+  toggleAmenity: (a: string) => void
+  date: string
+  setDate: (v: string) => void
+  timeFrom: string
+  setTimeFrom: (v: string) => void
+  timeTo: string
+  setTimeTo: (v: string) => void
+  bookings: { id: string; resourceName: string; timeFrom: string; timeTo: string; date: string }[]
+}) {
+  const navigate = useNavigate()
+  const [floorsOpen, setFloorsOpen] = useState(false)
+  const [currentFloor, setCurrentFloor] = useState(11)
+  const today = new Date().toISOString().slice(0, 10)
+  const todayBookings = bookings.filter(b => b.date === today)
+
+  return (
+    <aside className={styles.sidebar}>
+      <div className={styles.groupLabel}>Ресурсы</div>
+      <button className={`${styles.sideBtn} ${styles.sideBtnCurrent}`}>
+        <IconMap /> Карта офиса
+      </button>
+      <button className={styles.sideBtn} onClick={() => navigate('/equipment')}>
+        <IconMonitor /> Техника
+      </button>
+      <button className={styles.sideBtn} onClick={() => navigate('/bookings')}>
+        <IconFile /> Мои брони
+      </button>
+
+      <div className={styles.groupLabel}>Этажи</div>
+      <button
+        className={`${styles.sideBtn} ${styles.floorBtn}`}
+        onClick={() => setFloorsOpen(!floorsOpen)}
+      >
+        {currentFloor} этаж ▾
+      </button>
+      {floorsOpen && (
+        <div>
+          {[11, 12, 13, 14].map(floor => (
+            <button
+              key={floor}
+              className={`${styles.sideBtn} ${currentFloor === floor ? styles.sideBtnActive : ''}`}
+              onClick={() => { setCurrentFloor(floor); setFloorsOpen(false) }}
+            >
+              {floor} этаж
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className={styles.groupLabel}>Фильтр</div>
+
+      <div className={styles.filterBlock}>
+        <div className={styles.filterLabel}>Дата и время</div>
+        <div className={styles.filterInputWrap}>
+          <input
+            type="date"
+            value={date}
+            onChange={e => setDate(e.target.value)}
+            className={styles.dateInput}
+          />
+        </div>
+        <div className={styles.timeRow}>
+          <TimeSelect value={timeFrom} onChange={setTimeFrom} className={styles.timeInput} />
+          <span className={styles.timeSep}>—</span>
+          <TimeSelect value={timeTo} onChange={setTimeTo} className={styles.timeInput} />
         </div>
       </div>
-      <div className={styles.pageHint}>
-        Нажмите на стол или переговорную чтобы забронировать
-      </div>
-    </div>
 
-    {/* Вкладки */}
-    <div className={styles.tabs}>
-      <button className={`${styles.tab} ${styles.tabActive}`}>Рабочие места</button>
-      <button className={styles.tab} onClick={() => navigate('/rooms')}>
-  Переговорные
-</button>
-    </div>
+      <div className={styles.filterBlock}>
+        <div className={styles.filterLabel}>Оснащение</div>
+        <div className={styles.amenityList}>
+          {ALL_AMENITIES.map(a => (
+            <button
+              key={a}
+              className={`${styles.amenityBtn} ${selectedAmenities.includes(a) ? styles.amenityBtnActive : ''}`}
+              onClick={() => toggleAmenity(a)}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+      </div>
 
-    {/* Легенда */}
-    <div className={styles.legend}>
-      <div className={styles.legendItem}>
-        <div className={`${styles.legendDot} ${styles.dotFree}`} />
-        Свободно
-      </div>
-      <div className={styles.legendItem}>
-        <div className={`${styles.legendDot} ${styles.dotBusy}`} />
-        Занято
-      </div>
-      <div className={styles.legendItem}>
-        <div className={`${styles.legendDot} ${styles.dotMine}`} />
-        Моё место
-      </div>
-      
-    </div>
+      {todayBookings.length > 0 && (
+        <div className={styles.todayWidget}>
+          <div className={styles.todayLabel}>Сегодня</div>
+          {todayBookings.map((b, i) => (
+            <div key={b.id} className={styles.todayItem}>
+              <div className={styles.todayStripe} style={{ background: i === 0 ? '#059669' : '#1A56DB' }} />
+              <div>
+                <div className={styles.todayName}>{b.resourceName}</div>
+                <div className={styles.todayTime}>{b.timeFrom}–{b.timeTo}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </aside>
+  )
+}
 
-    {error && <div className={styles.error}>{error}</div>}
-    {loading
-      ? <div className={styles.loading}>Загрузка...</div>
-      : <OfficeMap zones={zones} onDeskClick={handleDeskClick} />
+// ─── Confirm modal ────────────────────────────────────────────────────────────
+
+function ConfirmModal({
+  desk, timeFrom, timeTo, date, onConfirm, onCancel,
+}: {
+  desk: Desk; timeFrom: string; timeTo: string; date: string
+  onConfirm: () => void; onCancel: () => void
+}) {
+  return (
+    <>
+      <div className={styles.overlay} onClick={onCancel} />
+      <div className={styles.modal}>
+        <div className={styles.modalTitle}>Подтвердите бронирование</div>
+        <div className={styles.modalRoom}>Место {desk.id}</div>
+        <div className={styles.modalDetails}>
+          {[
+            ['Зона',      `Зона ${desk.zone}`],
+            ['Оснащение', desk.amenities.length ? desk.amenities.join(', ') : 'Нет'],
+            ['Дата',      date],
+          ].map(([label, value]) => (
+            <div key={label} className={styles.modalRow}>
+              <span className={styles.modalLabel}>{label}</span>
+              <span>{value}</span>
+            </div>
+          ))}
+          <div className={styles.modalRow}>
+            <span className={styles.modalLabel}>Время</span>
+            <span className={styles.modalTime}>{timeFrom} — {timeTo}</span>
+          </div>
+        </div>
+        <div className={styles.modalFooter}>
+          <button className={styles.btnConfirm} onClick={onConfirm}>Подтвердить</button>
+          <button className={styles.btnCancelModal} onClick={onCancel}>Отмена</button>
+        </div>
+      </div>
+    </>
+  )
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+export default function MapPage() {
+  const navigate = useNavigate()
+  const { bookings, user } = useAuth()
+  const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
+
+  const [zones,             setZones]             = useState<Zone[]>([])
+  const [loading,           setLoading]           = useState(true)
+  const [date,              setDate]              = useState(new Date().toISOString().slice(0, 10))
+  const [timeFrom,          setTimeFrom]          = useState('09:00')
+  const [timeTo,            setTimeTo]            = useState('18:00')
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
+  const [confirmDesk,       setConfirmDesk]       = useState<Desk | null>(null)
+  const [toast,             setToast]             = useState<string | null>(null)
+
+  useEffect(() => {
+    const myResourceIds = new Set(bookings.map(b => b.resourceId))
+    getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
+      .then(resources => setZones(
+        resourcesToZones(
+          resources.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE'),
+          myResourceIds,
+        )
+      ))
+      .finally(() => setLoading(false))
+  }, [bookings])
+
+  function toggleAmenity(a: string) {
+    setSelectedAmenities(prev =>
+      prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]
+    )
+  }
+
+  // Фильтрация зон по оснащению
+  const filteredZones: Zone[] = selectedAmenities.length === 0
+    ? zones
+    : zones.map(zone => ({
+        ...zone,
+        desks: zone.desks.map(d =>
+          selectedAmenities.every(a => d.amenities.includes(a))
+            ? d
+            : { ...d, status: 'busy' as const }
+        ),
+      }))
+
+  function handleDeskClick(desk: Desk) {
+    if (desk.status === 'busy') return
+    if (desk.status === 'mine') {
+      setToast(`Бронь места ${desk.id} отменена`)
+      setTimeout(() => setToast(null), 3000)
+      return
     }
-      <BookingPanel
-        desk={selectedDesk}
-        onClose={() => setSelectedDesk(null)}
-      />
-    </Layout>
-)
+    setConfirmDesk(desk)
+  }
+
+  function handleConfirm() {
+    if (!confirmDesk) return
+    const desk = confirmDesk
+    setConfirmDesk(null)
+    setToast(`Место ${desk.id} забронировано на ${timeFrom}–${timeTo}`)
+    setTimeout(() => setToast(null), 3500)
+  }
+
+  return (
+    <div className={styles.page}>
+      {/* Топбар */}
+      <header className={styles.topbar}>
+        <div className={styles.logo}>
+          <div className={styles.logoSq}>T1</div>
+          <span className={styles.logoText}>Workspace</span>
+        </div>
+        <div className={styles.topbarRight}>
+          {displayName && <span>{displayName}</span>}
+          <button className={styles.logoutBtn} onClick={() => {
+            localStorage.removeItem('access_token')
+            navigate('/login')
+          }}>Выйти</button>
+        </div>
+      </header>
+
+      <div className={styles.body}>
+        {/* Сайдбар */}
+        <MapSidebar
+          selectedAmenities={selectedAmenities}
+          toggleAmenity={toggleAmenity}
+          date={date}
+          setDate={setDate}
+          timeFrom={timeFrom}
+          setTimeFrom={setTimeFrom}
+          timeTo={timeTo}
+          setTimeTo={setTimeTo}
+          bookings={bookings}
+        />
+
+        {/* Контент */}
+        <main className={styles.content}>
+          <div className={styles.pageHeader}>
+            <div className={styles.pageHeaderLeft}>
+              <h1 className={styles.pageTitle}>Карта офиса</h1>
+              <div className={styles.pageLocation}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                БЦ «Арена», 11 этаж
+              </div>
+            </div>
+            <div className={styles.pageHint}>
+              Нажмите на стол или переговорную чтобы забронировать
+            </div>
+          </div>
+
+          <div className={styles.tabs}>
+            <button className={`${styles.tab} ${styles.tabActive}`}>Рабочие места</button>
+            <button className={styles.tab} onClick={() => navigate('/rooms')}>Переговорные</button>
+          </div>
+
+          <div className={styles.legend}>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendDot} ${styles.dotFree}`} />
+              Свободно
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendDot} ${styles.dotBusy}`} />
+              Занято
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendDot} ${styles.dotMine}`} />
+              Моё место
+            </div>
+          </div>
+
+          {loading
+            ? <div className={styles.loading}>Загрузка...</div>
+            : <OfficeMap zones={filteredZones} onDeskClick={handleDeskClick} />
+          }
+        </main>
+      </div>
+
+      {confirmDesk && (
+        <ConfirmModal
+          desk={confirmDesk}
+          timeFrom={timeFrom}
+          timeTo={timeTo}
+          date={date}
+          onConfirm={handleConfirm}
+          onCancel={() => setConfirmDesk(null)}
+        />
+      )}
+
+      {toast && <div className={styles.toast}>{toast}</div>}
+    </div>
+  )
 }

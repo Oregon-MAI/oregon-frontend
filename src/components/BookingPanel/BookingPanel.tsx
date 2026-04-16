@@ -2,6 +2,7 @@ import type { Desk } from '../../types/map'
 import styles from './BookingPanel.module.css'
 import { useState } from 'react'
 import { createBooking } from '../../api/resourceApi'
+import { useAuth } from '../../context/AuthContext'
 
 // Все слоты по 15 минут с 09:00 до 15:30
 const ALL_SLOTS = [
@@ -20,6 +21,7 @@ interface Props {
 }
 
 export default function BookingPanel({ desk, onClose, onBooked }: Props) {
+  const { user } = useAuth()
   const [startSlot, setStartSlot] = useState<string | null>(null)
   const [endSlot, setEndSlot] = useState<string | null>(null)
   const [booking, setBooking] = useState<'idle' | 'loading' | 'error'>('idle')
@@ -133,15 +135,16 @@ export default function BookingPanel({ desk, onClose, onBooked }: Props) {
             className={styles.btnBook}
             disabled={!startSlot || !endSlot || booking === 'loading'}
             onClick={async () => {
-              if (!startSlot || !endSlot || !desk?.resourceId) return
+              if (!startSlot || !endSlot || !desk?.resourceId || !user?.id) return
               setBooking('loading')
               try {
-                await createBooking({
-                  resource_id: desk.resourceId,
-                  date: new Date().toISOString().slice(0, 10),
-                  time_from: startSlot,
-                  time_to: endSlot,
-                })
+                await createBooking(
+                  desk.resourceId,
+                  user.id,
+                  new Date().toISOString().slice(0, 10),
+                  startSlot,
+                  endSlot,
+                )
                 setBooking('idle')
                 onBooked?.()
                 handleClose()

@@ -76,3 +76,9 @@
   flex-wrap: wrap;
   gap: 16px;
 }
+
+.blockB {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}

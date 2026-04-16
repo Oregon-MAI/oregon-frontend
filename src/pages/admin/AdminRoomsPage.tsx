@@ -1,49 +1,31 @@
 import { useState, useEffect } from 'react'
 import type { Resource, ResourceStatus } from '../../types/resource'
-import {
-  getResourcesList,
-  createResource,
-  updateResource,
-  deleteResource,
-  changeResourceStatus,
-} from '../../api/resourceApi'
+import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus } from '../../api/resourceApi'
 import styles from './AdminWorkspacesPage.module.css'
 
 const PAGE_SIZE = 7
 
-const ZONES = ['A', 'B', 'D'] as const
-type Zone = typeof ZONES[number]
-
-const ZONE_NAMES: Record<Zone, string> = {
-  A: 'Разработка',
-  B: 'Аналитика',
-  D: 'Дизайн',
-}
-
 function statusLabel(s: ResourceStatus): { text: string; cls: string } {
   switch (s) {
-    case 'RESOURCE_STATUS_AVAILABLE':  return { text: 'Доступно',   cls: 'available' }
-    case 'RESOURCE_STATUS_OCCUPIED':   return { text: 'Занято',     cls: 'occupied' }
-    default:                           return { text: 'Недоступно', cls: 'maintenance' }
+    case 'RESOURCE_STATUS_AVAILABLE':  return { text: 'Доступно',    cls: 'available' }
+    case 'RESOURCE_STATUS_OCCUPIED':   return { text: 'Занято',      cls: 'occupied' }
+    default:                           return { text: 'Недоступно',  cls: 'maintenance' }
   }
 }
 
-interface WorkspaceForm {
-  zone: Zone
-  number: string
-  floor: string
-  has_monitor: boolean
+interface RoomForm {
+  name: string
+  location: string
+  capacity: string
+  has_projector: boolean
+  has_whiteboard: boolean
   unavailable: boolean
   unavailableReason: string
 }
 
-const EMPTY_FORM: WorkspaceForm = {
-  zone: 'A',
-  number: '',
-  floor: '',
-  has_monitor: false,
-  unavailable: false,
-  unavailableReason: '',
+const EMPTY_FORM: RoomForm = {
+  name: '', location: '', capacity: '', has_projector: false, has_whiteboard: false,
+  unavailable: false, unavailableReason: '',
 }
 
 function IconPlus() {
@@ -60,100 +42,59 @@ function IconChevronRight() {
   return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
 }
 
-function WorkspaceModal({ mode, initial, onSave, onClose }: {
+function RoomModal({ mode, initial, onSave, onClose }: {
   mode: 'add' | 'edit'
-  initial: WorkspaceForm
-  onSave: (form: WorkspaceForm) => Promise<void>
+  initial: RoomForm
+  onSave: (form: RoomForm) => Promise<void>
   onClose: () => void
 }) {
-  const [form, setForm] = useState<WorkspaceForm>(initial)
+  const [form, setForm] = useState<RoomForm>(initial)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  function set<K extends keyof WorkspaceForm>(field: K, value: WorkspaceForm[K]) {
+  function set<K extends keyof RoomForm>(field: K, value: RoomForm[K]) {
     setForm(prev => ({ ...prev, [field]: value }))
   }
 
   async function handleSave() {
-    if (!form.number.trim()) { setError('Введите номер места'); return }
-    if (!/^\d+$/.test(form.number.trim())) { setError('Номер места должен быть числом'); return }
-    if (!form.floor.trim()) { setError('Введите этаж'); return }
-    if (!/^\d+$/.test(form.floor.trim())) { setError('Этаж должен быть числом'); return }
+    if (!form.name.trim()) { setError('Введите название'); return }
+    if (!form.location.trim()) { setError('Введите локацию'); return }
+    if (!form.capacity.trim()) { setError('Введите вместимость'); return }
+    if (!/^\d+$/.test(form.capacity.trim())) { setError('Вместимость должна быть числом'); return }
+    if (Number(form.capacity) < 1) { setError('Вместимость должна быть не менее 1'); return }
     setSaving(true); setError(null)
     try { await onSave(form); onClose() }
     catch (e: unknown) { setError(e instanceof Error ? e.message : 'Ошибка сохранения') }
     finally { setSaving(false) }
   }
 
-  const resourceId = `${form.zone}-${form.number}`
-
   return (
     <>
       <div className={styles.overlay} onClick={onClose} />
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>
-            {mode === 'add' ? 'Добавить рабочее место' : `Изменить место ${initial.zone}-${initial.number}`}
-          </h2>
+          <h2 className={styles.modalTitle}>{mode === 'add' ? 'Добавить переговорную' : `Изменить ${initial.name}`}</h2>
           <button type="button" className={styles.modalClose} onClick={onClose}>✕</button>
         </div>
-
         <div className={styles.modalBody}>
           <div className={styles.formSection}>
             <div className={styles.formSectionLabel}>ОСНОВНАЯ ИНФОРМАЦИЯ</div>
-
             <div className={styles.formRow}>
-              {/* Выбор зоны */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Зона *</label>
-                <div style={{ display: 'flex', gap: 8 }}>
-                  {ZONES.map(z => (
-                    <button
-                      key={z}
-                      type="button"
-                      disabled={mode === 'edit'}
-                      onClick={() => set('zone', z)}
-                      style={{
-                        flex: 1,
-                        padding: '8px 0',
-                        borderRadius: 6,
-                        border: form.zone === z ? '2px solid #1A56DB' : '1px solid #E5E7EB',
-                        background: form.zone === z ? '#EFF6FF' : '#fff',
-                        color: form.zone === z ? '#1A56DB' : '#374151',
-                        fontWeight: form.zone === z ? 700 : 400,
-                        cursor: mode === 'edit' ? 'default' : 'pointer',
-                        fontSize: 14,
-                      }}
-                    >
-                      {z}
-                    </button>
-                  ))}
-                </div>
-                <span className={styles.formHelper}>{ZONE_NAMES[form.zone]}</span>
+                <label className={styles.formLabel}>Название *</label>
+                <input className={styles.formInput} placeholder="Переговорная A1" value={form.name}
+                  onChange={e => set('name', e.target.value)} readOnly={mode === 'edit'} />
               </div>
-
-              {/* Номер места */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Номер места *</label>
-                <input
-                  className={styles.formInput}
-                  placeholder="49"
-                  value={form.number}
-                  onChange={e => set('number', e.target.value.replace(/\D/g, ''))}
-                  readOnly={mode === 'edit'}
-                />
-                {form.number && <span className={styles.formHelper}>ID: {resourceId}</span>}
+                <label className={styles.formLabel}>Вместимость *</label>
+                <input className={styles.formInput} placeholder="8" value={form.capacity}
+                  onChange={e => set('capacity', e.target.value.replace(/\D/g, ''))} />
               </div>
             </div>
-
             <div className={styles.formGroup}>
-              <label className={styles.formLabel}>Этаж *</label>
-              <input
-                className={styles.formInput}
-                placeholder="11"
-                value={form.floor}
-                onChange={e => set('floor', e.target.value.replace(/\D/g, ''))}
-              />
+              <label className={styles.formLabel}>Локация *</label>
+              <input className={styles.formInput} placeholder="11 этаж · Крыло А" value={form.location}
+                onChange={e => set('location', e.target.value)} />
             </div>
           </div>
 
@@ -161,15 +102,24 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
             <div className={styles.formSectionLabel}>ОСНАЩЕНИЕ</div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>
-                <div
-                  className={`${styles.toggle} ${form.has_monitor ? styles.toggleOn : ''}`}
-                  role="switch" aria-checked={form.has_monitor} tabIndex={0}
-                  onClick={() => set('has_monitor', !form.has_monitor)}
-                  onKeyDown={e => e.key === 'Enter' && set('has_monitor', !form.has_monitor)}
-                >
+                <div className={`${styles.toggle} ${form.has_projector ? styles.toggleOn : ''}`}
+                  role="switch" aria-checked={form.has_projector} tabIndex={0}
+                  onClick={() => set('has_projector', !form.has_projector)}
+                  onKeyDown={e => e.key === 'Enter' && set('has_projector', !form.has_projector)}>
                   <div className={styles.toggleThumb} />
                 </div>
-                <span className={styles.toggleText}>Монитор</span>
+                <span className={styles.toggleText}>Проектор</span>
+              </label>
+            </div>
+            <div className={styles.toggleRow}>
+              <label className={styles.toggleLabel}>
+                <div className={`${styles.toggle} ${form.has_whiteboard ? styles.toggleOn : ''}`}
+                  role="switch" aria-checked={form.has_whiteboard} tabIndex={0}
+                  onClick={() => set('has_whiteboard', !form.has_whiteboard)}
+                  onKeyDown={e => e.key === 'Enter' && set('has_whiteboard', !form.has_whiteboard)}>
+                  <div className={styles.toggleThumb} />
+                </div>
+                <span className={styles.toggleText}>Маркерная доска</span>
               </label>
             </div>
           </div>
@@ -178,37 +128,30 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
             <div className={styles.formSectionLabel}>ВРЕМЕННАЯ НЕДОСТУПНОСТЬ</div>
             <div className={styles.toggleRow}>
               <label className={styles.toggleLabel}>
-                <div
-                  className={`${styles.toggle} ${form.unavailable ? styles.toggleOn : ''}`}
+                <div className={`${styles.toggle} ${form.unavailable ? styles.toggleOn : ''}`}
                   role="switch" aria-checked={form.unavailable} tabIndex={0}
                   onClick={() => set('unavailable', !form.unavailable)}
-                  onKeyDown={e => e.key === 'Enter' && set('unavailable', !form.unavailable)}
-                >
+                  onKeyDown={e => e.key === 'Enter' && set('unavailable', !form.unavailable)}>
                   <div className={styles.toggleThumb} />
                 </div>
-                <span className={styles.toggleText}>Отметить как временно недоступное</span>
+                <span className={styles.toggleText}>Отметить как временно недоступную</span>
               </label>
             </div>
             {form.unavailable && (
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>Причина</label>
-                <textarea
-                  className={styles.formTextarea}
-                  rows={2}
-                  value={form.unavailableReason}
-                  onChange={e => set('unavailableReason', e.target.value)}
-                />
+                <textarea className={styles.formTextarea} rows={2} value={form.unavailableReason}
+                  onChange={e => set('unavailableReason', e.target.value)} />
               </div>
             )}
           </div>
 
           {error && <div className={styles.formError}>{error}</div>}
         </div>
-
         <div className={styles.modalFooter}>
           <button type="button" className={styles.btnGhost} onClick={onClose}>Отмена</button>
           <button type="button" className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-            {saving ? 'Сохранение...' : '✓ Сохранить место'}
+            {saving ? 'Сохранение...' : '✓ Сохранить'}
           </button>
         </div>
       </div>
@@ -216,7 +159,7 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
   )
 }
 
-export default function AdminWorkspacesPage() {
+export default function AdminRoomsPage() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -228,9 +171,9 @@ export default function AdminWorkspacesPage() {
 
   useEffect(() => {
     setLoading(true)
-    getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(list => setResources(list.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')))
-      .catch(() => setError('Не удалось загрузить рабочие места'))
+    getResourcesList(['RESOURCE_TYPE_MEETING_ROOM'])
+      .then(list => setResources(list.filter(r => r.type === 'RESOURCE_TYPE_MEETING_ROOM')))
+      .catch(() => setError('Не удалось загрузить переговорные'))
       .finally(() => setLoading(false))
   }, [])
 
@@ -242,39 +185,38 @@ export default function AdminWorkspacesPage() {
   const totalPages = Math.max(1, Math.ceil(resources.length / PAGE_SIZE))
   const pageItems = resources.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
-  function resourceToForm(r: Resource): WorkspaceForm {
-    const [zone, number] = r.name.split('-')
+  function resourceToForm(r: Resource): RoomForm {
     return {
-      zone: (ZONES.includes(zone as Zone) ? zone : 'A') as Zone,
-      number: number ?? '',
-      floor: r.location ?? '',
-      has_monitor: r.workspace?.has_monitor ?? false,
+      name: r.name,
+      location: r.location,
+      capacity: String(r.meeting_room?.capacity ?? ''),
+      has_projector: r.meeting_room?.has_projector ?? false,
+      has_whiteboard: r.meeting_room?.has_whiteboard ?? false,
       unavailable: r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY',
       unavailableReason: '',
     }
   }
 
-  async function handleAdd(form: WorkspaceForm) {
-    const name = `${form.zone}-${form.number}`
+  async function handleAdd(form: RoomForm) {
     const created = await createResource({
-      name,
-      type: 'RESOURCE_TYPE_WORKSPACE',
-      location: `${form.floor} этаж`,
-      details: { has_monitor: form.has_monitor },
+      name: form.name,
+      type: 'RESOURCE_TYPE_MEETING_ROOM',
+      location: form.location,
+      details: { capacity: Number(form.capacity), has_projector: form.has_projector, has_whiteboard: form.has_whiteboard },
     })
     if (form.unavailable) {
       await changeResourceStatus({ resource_id: created.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })
       created.status = 'RESOURCE_STATUS_MAINTENANCE'
     }
     setResources(prev => [created, ...prev])
-    showToast(`Место ${name} добавлено`)
+    showToast(`${form.name} добавлена`)
   }
 
-  async function handleEdit(form: WorkspaceForm) {
+  async function handleEdit(form: RoomForm) {
     if (!editTarget) return
     const updated = await updateResource(
       editTarget.resource_id,
-      { name: editTarget.name, type: 'RESOURCE_TYPE_WORKSPACE', location: `${form.floor} этаж`, details: { has_monitor: form.has_monitor } },
+      { name: form.name, type: 'RESOURCE_TYPE_MEETING_ROOM', location: form.location, details: { capacity: Number(form.capacity), has_projector: form.has_projector, has_whiteboard: form.has_whiteboard } },
     )
     if (form.unavailable && editTarget.status === 'RESOURCE_STATUS_AVAILABLE') {
       await changeResourceStatus({ resource_id: editTarget.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })
@@ -284,26 +226,26 @@ export default function AdminWorkspacesPage() {
       updated.status = 'RESOURCE_STATUS_AVAILABLE'
     }
     setResources(prev => prev.map(r => r.resource_id === updated.resource_id ? updated : r))
-    showToast(`Место ${editTarget.name} обновлено`)
+    showToast(`${form.name} обновлена`)
   }
 
   async function handleDelete(id: string) {
     await deleteResource(id)
     setResources(prev => prev.filter(r => r.resource_id !== id))
     setDeleteConfirm(null)
-    showToast('Место удалено')
+    showToast('Переговорная удалена')
   }
 
   return (
     <div className={styles.page}>
       <div className={styles.pageHeader}>
         <div className={styles.headerLeft}>
-          <h1 className={styles.pageTitle}>Рабочие места</h1>
-          <p className={styles.pageSubtitle}>{resources.length} мест · БЦ «Арена»</p>
+          <h1 className={styles.pageTitle}>Переговорные</h1>
+          <p className={styles.pageSubtitle}>{resources.length} ресурсов · БЦ «Арена»</p>
         </div>
         <div className={styles.headerRight}>
           <button type="button" className={styles.btnPrimary} onClick={() => { setEditTarget(null); setShowModal(true) }}>
-            <IconPlus /> Добавить место
+            <IconPlus /> Добавить переговорную
           </button>
         </div>
       </div>
@@ -316,28 +258,24 @@ export default function AdminWorkspacesPage() {
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th className={styles.th}>ID</th>
-                    <th className={styles.th}>ЗОНА</th>
+                    <th className={styles.th}>НАЗВАНИЕ</th>
                     <th className={styles.th}>ЛОКАЦИЯ</th>
-                    <th className={styles.th}>МОНИТОР</th>
+                    <th className={styles.th}>ВМЕСТИМОСТЬ</th>
+                    <th className={styles.th}>ОСНАЩЕНИЕ</th>
                     <th className={styles.th}>СТАТУС</th>
                     <th className={styles.th}>ДЕЙСТВИЯ</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageItems.map(r => {
-                    const [zone] = r.name.split('-')
-                    const zoneName = ZONE_NAMES[zone as Zone] ?? 'Общая зона'
                     const { text, cls } = statusLabel(r.status)
+                    const amenities = [r.meeting_room?.has_projector && 'Проектор', r.meeting_room?.has_whiteboard && 'Маркерная'].filter(Boolean).join(', ')
                     return (
                       <tr key={r.resource_id} className={styles.tr}>
                         <td className={styles.td}><span className={styles.idLink}>{r.name}</span></td>
-                        <td className={styles.td}>
-                          <span className={styles.zoneName}>Зона {zone}</span>
-                          <span className={styles.zoneSub}>{zoneName}</span>
-                        </td>
                         <td className={styles.td}><span className={styles.location}>{r.location || '—'}</span></td>
-                        <td className={styles.td}>{r.workspace?.has_monitor ? '✓' : '—'}</td>
+                        <td className={styles.td}>{r.meeting_room?.capacity ? `до ${r.meeting_room.capacity} чел.` : '—'}</td>
+                        <td className={styles.td}><span className={styles.amenities}>{amenities || '—'}</span></td>
                         <td className={styles.td}>
                           <span className={`${styles.statusBadge} ${styles[`status_${cls}`]}`}>● {text}</span>
                         </td>
@@ -350,7 +288,7 @@ export default function AdminWorkspacesPage() {
                       </tr>
                     )
                   })}
-                  {pageItems.length === 0 && <tr><td colSpan={6} className={styles.emptyRow}>Рабочие места не найдены</td></tr>}
+                  {pageItems.length === 0 && <tr><td colSpan={6} className={styles.emptyRow}>Переговорные не найдены</td></tr>}
                 </tbody>
               </table>
 
@@ -369,7 +307,7 @@ export default function AdminWorkspacesPage() {
       </div>
 
       {showModal && (
-        <WorkspaceModal
+        <RoomModal
           mode={editTarget ? 'edit' : 'add'}
           initial={editTarget ? resourceToForm(editTarget) : EMPTY_FORM}
           onSave={editTarget ? handleEdit : handleAdd}
@@ -381,7 +319,7 @@ export default function AdminWorkspacesPage() {
         <>
           <div className={styles.overlay} onClick={() => setDeleteConfirm(null)} />
           <div className={styles.confirmModal}>
-            <p className={styles.confirmText}>Удалить это рабочее место?</p>
+            <p className={styles.confirmText}>Удалить переговорную?</p>
             <div className={styles.confirmActions}>
               <button type="button" className={styles.btnGhost} onClick={() => setDeleteConfirm(null)}>Отмена</button>
               <button type="button" className={styles.btnDanger} onClick={() => handleDelete(deleteConfirm)}>Удалить</button>

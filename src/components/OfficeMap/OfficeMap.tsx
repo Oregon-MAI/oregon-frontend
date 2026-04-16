@@ -72,7 +72,6 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
   const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
   const textFill  = isMine ? '#ffffff' : isBusy ? 'transparent' : '#059669'
 
-  // Из Figma: W=59.47, H=28.087, стул rx=8.26 ry=8.26
   const W = 60, H = 28, CRX = 8.26, CRY = 8.26
   const gap = 2
   const SVG_H = CRY + gap + H
@@ -105,94 +104,35 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
 }
 
 // ── ЗОНА B ──
-// Из Figma: блок из 4 L-образных столов, разделитель посередине (5px линия)
-// Каждый квадрант: 44×44, стул кружок 14×14 в углу
-// Цвета: свободно #A7F3D0, занято #E8EBF2, моё #1A56DB
-function DeskBBlock({ desks, onClick }: { desks: Desk[]; onClick?: (d: Desk) => void }) {
-  const [tl, tr, bl, br] = [desks[0], desks[1], desks[2], desks[3]]
+function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) => void; transform?: string }) {
+  const isBusy = desk.status === 'busy'
+  const isMine = desk.status === 'mine'
 
-  function getDeskStyle(desk: Desk | undefined) {
-    if (!desk) return { fill: '#E8EBF2', text: 'transparent', chair: '#9CA3AF' }
-    const isMine = desk.status === 'mine'
-    const isBusy = desk.status === 'busy'
-    return {
-      fill:  isMine ? '#1A56DB' : isBusy ? '#E8EBF2' : '#A7F3D0',
-      text:  isMine ? '#fff'    : isBusy ? 'transparent' : '#059669',
-      chair: isMine ? '#D97706' : '#9CA3AF',
-    }
-  }
-
-  const TL = getDeskStyle(tl), TR = getDeskStyle(tr)
-  const BL = getDeskStyle(bl), BR = getDeskStyle(br)
-
-  
-
-  const Q = 44  // размер квадранта
-  const D = 5   // размер разделителя
-  const TOTAL = Q * 2 + D  // 93px
-
-  function handleClick(desk: Desk | undefined) {
-    if (desk && desk.status !== 'busy') onClick?.(desk)
-  }
+  const deskFill  = isMine ? '#1A56DB' : isBusy ? '#9CA3AF' : '#A7F3D0'
+  const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
+  const textFill  = isMine ? '#ffffff' : '#059669'
 
   return (
-    <svg width={TOTAL} height={TOTAL} viewBox={`0 0 ${TOTAL} ${TOTAL}`}>
-      {/* Разделитель вертикальный */}
-      <rect x={Q} y={0} width={D} height={TOTAL} fill="#CDD2D9" />
-      {/* Разделитель горизонтальный */}
-      <rect x={0} y={Q} width={TOTAL} height={D} fill="#CDD2D9" />
-
-      {/* TL — верхний левый */}
-      <g onClick={() => handleClick(tl)} style={{ cursor: tl?.status === 'busy' ? 'default' : 'pointer' }}>
-        <rect x={0} y={0} width={Q} height={Q} fill={TL.fill} />
-        {/* Стул — кружок в верхнем левом углу */}
-        <circle cx={7} cy={7} r={7} fill={TL.chair} opacity={tl?.status === 'busy' ? 0.4 : 1} />
-        {tl && tl.status !== 'busy' && (
-          <text x={Q/2} y={Q/2} textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fontWeight="700" fill={TL.text} fontFamily="Plus Jakarta Sans, sans-serif">
-            {tl.id}
-          </text>
-        )}
-      </g>
-
-      {/* TR — верхний правый */}
-      <g transform={`translate(${Q + D}, 0)`} onClick={() => handleClick(tr)} style={{ cursor: tr?.status === 'busy' ? 'default' : 'pointer' }}>
-        <rect x={0} y={0} width={Q} height={Q} fill={TR.fill} />
-        {/* Стул — кружок в верхнем правом углу */}
-        <circle cx={Q - 7} cy={7} r={7} fill={TR.chair} opacity={tr?.status === 'busy' ? 0.4 : 1} />
-        {tr && tr.status !== 'busy' && (
-          <text x={Q/2} y={Q/2} textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fontWeight="700" fill={TR.text} fontFamily="Plus Jakarta Sans, sans-serif">
-            {tr.id}
-          </text>
-        )}
-      </g>
-
-      {/* BL — нижний левый */}
-      <g transform={`translate(0, ${Q + D})`} onClick={() => handleClick(bl)} style={{ cursor: bl?.status === 'busy' ? 'default' : 'pointer' }}>
-        <rect x={0} y={0} width={Q} height={Q} fill={BL.fill} />
-        {/* Стул — кружок в нижнем левом углу */}
-        <circle cx={7} cy={Q - 7} r={7} fill={BL.chair} opacity={bl?.status === 'busy' ? 0.4 : 1} />
-        {bl && bl.status !== 'busy' && (
-          <text x={Q/2} y={Q/2} textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fontWeight="700" fill={BL.text} fontFamily="Plus Jakarta Sans, sans-serif">
-            {bl.id}
-          </text>
-        )}
-      </g>
-
-      {/* BR — нижний правый */}
-      <g transform={`translate(${Q + D}, ${Q + D})`} onClick={() => handleClick(br)} style={{ cursor: br?.status === 'busy' ? 'default' : 'pointer' }}>
-        <rect x={0} y={0} width={Q} height={Q} fill={BR.fill} />
-        {/* Стул — кружок в нижнем правом углу */}
-        <circle cx={Q - 7} cy={Q - 7} r={7} fill={BR.chair} opacity={br?.status === 'busy' ? 0.4 : 1} />
-        {br && br.status !== 'busy' && (
-          <text x={Q/2} y={Q/2} textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fontWeight="700" fill={BR.text} fontFamily="Plus Jakarta Sans, sans-serif">
-            {br.id}
-          </text>
-        )}
-      </g>
+    <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
+      style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0, transform }}
+      onClick={() => !isBusy && onClick?.(desk)}
+    >
+      <path d="M0 0H44V45H28V16H0Z" fill={deskFill} />
+      <path d="M17 15.4999C17 15.4999 22.5 15.5 25.5 19C28.5 22.5 28.5 27.9999 28.5 27.9999" stroke="white"/>
+      <path d="M13 39C9.13401 39 6 35.866 6 32L6 29C6 25.134 9.13401 22 13 22H16C19.866 22 23 25.134 23 29V32C23 35.866 19.866 39 16 39H13Z" fill={chairFill}/>
+      <line y1="0.5" x2="44" y2="0.5" stroke="white"/>
+      <line x1="0.5" y1="1" x2="0.5" y2="16" stroke="white"/>
+      <line x1="43.5" y1="1" x2="43.5" y2="45" stroke="white"/>
+      <path d="M43 45H28V44H43V45Z" fill="white"/>
+      <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
+      <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
+      {!isBusy && (
+        <text x="36" y="8" textAnchor="middle" dominantBaseline="central"
+          fontSize="8" fontWeight="700" fill={textFill}
+          fontFamily="Plus Jakarta Sans, sans-serif">
+          {desk.id}
+        </text>
+      )}
     </svg>
   )
 }
@@ -213,7 +153,7 @@ export default function OfficeMap({ zones, onDeskClick }: Props) {
   const aBlocks = chunk(zoneA?.desks || [], 6)
   // Зона D: блоки по 6 (3 col × 2 row)
   const dBlocks = chunk(zoneD?.desks || [], 6)
-  // Зона B: блоки по 4
+  // Зона B: блоки по 4 (2×2)
   const bBlocks = chunk(zoneB?.desks || [], 4)
 
   return (
@@ -273,7 +213,16 @@ export default function OfficeMap({ zones, onDeskClick }: Props) {
             <div className={styles.zoneLabel}>ЗОНА  B</div>
             <div className={styles.zoneBGrid}>
               {bBlocks.map((block, bi) => (
-                <DeskBBlock key={bi} desks={block} onClick={onDeskClick} />
+                <div key={bi} className={styles.blockB}>
+                  <div className={styles.deskRow}>
+                    {block.slice(0, 1).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scaleY(-1)" />)}
+                    {block.slice(1, 2).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scale(-1,-1)" />)}
+                  </div>
+                  <div className={styles.deskRow}>
+                    {block.slice(2, 3).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scaleY(1)" />)}
+                    {block.slice(3, 4).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scale(-1,1)" />)}
+                  </div>
+                </div>
               ))}
             </div>
           </div>

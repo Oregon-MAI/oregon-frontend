@@ -31,6 +31,17 @@ function IconLaptop() {
   )
 }
 
+function IconUsers() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+      <circle cx="9" cy="7" r="4"/>
+      <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+      <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+    </svg>
+  )
+}
+
 function IconLogout() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -112,6 +123,12 @@ export default function AdminLayout() {
           <NavItem to="/admin/workspaces" icon={<IconWorkspace />} label="Рабочие места" count={0} />
           <NavItem to="/admin/rooms" icon={<IconRoom />} label="Переговорные" count={0} />
           <NavItem to="/admin/equipment" icon={<IconLaptop />} label="Техника" count={0} />
+        </nav>
+
+        <div className={styles.sectionLabel} style={{ marginTop: 16 }}>ПОЛЬЗОВАТЕЛИ</div>
+
+        <nav className={styles.nav}>
+          <NavItem to="/admin/users" icon={<IconUsers />} label="Пользователи" count={0} />
         </nav>
 
         {/* Spacer */}

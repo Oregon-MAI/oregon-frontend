@@ -19,10 +19,21 @@ export interface RegisterRequest {
 
 export interface ValidateResponse {
   id: string
+  roles: string[]
+  exp: number
+}
+
+export interface RoleDto {
+  id: string
+  name: string
+  description: string
+}
+
+export interface UserDto {
+  id: string
   login: string
   name: string
   surname: string
   email: string
-  roles: string[]
-  is_valid: 'True' | 'False'
+  roles: RoleDto[]
 }

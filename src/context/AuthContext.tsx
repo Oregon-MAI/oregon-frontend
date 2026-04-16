@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react'
 import type { Booking } from '../types/map'
+import { decodeToken, getUser } from '../api/authApi'
 // import { validate } from '../api/authApi'
 
 export interface User {
@@ -34,41 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return
     }
 
-    // validate()
-    //   .then(data => {
-    //     if (data?.id && data?.login) setUser(data)
-    //     else {
-    //       localStorage.removeItem('access_token')
-    //       localStorage.removeItem('refresh_token')
-    //     }
-    //   })
-    //   .catch(() => {
-    //     localStorage.removeItem('access_token')
-    //     localStorage.removeItem('refresh_token')
-    //   })
-    //   .finally(() => setIsLoading(false))
+    const decoded = decodeToken(token)
+    if (decoded?.id) {
+      getUser(decoded.id)
+        .then(u => setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles: u.roles.map(r => r.name) }))
+        .catch(() => setUser({ id: decoded.id, login: '', name: '', surname: '', email: '', roles: decoded.roles }))
+    }
 
-    // TODO: remove stub when GET /bookings/my is ready
-    const today = new Date().toISOString().slice(0, 10)
-    setBookings([
-      {
-        id: 'stub-1',
-        resourceId: 'stub-resource-a1',
-        resourceName: 'A-1',
-        date: today,
-        timeFrom: '10:00',
-        timeTo: '12:00',
-      },
-      {
-        id: 'stub-2',
-        resourceId: 'stub-resource-b3',
-        resourceName: 'B-3',
-        date: today,
-        timeFrom: '14:00',
-        timeTo: '15:30',
-      },
-      
-    ])
     setIsLoading(false)
   }, [])
 

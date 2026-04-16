@@ -1,10 +1,8 @@
 import { useState, FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import styles from './LoginPage.module.css'
-import { login } from '../api/authApi'
-import { validate as validateToken } from '../api/authApi'
-import { setUser } from '../context/AuthContext'
+import { login, decodeToken, getUser } from '../api/authApi'
 
 function EyeOn() {
   return (
@@ -25,7 +23,7 @@ function EyeOff() {
 }
 
 export default function LoginPage() {
-  const { } = useAuth()
+  const { setUser } = useAuth()
   const navigate = useNavigate()
 
   const [email,       setEmail]       = useState('')
@@ -39,16 +37,12 @@ export default function LoginPage() {
   function validate(): boolean {
     let ok = true
     if (!email.trim()) {
-      setEmailErr('Введите email'); ok = false
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setEmailErr('Некорректный email'); ok = false
+      setEmailErr('Введите логин'); ok = false
     } else {
       setEmailErr(null)
     }
     if (!password) {
       setPasswordErr('Введите пароль'); ok = false
-    } else if (password.length < 6) {
-      setPasswordErr('Минимум 6 символов'); ok = false
     } else {
       setPasswordErr(null)
     }
@@ -60,24 +54,20 @@ export default function LoginPage() {
     setError(null)
     if (!validate()) return
 
-    // TODO: remove stub when validate endpoint is ready
-    if (email.trim() === 'admin@mail.ru' && password === 'admin1') {
-      localStorage.setItem('access_token', 'stub_admin_token')
-      localStorage.setItem('refresh_token', 'stub_admin_refresh')
-      navigate('/admin')
-      return
-    }
-
     setIsLoading(true)
     try {
       const tokens = await login({ login: email.trim(), password })
       if (!tokens?.access_token) throw new Error('no_backend')
       localStorage.setItem('access_token', tokens.access_token)
       localStorage.setItem('refresh_token', tokens.refresh_token)
-      //const userData = await validateToken()
-      // if (!userData?.id) throw new Error('no_backend')
-      //setUser(userData)
-      navigate('/map')
+      const decoded = decodeToken(tokens.access_token)
+      if (decoded?.id) {
+        getUser(decoded.id)
+          .then(u => setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles: u.roles.map(r => r.name) }))
+          .catch(() => setUser({ id: decoded.id, login: email.trim(), name: '', surname: '', email: '', roles: decoded.roles }))
+      }
+      const isAdmin = decoded?.roles?.includes('admin') ?? false
+      navigate(isAdmin ? '/admin' : '/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const res = (err as { response?: { status?: number; data?: { message?: string; detail?: string } } }).response
@@ -112,12 +102,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} noValidate>
           <div className={styles.field}>
-            <label htmlFor="email" className={styles.label}>Электронная почта</label>
+            <label htmlFor="email" className={styles.label}>Логин</label>
             <input
               id="email"
-              type="email"
-              autoComplete="email"
-              placeholder="ivanov.a@t1.ru"
+              type="text"
+              autoComplete="username"
+              placeholder="ivanov.a"
               value={email}
               onChange={e => { setEmail(e.target.value); setEmailErr(null) }}
               className={`${styles.input} ${emailErr ? styles.inputErr : ''}`}
@@ -156,12 +146,6 @@ export default function LoginPage() {
 
         </form>
 
-        <p style={{ fontSize: 13, color: '#6B7280', textAlign: 'center', marginTop: 4 }}>
-          Нет аккаунта?{' '}
-          <Link to="/register" style={{ color: '#1A56DB', fontWeight: 600, textDecoration: 'none' }}>
-            Зарегистрироваться
-          </Link>
-        </p>
       </div>
 
       <div className={styles.right} />

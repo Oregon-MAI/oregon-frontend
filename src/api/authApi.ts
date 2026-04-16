@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { LoginRequest, LoginResponse, RegisterRequest, ValidateResponse } from '../types/auth'
+import type { LoginRequest, LoginResponse, RegisterRequest, ValidateResponse, UserDto } from '../types/auth'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api/v1'
 
@@ -63,6 +63,17 @@ api.interceptors.response.use(
   },
 )
 
+// Decode JWT payload (no verification — just parse base64)
+export function decodeToken(token: string): { id: string; roles: string[] } | null {
+  try {
+    const payload = token.split('.')[1]
+    const decoded = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')))
+    return { id: decoded.id ?? decoded.sub ?? '', roles: decoded.roles ?? [] }
+  } catch {
+    return null
+  }
+}
+
 // POST /api/v1/auth/login
 export async function login(payload: LoginRequest): Promise<LoginResponse> {
   const { data } = await api.post<LoginResponse>('/auth/login', payload)
@@ -81,10 +92,29 @@ export async function validate(): Promise<ValidateResponse> {
   return data
 }
 
+// GET /api/v1/user/user?id=<uuid>
+export async function getUser(id: string): Promise<UserDto> {
+  const { data } = await api.get<UserDto>('/user/user', { params: { id } })
+  return data
+}
+
+// GET /api/v1/user/users
+export async function getUsers(): Promise<UserDto[]> {
+  const { data } = await api.get<UserDto[]>('/user/users')
+  return data
+}
+
+// DELETE /api/v1/user/delete_user
+export async function deleteUser(id: string): Promise<void> {
+  await api.delete('/user/delete_user', { data: { id } })
+}
+
 // POST /api/v1/auth/refresh  (sends refresh token in Authorization header)
+// Uses raw axios (not the api instance) to avoid the 401 interceptor retrying the refresh itself
 export async function refreshTokens(): Promise<LoginResponse> {
   const refreshToken = localStorage.getItem('refresh_token')
-  const { data } = await axios.post<LoginResponse>(`${BASE_URL}/auth/refresh`, null, {
+  const url = BASE_URL.startsWith('http') ? `${BASE_URL}/auth/refresh` : `${window.location.origin}${BASE_URL}/auth/refresh`
+  const { data } = await axios.post<LoginResponse>(url, null, {
     headers: { Authorization: `Bearer ${refreshToken}` },
   })
   return data

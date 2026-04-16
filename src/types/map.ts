@@ -21,4 +21,6 @@ export interface Booking {
   timeFrom: string
   timeTo: string
   date: string
+  resourceType?: string
+  resourceLocation?: string
 }
