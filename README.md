@@ -1,5 +1,8 @@
 # T1 Workspace — Frontend
 
+
+
+
 ## Запуск
 
 ```bash
@@ -9,7 +12,13 @@ npm run dev
 
 Открыть: `http://localhost:5173`
 
-Войти: любой email + пароль (6+ символов) — работает заглушка.
+
+## Стек
+
+- **React 18** + **TypeScript**
+- **React Router v6** — маршрутизация
+- **Axios** — HTTP клиент с interceptor для автоматического refresh токенов
+- **CSS Modules** — стили
 
 ---
 
@@ -17,37 +26,35 @@ npm run dev
 
 ```
 src/
-├── main.tsx                          # Роутер + AuthProvider
-├── index.css                         # Шрифты + reset
-│
+├── main.tsx                    # Роутер + AuthProvider
 ├── context/
-│   └── AuthContext.tsx               # Глобальное состояние: user + bookings
-│
+│   └── AuthContext.tsx         # Глобальное состояние пользователя
 ├── types/
-│   ├── auth.ts                       # LoginRequest, LoginResponse
-│   └── map.ts                        # Desk, Zone, Booking
-│
+│   ├── auth.ts                 # LoginRequest/Response, UserDto
+│   ├── map.ts                  # Desk, Zone, Booking
+│   └── resource.ts             # Resource, BookingRequest/Response
 ├── api/
-│   └── authApi.ts                    # POST /auth/login
-│
+│   ├── authApi.ts              # Auth + User ручки, axios instance, refresh interceptor
+│   └── resourceApi.ts          # Resources + Bookings ручки
 ├── components/
-│   ├── ProtectedRoute.tsx            # Охранник маршрутов (проверяет токен)
-│   ├── Layout.tsx                    # Топбар + Сайдбар + контент
-│   ├── Layout.module.css
-│   ├── Sidebar.tsx                   # Навигация, этажи, виджет «Сегодня»
-│   ├── Sidebar.module.css
-│   ├── OfficeMap/
-│   │   ├── OfficeMap.tsx             # Карта с местами по зонам
-│   │   └── OfficeMap.module.css
-│   └── BookingPanel/
-│       ├── BookingPanel.tsx          # Панель бронирования (слоты 15 мин)
-│       └── BookingPanel.module.css
-│
+│   ├── ProtectedRoute.tsx      # Защита маршрутов
+│   ├── Layout.tsx              # Топбар + сайдбар
+│   ├── OfficeMap/              # SVG карта офиса
+│   ├── BookingPanel/           # Панель бронирования рабочего места
+│   └── TimeSelect.tsx          # Выбор времени
 └── pages/
-    ├── LoginPage.tsx                 # Страница входа
-    ├── LoginPage.module.css
-    ├── MapPage.tsx                   # Карта офиса
-    └── MapPage.module.css
+    ├── LoginPage.tsx           # Вход
+    ├── RegisterPage.tsx        # Регистрация
+    ├── MapPage.tsx             # Карта офиса
+    ├── MeetingRoomsPage.tsx    # Переговорные
+    ├── EquipmentPage.tsx       # Оборудование
+    ├── BookingsPage.tsx        # Мои бронирования
+    └── admin/
+        ├── AdminLayout.tsx
+        ├── AdminWorkspacesPage.tsx
+        ├── AdminRoomsPage.tsx
+        ├── AdminEquipmentPage.tsx
+        └── AdminUsersPage.tsx
 ```
 
 ---
@@ -57,17 +64,18 @@ src/
 | URL | Страница | Доступ |
 |-----|----------|--------|
 | `/login` | Вход | Публичный |
-| `/map` | Карта офиса | Только авторизованные |
+| `/register` | Регистрация | Публичный |
+| `/map` | Карта офиса | Авторизованные |
+| `/rooms` | Переговорные | Авторизованные |
+| `/equipment` | Оборудование | Авторизованные |
+| `/bookings` | Мои бронирования | Авторизованные |
+| `/admin` | Панель администратора | Только `admin` |
+| `/admin/workspaces` | Управление рабочими местами | Только `admin` |
+| `/admin/rooms` | Управление переговорными | Только `admin` |
+| `/admin/equipment` | Управление оборудованием | Только `admin` |
+| `/admin/users` | Управление пользователями | Только `admin` |
 
 ---
 
-## Что сделано
 
-- Авторизация с валидацией (заглушка, готово к подключению бэка)
-- JWT токен в localStorage
-- Защищённые маршруты через `ProtectedRoute`
-- Глобальное состояние пользователя и броней через `AuthContext`
-- Layout: топбар с именем и кнопкой выхода, сайдбар с навигацией
-- Карта офиса: зоны, столы со статусами (свободно / занято / моё место)
-- Панель бронирования: слоты по 15 минут
 
