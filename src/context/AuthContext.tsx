@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react'
+import { createContext, useContext, useState, useEffect, type Dispatch, type SetStateAction } from 'react'
 import type { Booking } from '../types/map'
 import { decodeToken, getUser } from '../api/authApi'
 import { getMyBookings } from '../api/resourceApi'
@@ -17,7 +17,7 @@ interface AuthContextType {
   user: User | null
   setUser: (user: User | null) => void
   bookings: Booking[]
-  setBookings: (bookings: Booking[]) => void
+  setBookings: Dispatch<SetStateAction<Booking[]>>
   isAdmin: boolean
   isLoading: boolean
 }

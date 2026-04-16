@@ -168,6 +168,20 @@ export async function createBooking(
   return normalizeBooking(data)
 }
 
+// GET /resources/{resource_id}/bookings?from=...&to=...  (ListBookingsByResource)
+export async function getResourceBookings(
+  resourceId: string,
+  from: string,
+  to: string,
+): Promise<BookingResponse[]> {
+  const { data } = await api.get<{ bookings?: BookingResponse[] } | BookingResponse[]>(
+    `/resources/${resourceId}/bookings`,
+    { params: { from, to } },
+  )
+  const list = Array.isArray(data) ? data : (data.bookings ?? [])
+  return list.filter(b => b.status !== 'BOOKING_STATUS_CANCELED')
+}
+
 // GET /bookings?user_id={user_id}  (ListBookingsByUser)
 export async function getMyBookings(userId: string): Promise<Booking[]> {
   const { data } = await api.get<{ bookings?: BookingResponse[] } | BookingResponse[]>(

@@ -6,7 +6,7 @@ import OfficeMap from '../components/OfficeMap/OfficeMap'
 import type { Zone, Desk } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './MapPage.module.css'
-import { getResourcesList } from '../api/resourceApi'
+import { getResourcesList, getResourceBookings } from '../api/resourceApi'
 import TimeSelect from '../components/TimeSelect'
 
 // ─── Converter ────────────────────────────────────────────────────────────────
@@ -248,14 +248,28 @@ export default function MapPage() {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
   const [confirmDesk,       setConfirmDesk]       = useState<Desk | null>(null)
   const [toast,             setToast]             = useState<string | null>(null)
+  const [refreshKey,        setRefreshKey]        = useState(0)
 
   // Загружаем ресурсы при изменении фильтров
   useEffect(() => {
+    const from = new Date(`${date}T${timeFrom}:00`).toISOString()
+    const to   = new Date(`${date}T${timeTo}:00`).toISOString()
     setLoading(true)
     getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(r => setResources(r.filter(x => x.type === 'RESOURCE_TYPE_WORKSPACE')))
+      .then(async all => {
+        const workspaces = all.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')
+        const bookingsPerResource = await Promise.all(
+          workspaces.map(r => getResourceBookings(r.resource_id, from, to).catch(() => []))
+        )
+        const marked = workspaces.map((r, i) =>
+          bookingsPerResource[i].length > 0
+            ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const }
+            : r
+        )
+        setResources(marked)
+      })
       .finally(() => setLoading(false))
-  }, [date, timeFrom, timeTo])
+  }, [date, timeFrom, timeTo, refreshKey])
 
   // Пересчитываем статусы мгновенно при изменении броней
   useEffect(() => {
@@ -303,7 +317,8 @@ export default function MapPage() {
     setConfirmDesk(null)
     try {
       const newBooking = await createBooking(resourceId, userId, date, timeFrom, timeTo)
-      setBookings([...bookings, newBooking])
+      setBookings(prev => [...prev, newBooking])
+      setRefreshKey(k => k + 1)
       setToast(`Место ${desk.id} забронировано на ${timeFrom}–${timeTo}`)
     } catch {
       setToast('Не удалось забронировать. Попробуйте ещё раз.')
