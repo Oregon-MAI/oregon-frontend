@@ -132,23 +132,15 @@ export default function AdminUsersPage() {
   }
 
   async function handleCreate(form: UserForm) {
-    const tokens = await register({
+    await register({
       login: form.login,
       password: form.password,
       name: form.name,
       surname: form.surname,
       email: form.email,
     })
-    const { decodeToken } = await import('../../api/authApi')
-    const decoded = decodeToken(tokens.access_token)
-    setUsers(prev => [{
-      id: decoded?.id ?? crypto.randomUUID(),
-      login: form.login,
-      name: form.name,
-      surname: form.surname,
-      email: form.email,
-      roles: [{ id: '', name: 'user' }],
-    }, ...prev])
+    const list = await getUsers()
+    setUsers(list)
     showToast(`Пользователь ${form.login} создан`)
   }
 
@@ -193,7 +185,7 @@ export default function AdminUsersPage() {
                     <td className={styles.td}>{u.surname} {u.name}</td>
                     <td className={styles.td}><span className={styles.location}>{u.email}</span></td>
                     <td className={styles.td}>
-                      {u.roles.map(r => (
+                      {(u.roles.length > 0 ? u.roles : [{ id: 'default', name: 'user', description: '' }]).map(r => (
                         <span key={r.id} className={`${styles.statusBadge} ${styles.status_available}`}>{r.name}</span>
                       ))}
                     </td>

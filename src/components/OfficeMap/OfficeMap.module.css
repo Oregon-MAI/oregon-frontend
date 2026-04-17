@@ -82,3 +82,25 @@
   flex-direction: column;
   gap: 4px;
 }
+
+/* Tooltip */
+.deskWrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.deskWrap[data-tooltip]:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1f2937;
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 100;
+}

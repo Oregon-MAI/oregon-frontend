@@ -580,3 +580,14 @@
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   white-space: nowrap;
 }
+
+.slotBadge {
+  display: inline-block;
+  margin-left: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #DC2626;
+  background: #FEE2E2;
+  border-radius: 4px;
+  padding: 1px 5px;
+}

@@ -9,9 +9,31 @@ import styles from './MapPage.module.css'
 import { getResourcesList, getResourceBookings } from '../api/resourceApi'
 import TimeSelect from '../components/TimeSelect'
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function localDateStr(d: Date = new Date()): string {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
+function defaultDate(): string {
+  const now = new Date()
+  return now.getHours() >= 19
+    ? localDateStr(new Date(now.getTime() + 86400000))
+    : localDateStr()
+}
+
 // ─── Converter ────────────────────────────────────────────────────────────────
 
-function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zone[] {
+function isoToTime(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+function resourcesToZones(
+  resources: Resource[],
+  myResourceIds: Set<string>,
+  bookedSlotsByResource: Map<string, string[]>,
+): Zone[] {
   const zoneMap = new Map<'A' | 'B' | 'D', Desk[]>()
 
   for (const r of resources) {
@@ -33,7 +55,7 @@ function resourcesToZones(resources: Resource[], myResourceIds: Set<string>): Zo
       zone: zoneKey,
       status,
       amenities,
-      bookedSlots: [],
+      bookedSlots: bookedSlotsByResource.get(r.resource_id) ?? [],
     }
 
     if (!zoneMap.has(zoneKey)) zoneMap.set(zoneKey, [])
@@ -242,30 +264,43 @@ export default function MapPage() {
   const [zones,             setZones]             = useState<Zone[]>([])
   const [resources,         setResources]         = useState<Resource[]>([])
   const [loading,           setLoading]           = useState(true)
-  const [date,              setDate]              = useState(new Date().toISOString().slice(0, 10))
+  const [date,              setDate]              = useState(defaultDate())
   const [timeFrom,          setTimeFrom]          = useState('09:00')
   const [timeTo,            setTimeTo]            = useState('18:00')
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
-  const [confirmDesk,       setConfirmDesk]       = useState<Desk | null>(null)
-  const [toast,             setToast]             = useState<string | null>(null)
-  const [refreshKey,        setRefreshKey]        = useState(0)
+  const [confirmDesk,           setConfirmDesk]           = useState<Desk | null>(null)
+  const [toast,                 setToast]                 = useState<string | null>(null)
+  const [refreshKey,            setRefreshKey]            = useState(0)
+  const [bookedSlotsByResource, setBookedSlotsByResource] = useState<Map<string, string[]>>(new Map())
 
   // Загружаем ресурсы при изменении фильтров
   useEffect(() => {
-    const from = new Date(`${date}T${timeFrom}:00`).toISOString()
-    const to   = new Date(`${date}T${timeTo}:00`).toISOString()
+    const selectedFrom = new Date(`${date}T${timeFrom}:00`).toISOString()
+    const selectedTo   = new Date(`${date}T${timeTo}:00`).toISOString()
+    const dayFrom      = new Date(`${date}T00:00:00`).toISOString()
+    const dayTo        = new Date(`${date}T23:59:59`).toISOString()
     setLoading(true)
     getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
       .then(async all => {
         const workspaces = all.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')
         const bookingsPerResource = await Promise.all(
-          workspaces.map(r => getResourceBookings(r.resource_id, from, to).catch(() => []))
+          workspaces.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
         )
-        const marked = workspaces.map((r, i) =>
-          bookingsPerResource[i].length > 0
-            ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const }
-            : r
-        )
+        const slotsByResource = new Map<string, string[]>()
+        const marked = workspaces.map((r, i) => {
+          const bs = bookingsPerResource[i]
+          slotsByResource.set(
+            r.resource_id,
+            bs.filter(b => b.starts_at && b.ends_at)
+              .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
+          )
+          const isBusy = bs.some(b =>
+            b.starts_at && b.ends_at &&
+            b.starts_at < selectedTo && b.ends_at > selectedFrom
+          )
+          return isBusy ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const } : r
+        })
+        setBookedSlotsByResource(slotsByResource)
         setResources(marked)
       })
       .finally(() => setLoading(false))
@@ -283,8 +318,8 @@ export default function MapPage() {
         )
         .map(b => b.resourceId)
     )
-    setZones(resourcesToZones(resources, myResourceIds))
-  }, [resources, bookings, date, timeFrom, timeTo])
+    setZones(resourcesToZones(resources, myResourceIds, bookedSlotsByResource))
+  }, [resources, bookings, date, timeFrom, timeTo, bookedSlotsByResource])
 
   function toggleAmenity(a: string) {
     setSelectedAmenities(prev =>

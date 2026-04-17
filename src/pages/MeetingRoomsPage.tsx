@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import styles from './MeetingRoomsPage.module.css'
 import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
-import { getResourcesList, createBooking } from '../api/resourceApi'
+import { getResourcesList, createBooking, getResourceBookings } from '../api/resourceApi'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -20,9 +20,27 @@ interface Room {
   bookedSlots: { from: string; to: string }[]
 }
 
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function localDateStr(d: Date = new Date()): string {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
+function defaultDate(): string {
+  const now = new Date()
+  return now.getHours() >= 19
+    ? localDateStr(new Date(now.getTime() + 86400000))
+    : localDateStr()
+}
+
+function isoToTime(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
 // ─── Converter ────────────────────────────────────────────────────────────────
 
-function resourceToRoom(r: Resource, myResourceIds: Set<string>): Room {
+function resourceToRoom(r: Resource, myResourceIds: Set<string>, slots: { from: string; to: string }[]): Room {
   // бэкенд может вернуть camelCase
   const raw = r as unknown as Record<string, unknown>
   const mr = r.meeting_room ?? (raw.meetingRoom as typeof r.meeting_room)
@@ -32,9 +50,10 @@ function resourceToRoom(r: Resource, myResourceIds: Set<string>): Room {
   if (mr?.has_whiteboard) amenities.push('Маркерная')
 
   const isMine = myResourceIds.has(r.resource_id)
+  const isStructurallyUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
   const status: Room['status'] =
     isMine ? 'mine' :
-    r.status === 'RESOURCE_STATUS_AVAILABLE' ? 'free' : 'busy'
+    isStructurallyUnavailable ? 'busy' : 'free'
 
   // location может быть просто числом этажа ("11") — показываем как есть
   const floor = parseInt(r.location) || 11
@@ -48,7 +67,7 @@ function resourceToRoom(r: Resource, myResourceIds: Set<string>): Room {
     capacity: mr?.capacity ?? 0,
     status,
     amenities,
-    bookedSlots: [],
+    bookedSlots: slots,
   }
 }
 
@@ -306,6 +325,14 @@ function RoomCard({
         <div className={styles.cardMeta}>
           {room.floor} этаж{room.wing ? ` · ${room.wing}` : ''}{room.capacity > 0 ? ` · до ${room.capacity} чел.` : ''}
         </div>
+        {room.bookedSlots.length > 0 && (
+          <div className={styles.slotsRow}>
+            <span className={styles.slotsLabel}>Занято сегодня:</span>
+            {room.bookedSlots.map((s, i) => (
+              <span key={i} className={styles.slot}>{s.from}–{s.to}</span>
+            ))}
+          </div>
+        )}
         <div className={styles.cardAmenities}>
           {room.amenities.map(a => <AmenityChip key={a} label={a} />)}
         </div>
@@ -374,21 +401,49 @@ export default function MeetingRoomsPage() {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
   const [timeFrom,          setTimeFrom]          = useState('11:00')
   const [timeTo,            setTimeTo]            = useState('13:00')
-  const [date,              setDate]              = useState(new Date().toISOString().slice(0, 10))
+  const [date,              setDate]              = useState(defaultDate())
   const [rooms,             setRooms]             = useState<Room[]>([])
   const [confirmRoom,       setConfirmRoom]       = useState<Room | null>(null)
   const [toast,             setToast]             = useState<string | null>(null)
+  const [refreshKey,        setRefreshKey]        = useState(0)
 
   useEffect(() => {
-    const myResourceIds = new Set(bookings.map(b => b.resourceId))
+    const myResourceIds = new Set(
+      bookings
+        .filter(b => b.date === date && b.timeFrom < timeTo && b.timeTo > timeFrom)
+        .map(b => b.resourceId)
+    )
+    const selectedFrom = new Date(`${date}T${timeFrom}:00`).toISOString()
+    const selectedTo   = new Date(`${date}T${timeTo}:00`).toISOString()
+    const dayFrom      = new Date(`${date}T00:00:00`).toISOString()
+    const dayTo        = new Date(`${date}T23:59:59`).toISOString()
     getResourcesList(['RESOURCE_TYPE_MEETING_ROOM'])
-      .then(resources => setRooms(
-        resources
-          .filter(r => r.type === 'RESOURCE_TYPE_MEETING_ROOM')
-          .map(r => resourceToRoom(r, myResourceIds))
-      ))
+      .then(async resources => {
+        const rooms = resources.filter(r => r.type === 'RESOURCE_TYPE_MEETING_ROOM')
+        const bookingsPerResource = await Promise.all(
+          rooms.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
+        )
+        setRooms(rooms.map((r, i) => {
+          const bs = bookingsPerResource[i]
+          const slots = bs
+            .filter(b => b.starts_at && b.ends_at)
+            .map(b => ({ from: isoToTime(b.starts_at!), to: isoToTime(b.ends_at!) }))
+          const isBusyAtSelected = bs.some(b =>
+            b.starts_at && b.ends_at &&
+            b.starts_at < selectedTo && b.ends_at > selectedFrom
+          )
+          const isMine = myResourceIds.has(r.resource_id)
+          const isStructural = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
+          const rWithStatus = isBusyAtSelected && !isMine
+            ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const }
+            : !isStructural
+              ? { ...r, status: 'RESOURCE_STATUS_AVAILABLE' as const }
+              : r
+          return resourceToRoom(rWithStatus, myResourceIds, slots)
+        }))
+      })
       .catch(() => setRooms(STUB_ROOMS))
-  }, [bookings])
+  }, [bookings, date, timeFrom, timeTo, refreshKey])
 
   function toggleAmenity(a: string) {
     setSelectedAmenities(prev =>
@@ -416,6 +471,7 @@ export default function MeetingRoomsPage() {
     setConfirmRoom(null)
     try {
       await createBooking(room.id, user.id, date, timeFrom, timeTo)
+      setRefreshKey(k => k + 1)
       setToast(`${room.name} забронирована на ${timeFrom}–${timeTo}`)
     } catch {
       setToast('Не удалось создать бронь')

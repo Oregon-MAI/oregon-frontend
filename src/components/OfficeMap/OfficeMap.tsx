@@ -25,38 +25,44 @@ function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: 
   const textColor = isMine ? '#fff' : '#374151'
   const circleColor = isMine ? '#F97316' : '#D1D5DB'
 
+  const tooltip = isBusy && desk.bookedSlots.length > 0
+    ? `Занято: ${desk.bookedSlots.join(', ')}`
+    : undefined
+
   return (
-    <svg
-      width="40" height="40"
-      viewBox="0 0 72 72"
-      style={{ cursor: isBusy ? 'default' : 'pointer' }}
-      onClick={() => !isBusy && onClick(desk)}
-    >
-      {/* Стол */}
-      <rect x="2" y="2" width="68" height="68" rx="10"
-        fill={fill} stroke={stroke} strokeWidth="1.5" />
+    <div className={styles.deskWrap} data-tooltip={tooltip}>
+      <svg
+        width="40" height="40"
+        viewBox="0 0 72 72"
+        style={{ cursor: isBusy ? 'default' : 'pointer' }}
+        onClick={() => !isBusy && onClick(desk)}
+      >
+        {/* Стол */}
+        <rect x="2" y="2" width="68" height="68" rx="10"
+          fill={fill} stroke={stroke} strokeWidth="1.5" />
 
-      {/* Если занят — круг внутри */}
-      {isBusy && (
-        <circle cx="36" cy="36" r="10" fill={circleColor} />
-      )}
+        {/* Если занят — круг внутри */}
+        {isBusy && (
+          <circle cx="36" cy="36" r="10" fill={circleColor} />
+        )}
 
-      {/* Если моё место — оранжевый круг */}
-      {isMine && (
-        <circle cx="36" cy="36" r="10" fill="#F97316" />
-      )}
+        {/* Если моё место — оранжевый круг */}
+        {isMine && (
+          <circle cx="36" cy="36" r="10" fill="#F97316" />
+        )}
 
-      {/* ID */}
-      {!isBusy && !isMine && (
-        <text x="36" y="36"
-          textAnchor="middle" dominantBaseline="middle"
-          fontSize="11" fontWeight="700"
-          fontFamily="Plus Jakarta Sans, sans-serif"
-          fill={textColor}>
-          {desk.id}
-        </text>
-      )}
-    </svg>
+        {/* ID */}
+        {!isBusy && !isMine && (
+          <text x="36" y="36"
+            textAnchor="middle" dominantBaseline="middle"
+            fontSize="11" fontWeight="700"
+            fontFamily="Plus Jakarta Sans, sans-serif"
+            fill={textColor}>
+            {desk.id}
+          </text>
+        )}
+      </svg>
+    </div>
   )
 }
 
@@ -81,25 +87,31 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
   const chairY = isTop ? CRY : H
   const sweep  = isTop ? 1 : 0
 
+  const tooltip = isBusy && desk.bookedSlots.length > 0
+    ? `Занято: ${desk.bookedSlots.join(', ')}`
+    : undefined
+
   return (
-    <svg
-      width={W} height={SVG_H} viewBox={`0 0 ${W} ${SVG_H}`}
-      style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
-      onClick={() => !isBusy && onClick?.(desk)}
-    >
-      <path
-        d={`M ${cx - CRX},${chairY} A ${CRX},${CRY} 0 0 ${sweep} ${cx + CRX},${chairY} Z`}
-        fill={chairFill}
-      />
-      <rect x="0" y={deskY} width={W} height={H} rx="4" fill={deskFill} />
-      {!isBusy && (
-        <text x={cx} y={deskY + H / 2} textAnchor="middle" dominantBaseline="central"
-          fontSize="9" fontWeight="700" fill={textFill}
-          fontFamily="Plus Jakarta Sans, sans-serif">
-          {desk.id}
-        </text>
-      )}
-    </svg>
+    <div className={styles.deskWrap} data-tooltip={tooltip}>
+      <svg
+        width={W} height={SVG_H} viewBox={`0 0 ${W} ${SVG_H}`}
+        style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
+        onClick={() => !isBusy && onClick?.(desk)}
+      >
+        <path
+          d={`M ${cx - CRX},${chairY} A ${CRX},${CRY} 0 0 ${sweep} ${cx + CRX},${chairY} Z`}
+          fill={chairFill}
+        />
+        <rect x="0" y={deskY} width={W} height={H} rx="4" fill={deskFill} />
+        {!isBusy && (
+          <text x={cx} y={deskY + H / 2} textAnchor="middle" dominantBaseline="central"
+            fontSize="9" fontWeight="700" fill={textFill}
+            fontFamily="Plus Jakarta Sans, sans-serif">
+            {desk.id}
+          </text>
+        )}
+      </svg>
+    </div>
   )
 }
 
@@ -124,30 +136,36 @@ function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) =
   const tx = v?.tx ?? 30
   const ty = v?.ty ?? 8
 
+  const tooltip = isBusy && desk.bookedSlots.length > 0
+    ? `Занято: ${desk.bookedSlots.join(', ')}`
+    : undefined
+
   return (
-    <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
-      style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
-      onClick={() => !isBusy && onClick?.(desk)}
-    >
-      <g transform={gTransform}>
-        <path d="M0 0H44V45H28V16H0Z" fill={deskFill} />
-        <path d="M17 15.4999C17 15.4999 22.5 15.5 25.5 19C28.5 22.5 28.5 27.9999 28.5 27.9999" stroke="white"/>
-        <path d="M13 39C9.13401 39 6 35.866 6 32L6 29C6 25.134 9.13401 22 13 22H16C19.866 22 23 25.134 23 29V32C23 35.866 19.866 39 16 39H13Z" fill={chairFill}/>
-        <line y1="0.5" x2="44" y2="0.5" stroke="white"/>
-        <line x1="0.5" y1="1" x2="0.5" y2="16" stroke="white"/>
-        <line x1="43.5" y1="1" x2="43.5" y2="45" stroke="white"/>
-        <path d="M43 45H28V44H43V45Z" fill="white"/>
-        <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
-        <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
-      </g>
-      {!isBusy && (
-        <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central"
-          fontSize="8" fontWeight="700" fill={textFill}
-          fontFamily="Plus Jakarta Sans, sans-serif">
-          {desk.id}
-        </text>
-      )}
-    </svg>
+    <div className={styles.deskWrap} data-tooltip={tooltip}>
+      <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
+        style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
+        onClick={() => !isBusy && onClick?.(desk)}
+      >
+        <g transform={gTransform}>
+          <path d="M0 0H44V45H28V16H0Z" fill={deskFill} />
+          <path d="M17 15.4999C17 15.4999 22.5 15.5 25.5 19C28.5 22.5 28.5 27.9999 28.5 27.9999" stroke="white"/>
+          <path d="M13 39C9.13401 39 6 35.866 6 32L6 29C6 25.134 9.13401 22 13 22H16C19.866 22 23 25.134 23 29V32C23 35.866 19.866 39 16 39H13Z" fill={chairFill}/>
+          <line y1="0.5" x2="44" y2="0.5" stroke="white"/>
+          <line x1="0.5" y1="1" x2="0.5" y2="16" stroke="white"/>
+          <line x1="43.5" y1="1" x2="43.5" y2="45" stroke="white"/>
+          <path d="M43 45H28V44H43V45Z" fill="white"/>
+          <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
+          <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
+        </g>
+        {!isBusy && (
+          <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central"
+            fontSize="8" fontWeight="700" fill={textFill}
+            fontFamily="Plus Jakarta Sans, sans-serif">
+            {desk.id}
+          </text>
+        )}
+      </svg>
+    </div>
   )
 }
 

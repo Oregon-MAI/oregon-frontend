@@ -4,7 +4,25 @@ import { useAuth } from '../context/AuthContext'
 import styles from './EquipmentPage.module.css'
 import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
-import { getResourcesList, createBooking } from '../api/resourceApi'
+import { getResourcesList, createBooking, getResourceBookings } from '../api/resourceApi'
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function localDateStr(d: Date = new Date()): string {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+}
+
+function defaultDate(): string {
+  const now = new Date()
+  return now.getHours() >= 19
+    ? localDateStr(new Date(now.getTime() + 86400000))
+    : localDateStr()
+}
+
+function isoToTime(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -19,6 +37,7 @@ interface Equipment {
   busyUntil?: string
   mineUntil?: string
   location: string
+  bookedSlots: string[]
 }
 
 // ─── Converter ────────────────────────────────────────────────────────────────
@@ -31,11 +50,12 @@ const DEVICE_TYPE_MAP: Record<string, Equipment['type']> = {
   tv: 'tv', television: 'tv',
 }
 
-function resourceToEquipment(r: Resource, myResourceIds: Set<string>): Equipment {
+function resourceToEquipment(r: Resource, myResourceIds: Set<string>, slots: string[], mineUntil?: string): Equipment {
   const isMine = myResourceIds.has(r.resource_id)
+  const isStructurallyUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
   const status: EquipmentStatus =
     isMine ? 'mine' :
-    r.status === 'RESOURCE_STATUS_AVAILABLE' ? 'free' : 'busy'
+    isStructurallyUnavailable ? 'busy' : 'free'
 
   const rawType = r.device?.device_type?.toLowerCase() ?? ''
   const type: Equipment['type'] = DEVICE_TYPE_MAP[rawType] ?? 'laptop'
@@ -48,16 +68,18 @@ function resourceToEquipment(r: Resource, myResourceIds: Set<string>): Equipment
     type,
     status,
     location: r.location,
+    bookedSlots: slots,
+    mineUntil,
   }
 }
 
 // TODO: remove stub when backend is ready
 const STUB_EQUIPMENT: Equipment[] = [
-  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '11 этаж · Крыло А' },
-  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '11 этаж · Крыло Б' },
-  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: '11 этаж · Крыло А' },
-  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: '11 этаж · Ресепшн' },
-  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: '11 этаж · Переговорная B2' },
+  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '11 этаж · Крыло А', bookedSlots: [] },
+  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '11 этаж · Крыло Б', bookedSlots: [] },
+  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: '11 этаж · Крыло А', bookedSlots: [] },
+  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: '11 этаж · Ресепшн', bookedSlots: [] },
+  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: '11 этаж · Переговорная B2', bookedSlots: [] },
 ]
 
 const TYPE_LABELS: Record<Equipment['type'], string> = {
@@ -144,12 +166,10 @@ function EquipIcon({ type }: { type: Equipment['type'] }) {
 // ─── Equipment card ───────────────────────────────────────────────────────────
 
 function EquipCard({
-  item, timeFrom, timeTo,
+  item,
   onTake, onReturn,
 }: {
   item: Equipment
-  timeFrom: string
-  timeTo: string
   onTake: (item: Equipment) => void
   onReturn: (item: Equipment) => void
 }) {
@@ -166,7 +186,9 @@ function EquipCard({
             <span className={styles.badgeFree}>● Доступно</span>
           )}
           {item.status === 'busy' && (
-            <span className={styles.badgeBusy}>● Занято до {item.busyUntil}</span>
+            <span className={styles.badgeBusy}>
+              ● Занято{item.bookedSlots.length > 0 ? `: ${item.bookedSlots.join(', ')}` : ''}
+            </span>
           )}
           {item.status === 'mine' && (
             <span className={styles.badgeMine}>● У меня до {item.mineUntil}</span>
@@ -248,9 +270,10 @@ export default function EquipmentPage() {
 
   const [tab,      setTab]      = useState<'all' | 'mine'>('all')
   const [typeFilter, setTypeFilter] = useState<Equipment['type'] | 'all'>('all')
-  const [date,     setDate]     = useState(new Date().toISOString().slice(0, 10))
+  const [date,     setDate]     = useState(defaultDate())
   const [timeFrom, setTimeFrom] = useState('11:00')
   const [timeTo,   setTimeTo]   = useState('13:00')
+  const [refreshKey, setRefreshKey] = useState(0)
   const [floorsOpen, setFloorsOpen] = useState(false)
   const [currentFloor, setCurrentFloor] = useState(11)
 
@@ -266,15 +289,46 @@ export default function EquipmentPage() {
     : today
 
   useEffect(() => {
-    const myResourceIds = new Set(bookings.map(b => b.resourceId))
+    const myResourceIds = new Set(
+      bookings
+        .filter(b => b.date === date && b.timeFrom < timeTo && b.timeTo > timeFrom)
+        .map(b => b.resourceId)
+    )
+    const selectedFrom = new Date(`${date}T${timeFrom}:00`).toISOString()
+    const selectedTo   = new Date(`${date}T${timeTo}:00`).toISOString()
+    const dayFrom      = new Date(`${date}T00:00:00`).toISOString()
+    const dayTo        = new Date(`${date}T23:59:59`).toISOString()
     getResourcesList(['RESOURCE_TYPE_DEVICE'])
-      .then(resources => setEquipment(
-        resources
-          .filter(r => r.type === 'RESOURCE_TYPE_DEVICE')
-          .map(r => resourceToEquipment(r, myResourceIds))
-      ))
+      .then(async resources => {
+        const devices = resources.filter(r => r.type === 'RESOURCE_TYPE_DEVICE')
+        const bookingsPerResource = await Promise.all(
+          devices.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
+        )
+        setEquipment(devices.map((r, i) => {
+          const bs = bookingsPerResource[i]
+          const slots = bs
+            .filter(b => b.starts_at && b.ends_at)
+            .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
+          const isBusyAtSelected = bs.some(b =>
+            b.starts_at && b.ends_at &&
+            b.starts_at < selectedTo && b.ends_at > selectedFrom
+          )
+          const isMine = myResourceIds.has(r.resource_id)
+          const isStructural = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
+          const rWithStatus = isBusyAtSelected && !isMine
+            ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const }
+            : !isStructural
+              ? { ...r, status: 'RESOURCE_STATUS_AVAILABLE' as const }
+              : r
+          const myBooking = bookings.find(b =>
+            b.resourceId === r.resource_id &&
+            b.date === date && b.timeFrom < timeTo && b.timeTo > timeFrom
+          )
+          return resourceToEquipment(rWithStatus, myResourceIds, slots, myBooking?.timeTo)
+        }))
+      })
       .catch(() => setEquipment(STUB_EQUIPMENT))
-  }, [bookings])
+  }, [bookings, date, timeFrom, timeTo, refreshKey])
 
   const filtered = equipment.filter(e => {
     if (tab === 'mine' && e.status !== 'mine') return false
@@ -295,6 +349,7 @@ export default function EquipmentPage() {
     setConfirmItem(null)
     try {
       await createBooking(item.id, user.id, date, timeFrom, timeTo)
+      setRefreshKey(k => k + 1)
       setToast(`${item.name} забронирована на ${timeFrom}–${timeTo}`)
     } catch {
       setToast('Не удалось создать бронь')
@@ -445,8 +500,6 @@ export default function EquipmentPage() {
               <EquipCard
                 key={item.id}
                 item={item}
-                timeFrom={timeFrom}
-                timeTo={timeTo}
                 onTake={handleTake}
                 onReturn={handleReturn}
               />

@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react'
 import type { Resource, ResourceStatus } from '../../types/resource'
-import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus } from '../../api/resourceApi'
+import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus, getResourceBookings } from '../../api/resourceApi'
+
+function isoToTime(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
 import styles from './AdminWorkspacesPage.module.css'
 
 const PAGE_SIZE = 7
@@ -172,11 +177,29 @@ export default function AdminEquipmentPage() {
   const [editTarget, setEditTarget] = useState<Resource | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [bookedSlotsMap, setBookedSlotsMap] = useState<Map<string, string[]>>(new Map())
 
   useEffect(() => {
     setLoading(true)
+    const today = new Date().toISOString().slice(0, 10)
+    const dayFrom = new Date(`${today}T00:00:00`).toISOString()
+    const dayTo   = new Date(`${today}T23:59:59`).toISOString()
     getResourcesList(['RESOURCE_TYPE_DEVICE'])
-      .then(list => setResources(list.filter(r => r.type === 'RESOURCE_TYPE_DEVICE')))
+      .then(async list => {
+        const devices = list.filter(r => r.type === 'RESOURCE_TYPE_DEVICE')
+        setResources(devices)
+        const bookingsPerResource = await Promise.all(
+          devices.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
+        )
+        const m = new Map<string, string[]>()
+        devices.forEach((r, i) => {
+          const slots = bookingsPerResource[i]
+            .filter(b => b.starts_at && b.ends_at)
+            .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
+          if (slots.length > 0) m.set(r.resource_id, slots)
+        })
+        setBookedSlotsMap(m)
+      })
       .catch(() => setError('Не удалось загрузить технику'))
       .finally(() => setLoading(false))
   }, [])
@@ -286,6 +309,9 @@ export default function AdminEquipmentPage() {
                         <td className={styles.td}><span className={styles.location}>{r.location || '—'}</span></td>
                         <td className={styles.td}>
                           <span className={`${styles.statusBadge} ${styles[`status_${cls}`]}`}>● {text}</span>
+                          {bookedSlotsMap.get(r.resource_id)?.map((s, i) => (
+                            <span key={i} className={styles.slotBadge}>{s}</span>
+                          ))}
                         </td>
                         <td className={styles.td}>
                           <div className={styles.actions}>
