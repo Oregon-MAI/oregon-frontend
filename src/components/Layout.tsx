@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationCenter from './NotificationCenter'
 import Sidebar from './Sidebar'
 import styles from './Layout.module.css'
 
@@ -20,6 +21,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
+          <NotificationCenter />
           <span>{user ? `${user.surname}${user.name?.[0] ? ` ${user.name[0]}.` : ''}` : ''}</span>
           <button type="button" className={styles.logoutBtn} onClick={logout}>
             Выйти

@@ -18,6 +18,11 @@ function statusLabel(s: ResourceStatus): { text: string; cls: string } {
   }
 }
 
+function effectiveStatus(r: Resource, bookedNowIds: Set<string>): ResourceStatus {
+  if (r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY') return r.status
+  return bookedNowIds.has(r.resource_id) ? 'RESOURCE_STATUS_OCCUPIED' : 'RESOURCE_STATUS_AVAILABLE'
+}
+
 interface RoomForm {
   name: string
   location: string
@@ -174,6 +179,7 @@ export default function AdminRoomsPage() {
   const [toast, setToast] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [bookedSlotsMap, setBookedSlotsMap] = useState<Map<string, string[]>>(new Map())
+  const [bookedNowIds, setBookedNowIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setLoading(true)
@@ -187,14 +193,21 @@ export default function AdminRoomsPage() {
         const bookingsPerResource = await Promise.all(
           rooms.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
         )
+        const now = new Date()
         const m = new Map<string, string[]>()
+        const nowSet = new Set<string>()
         rooms.forEach((r, i) => {
           const slots = bookingsPerResource[i]
             .filter(b => b.starts_at && b.ends_at)
             .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
           if (slots.length > 0) m.set(r.resource_id, slots)
+          const active = bookingsPerResource[i].some(
+            b => b.starts_at && b.ends_at && new Date(b.starts_at) <= now && new Date(b.ends_at) >= now
+          )
+          if (active) nowSet.add(r.resource_id)
         })
         setBookedSlotsMap(m)
+        setBookedNowIds(nowSet)
       })
       .catch(() => setError('Не удалось загрузить переговорные'))
       .finally(() => setLoading(false))
@@ -291,7 +304,7 @@ export default function AdminRoomsPage() {
                 </thead>
                 <tbody>
                   {pageItems.map(r => {
-                    const { text, cls } = statusLabel(r.status)
+                    const { text, cls } = statusLabel(effectiveStatus(r, bookedNowIds))
                     const amenities = [r.meeting_room?.has_projector && 'Проектор', r.meeting_room?.has_whiteboard && 'Маркерная'].filter(Boolean).join(', ')
                     return (
                       <tr key={r.resource_id} className={styles.tr}>

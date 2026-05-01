@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { createBooking } from '../api/resourceApi'
 import OfficeMap from '../components/OfficeMap/OfficeMap'
+import NotificationCenter from '../components/NotificationCenter'
 import type { Zone, Desk } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './MapPage.module.css'
@@ -22,11 +23,33 @@ function defaultDate(): string {
     : localDateStr()
 }
 
+function defaultTimeFrom(): string {
+  const now = new Date()
+  const totalMin = now.getHours() * 60 + now.getMinutes()
+  const rounded = Math.ceil(totalMin / 15) * 15
+  if (rounded < 9 * 60) return '09:00'
+  if (rounded >= 19 * 60) return '09:00'
+  const h = Math.floor(rounded / 60)
+  const m = rounded % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+}
+
 // ─── Converter ────────────────────────────────────────────────────────────────
 
 function isoToTime(iso: string): string {
   const d = new Date(iso)
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+function expandBookingToSlots(startsAt: string, endsAt: string): string[] {
+  const slots: string[] = []
+  const cur = new Date(startsAt)
+  const end = new Date(endsAt)
+  while (cur < end) {
+    slots.push(isoToTime(cur.toISOString()))
+    cur.setMinutes(cur.getMinutes() + 15)
+  }
+  return slots
 }
 
 function resourcesToZones(
@@ -265,7 +288,7 @@ export default function MapPage() {
   const [resources,         setResources]         = useState<Resource[]>([])
   const [loading,           setLoading]           = useState(true)
   const [date,              setDate]              = useState(defaultDate())
-  const [timeFrom,          setTimeFrom]          = useState('09:00')
+  const [timeFrom,          setTimeFrom]          = useState(defaultTimeFrom())
   const [timeTo,            setTimeTo]            = useState('18:00')
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
   const [confirmDesk,           setConfirmDesk]           = useState<Desk | null>(null)
@@ -292,7 +315,7 @@ export default function MapPage() {
           slotsByResource.set(
             r.resource_id,
             bs.filter(b => b.starts_at && b.ends_at)
-              .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
+              .flatMap(b => expandBookingToSlots(b.starts_at!, b.ends_at!))
           )
           const isBusy = bs.some(b =>
             b.starts_at && b.ends_at &&
@@ -346,6 +369,15 @@ export default function MapPage() {
 
   async function handleConfirm() {
     if (!confirmDesk || !user || !confirmDesk.resourceId) return
+
+    const bookingStart = new Date(`${date}T${timeFrom}:00`)
+    if (bookingStart <= new Date()) {
+      setConfirmDesk(null)
+      setToast('Выберите время в будущем')
+      setTimeout(() => setToast(null), 3500)
+      return
+    }
+
     const userId = user.id
     const resourceId = confirmDesk.resourceId
     const desk = confirmDesk
@@ -370,6 +402,7 @@ export default function MapPage() {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
+          <NotificationCenter />
           {displayName && <span>{displayName}</span>}
           <button className={styles.logoutBtn} onClick={() => {
             localStorage.removeItem('access_token')

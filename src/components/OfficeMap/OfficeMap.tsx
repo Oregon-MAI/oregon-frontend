@@ -22,7 +22,7 @@ function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: 
 
   const fill = isBusy ? '#9CA3AF' : isMine ? '#1A56DB' : '#A7F3D0'
   const stroke = isBusy ? '#E5E7EB' : isMine ? '#1245B5' : '#E5E7EB'
-  const textColor = isMine ? '#fff' : '#374151'
+  const textColor = isMine ? '#fff' : '#059669'
   const circleColor = isMine ? '#F97316' : '#D1D5DB'
 
   const tooltip = isBusy && desk.bookedSlots.length > 0
@@ -32,7 +32,7 @@ function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: 
   return (
     <div className={styles.deskWrap} data-tooltip={tooltip}>
       <svg
-        width="40" height="40"
+        width="46" height="46"
         viewBox="0 0 72 72"
         style={{ cursor: isBusy ? 'default' : 'pointer' }}
         onClick={() => !isBusy && onClick(desk)}
@@ -46,7 +46,6 @@ function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: 
           <circle cx="36" cy="36" r="10" fill={circleColor} />
         )}
 
-        {/* Если моё место — оранжевый круг */}
         {isMine && (
           <circle cx="36" cy="36" r="10" fill="#F97316" />
         )}
@@ -55,10 +54,10 @@ function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: 
         {!isBusy && !isMine && (
           <text x="36" y="36"
             textAnchor="middle" dominantBaseline="middle"
-            fontSize="11" fontWeight="700"
+            fontSize="20" fontWeight="700"
             fontFamily="Plus Jakarta Sans, sans-serif"
             fill={textColor}>
-            {desk.id}
+            {desk.id.replace('-', '')}
           </text>
         )}
       </svg>
@@ -78,7 +77,7 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
   const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
   const textFill  = isMine ? '#ffffff' : isBusy ? 'transparent' : '#059669'
 
-  const W = 60, H = 28, CRX = 8.26, CRY = 8.26
+  const W = 69, H = 32, CRX = 9.5, CRY = 9.5
   const gap = 2
   const SVG_H = CRY + gap + H
   const cx = W / 2
@@ -103,11 +102,14 @@ function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bot
           fill={chairFill}
         />
         <rect x="0" y={deskY} width={W} height={H} rx="4" fill={deskFill} />
-        {!isBusy && (
+        {isMine && (
+          <circle cx={cx} cy={deskY + H / 2} r="10" fill="#F97316" />
+        )}
+        {!isBusy && !isMine && (
           <text x={cx} y={deskY + H / 2} textAnchor="middle" dominantBaseline="central"
-            fontSize="9" fontWeight="700" fill={textFill}
+            fontSize="13" fontWeight="700" fill={textFill}
             fontFamily="Plus Jakarta Sans, sans-serif">
-            {desk.id}
+            {desk.id.replace('-', '')}
           </text>
         )}
       </svg>
@@ -142,7 +144,7 @@ function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) =
 
   return (
     <div className={styles.deskWrap} data-tooltip={tooltip}>
-      <svg width="44" height="45" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
+      <svg width="51" height="52" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
         style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
         onClick={() => !isBusy && onClick?.(desk)}
       >
@@ -157,11 +159,11 @@ function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) =
           <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
           <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
         </g>
-        {!isBusy && (
+        {!isBusy && !isMine && (
           <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central"
-            fontSize="8" fontWeight="700" fill={textFill}
+            fontSize="11" fontWeight="700" fill={textFill}
             fontFamily="Plus Jakarta Sans, sans-serif">
-            {desk.id}
+            {desk.id.replace('-', '')}
           </text>
         )}
       </svg>

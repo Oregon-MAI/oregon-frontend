@@ -1,5 +1,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { getResourcesList } from '../../api/resourceApi'
+import { getUsers } from '../../api/authApi'
 import styles from './AdminLayout.module.css'
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -84,6 +87,23 @@ function NavItem({
 export default function AdminLayout() {
   const { user, setUser } = useAuth()
   const navigate = useNavigate()
+  const [counts, setCounts] = useState({ workspaces: 0, rooms: 0, equipment: 0, users: 0 })
+
+  useEffect(() => {
+    Promise.all([
+      getResourcesList(['RESOURCE_TYPE_WORKSPACE']).catch(() => []),
+      getResourcesList(['RESOURCE_TYPE_MEETING_ROOM']).catch(() => []),
+      getResourcesList(['RESOURCE_TYPE_DEVICE']).catch(() => []),
+      getUsers().catch(() => []),
+    ]).then(([ws, rooms, devices, users]) => {
+      setCounts({
+        workspaces: ws.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE').length,
+        rooms: rooms.filter(r => r.type === 'RESOURCE_TYPE_MEETING_ROOM').length,
+        equipment: devices.filter(r => r.type === 'RESOURCE_TYPE_DEVICE').length,
+        users: users.length,
+      })
+    })
+  }, [])
 
   const initials = user
     ? `${user.surname?.charAt(0) ?? ''}${user.name?.charAt(0) ?? ''}`.toUpperCase()
@@ -120,15 +140,15 @@ export default function AdminLayout() {
         <div className={styles.sectionLabel}>РЕСУРСЫ</div>
 
         <nav className={styles.nav}>
-          <NavItem to="/admin/workspaces" icon={<IconWorkspace />} label="Рабочие места" count={0} />
-          <NavItem to="/admin/rooms" icon={<IconRoom />} label="Переговорные" count={0} />
-          <NavItem to="/admin/equipment" icon={<IconLaptop />} label="Техника" count={0} />
+          <NavItem to="/admin/workspaces" icon={<IconWorkspace />} label="Рабочие места" count={counts.workspaces} />
+          <NavItem to="/admin/rooms" icon={<IconRoom />} label="Переговорные" count={counts.rooms} />
+          <NavItem to="/admin/equipment" icon={<IconLaptop />} label="Техника" count={counts.equipment} />
         </nav>
 
         <div className={styles.sectionLabel} style={{ marginTop: 16 }}>ПОЛЬЗОВАТЕЛИ</div>
 
         <nav className={styles.nav}>
-          <NavItem to="/admin/users" icon={<IconUsers />} label="Пользователи" count={0} />
+          <NavItem to="/admin/users" icon={<IconUsers />} label="Пользователи" count={counts.users} />
         </nav>
 
         {/* Spacer */}

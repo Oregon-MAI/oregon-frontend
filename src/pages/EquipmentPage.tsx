@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationCenter from '../components/NotificationCenter'
 import styles from './EquipmentPage.module.css'
 import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
@@ -371,6 +372,7 @@ export default function EquipmentPage() {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
+          <NotificationCenter />
           {displayName && <span>{displayName}</span>}
           <button className={styles.logoutBtn} onClick={() => {
             localStorage.removeItem('access_token')

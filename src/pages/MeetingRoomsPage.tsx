@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationCenter from '../components/NotificationCenter'
 import styles from './MeetingRoomsPage.module.css'
 import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
@@ -493,6 +494,7 @@ export default function MeetingRoomsPage() {
           <span className={styles.logoText}>Workspace</span>
         </div>
         <div className={styles.topbarRight}>
+          <NotificationCenter />
           {displayName && <span>{displayName}</span>}
           <button className={styles.logoutBtn} onClick={() => {
             localStorage.removeItem('access_token')

@@ -6,10 +6,10 @@ import {
   updateResource,
   deleteResource,
   changeResourceStatus,
+  getResourceBookings,
 } from '../../api/resourceApi'
 import styles from './AdminWorkspacesPage.module.css'
 
-const PAGE_SIZE = 7
 
 const ZONES = ['A', 'B', 'D'] as const
 type Zone = typeof ZONES[number]
@@ -26,6 +26,11 @@ function statusLabel(s: ResourceStatus): { text: string; cls: string } {
     case 'RESOURCE_STATUS_OCCUPIED':   return { text: 'Занято',     cls: 'occupied' }
     default:                           return { text: 'Недоступно', cls: 'maintenance' }
   }
+}
+
+function effectiveStatus(r: Resource, bookedNowIds: Set<string>): ResourceStatus {
+  if (r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY') return r.status
+  return bookedNowIds.has(r.resource_id) ? 'RESOURCE_STATUS_OCCUPIED' : 'RESOURCE_STATUS_AVAILABLE'
 }
 
 interface WorkspaceForm {
@@ -53,12 +58,6 @@ function IconPlus() {
     </svg>
   )
 }
-function IconChevronLeft() {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="15 18 9 12 15 6"/></svg>
-}
-function IconChevronRight() {
-  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="9 18 15 12 9 6"/></svg>
-}
 
 function WorkspaceModal({ mode, initial, onSave, onClose }: {
   mode: 'add' | 'edit'
@@ -76,7 +75,12 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
 
   async function handleSave() {
     if (!form.number.trim()) { setError('Введите номер места'); return }
-    if (!/^\d+$/.test(form.number.trim())) { setError('Номер места должен быть числом'); return }
+    if (mode === 'add') {
+      const nums = form.number.trim().split(/\s+/)
+      if (nums.some(n => !/^\d+$/.test(n))) { setError('Номера мест должны быть числами'); return }
+    } else {
+      if (!/^\d+$/.test(form.number.trim())) { setError('Номер места должен быть числом'); return }
+    }
     if (!form.floor.trim()) { setError('Введите этаж'); return }
     if (!/^\d+$/.test(form.floor.trim())) { setError('Этаж должен быть числом'); return }
     setSaving(true); setError(null)
@@ -85,7 +89,9 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
     finally { setSaving(false) }
   }
 
-  const resourceId = `${form.zone}-${form.number}`
+  const previewIds = mode === 'add'
+    ? form.number.trim().split(/\s+/).filter(Boolean).map(n => `${form.zone}-${n}`).join(', ')
+    : `${form.zone}-${form.number}`
 
   return (
     <>
@@ -134,15 +140,27 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
 
               {/* Номер места */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Номер места *</label>
+                <label className={styles.formLabel}>
+                  {mode === 'add' ? 'Номера мест *' : 'Номер места *'}
+                </label>
                 <input
                   className={styles.formInput}
-                  placeholder="49"
+                  placeholder={mode === 'add' ? '49 50 51' : '49'}
                   value={form.number}
-                  onChange={e => set('number', e.target.value.replace(/\D/g, ''))}
+                  onChange={e => set('number', mode === 'add'
+                    ? e.target.value.replace(/[^\d\s]/g, '')
+                    : e.target.value.replace(/\D/g, '')
+                  )}
                   readOnly={mode === 'edit'}
                 />
-                {form.number && <span className={styles.formHelper}>ID: {resourceId}</span>}
+                {mode === 'add' && (
+                  <span className={styles.formHelper}>
+                    Несколько номеров — через пробел
+                  </span>
+                )}
+                {form.number.trim() && (
+                  <span className={styles.formHelper}>ID: {previewIds}</span>
+                )}
               </div>
             </div>
 
@@ -220,16 +238,34 @@ export default function AdminWorkspacesPage() {
   const [resources, setResources] = useState<Resource[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [page, setPage] = useState(1)
   const [showModal, setShowModal] = useState(false)
   const [editTarget, setEditTarget] = useState<Resource | null>(null)
   const [toast, setToast] = useState<string | null>(null)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
+  const [bookedNowIds, setBookedNowIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     setLoading(true)
+    const today = new Date().toISOString().slice(0, 10)
+    const dayFrom = new Date(`${today}T00:00:00`).toISOString()
+    const dayTo   = new Date(`${today}T23:59:59`).toISOString()
     getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
-      .then(list => setResources(list.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')))
+      .then(async list => {
+        const workspaces = list.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')
+        setResources(workspaces)
+        const now = new Date()
+        const bookingsPerResource = await Promise.all(
+          workspaces.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
+        )
+        const nowSet = new Set<string>()
+        workspaces.forEach((r, i) => {
+          const active = bookingsPerResource[i].some(
+            b => b.starts_at && b.ends_at && new Date(b.starts_at) <= now && new Date(b.ends_at) >= now
+          )
+          if (active) nowSet.add(r.resource_id)
+        })
+        setBookedNowIds(nowSet)
+      })
       .catch(() => setError('Не удалось загрузить рабочие места'))
       .finally(() => setLoading(false))
   }, [])
@@ -239,8 +275,6 @@ export default function AdminWorkspacesPage() {
     setTimeout(() => setToast(null), 3500)
   }
 
-  const totalPages = Math.max(1, Math.ceil(resources.length / PAGE_SIZE))
-  const pageItems = resources.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
 
   function resourceToForm(r: Resource): WorkspaceForm {
     const [zone, number] = r.name.split('-')
@@ -255,19 +289,33 @@ export default function AdminWorkspacesPage() {
   }
 
   async function handleAdd(form: WorkspaceForm) {
-    const name = `${form.zone}-${form.number}`
-    const created = await createResource({
-      name,
-      type: 'RESOURCE_TYPE_WORKSPACE',
-      location: `${form.floor} этаж`,
-      details: { has_monitor: form.has_monitor },
-    })
-    if (form.unavailable) {
-      await changeResourceStatus({ resource_id: created.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })
-      created.status = 'RESOURCE_STATUS_MAINTENANCE'
-    }
-    setResources(prev => [created, ...prev])
-    showToast(`Место ${name} добавлено`)
+    const numbers = form.number.trim().split(/\s+/).filter(Boolean)
+
+    const inputDupes = numbers.filter((n, i) => numbers.indexOf(n) !== i)
+    if (inputDupes.length > 0)
+      throw new Error(`Повторяющиеся номера в вводе: ${[...new Set(inputDupes)].join(', ')}`)
+
+    const existingNames = new Set(resources.map(r => r.name))
+    const conflicts = numbers.filter(n => existingNames.has(`${form.zone}-${n}`))
+    if (conflicts.length > 0)
+      throw new Error(`Уже существуют: ${conflicts.map(n => `${form.zone}-${n}`).join(', ')}`)
+
+    const created = await Promise.all(numbers.map(async num => {
+      const name = `${form.zone}-${num}`
+      const resource = await createResource({
+        name,
+        type: 'RESOURCE_TYPE_WORKSPACE',
+        location: `${form.floor} этаж`,
+        details: { has_monitor: form.has_monitor },
+      })
+      if (form.unavailable) {
+        await changeResourceStatus({ resource_id: resource.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })
+        resource.status = 'RESOURCE_STATUS_MAINTENANCE'
+      }
+      return resource
+    }))
+    setResources(prev => [...created, ...prev])
+    showToast(created.length === 1 ? `Место ${created[0].name} добавлено` : `Добавлено ${created.length} мест`)
   }
 
   async function handleEdit(form: WorkspaceForm) {
@@ -313,6 +361,7 @@ export default function AdminWorkspacesPage() {
           : error ? <div className={styles.errorMsg}>{error}</div>
           : (
             <>
+              <div className={styles.tableScroll}>
               <table className={styles.table}>
                 <thead>
                   <tr>
@@ -325,10 +374,10 @@ export default function AdminWorkspacesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {pageItems.map(r => {
+                  {resources.map(r => {
                     const [zone] = r.name.split('-')
                     const zoneName = ZONE_NAMES[zone as Zone] ?? 'Общая зона'
-                    const { text, cls } = statusLabel(r.status)
+                    const { text, cls } = statusLabel(effectiveStatus(r, bookedNowIds))
                     return (
                       <tr key={r.resource_id} className={styles.tr}>
                         <td className={styles.td}><span className={styles.idLink}>{r.name}</span></td>
@@ -350,19 +399,13 @@ export default function AdminWorkspacesPage() {
                       </tr>
                     )
                   })}
-                  {pageItems.length === 0 && <tr><td colSpan={6} className={styles.emptyRow}>Рабочие места не найдены</td></tr>}
+                  {resources.length === 0 && <tr><td colSpan={6} className={styles.emptyRow}>Рабочие места не найдены</td></tr>}
                 </tbody>
               </table>
+              </div>
 
               <div className={styles.tableFooter}>
-                <span className={styles.footerInfo}>Показано {pageItems.length} из {resources.length}</span>
-                <div className={styles.pagination}>
-                  <button type="button" className={styles.pageBtn} onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}><IconChevronLeft /></button>
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-                    <button key={n} type="button" className={`${styles.pageBtn} ${page === n ? styles.pageBtnActive : ''}`} onClick={() => setPage(n)}>{n}</button>
-                  ))}
-                  <button type="button" className={styles.pageBtn} onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}><IconChevronRight /></button>
-                </div>
+                <span className={styles.footerInfo}>{resources.length} мест</span>
               </div>
             </>
           )}
