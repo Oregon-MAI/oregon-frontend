@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { confirmNotification, createNotificationsStream } from '../api/notificationApi'
+import { useAuth } from '../context/AuthContext'
 import styles from './NotificationCenter.module.css'
 
 type Notification = {
@@ -8,29 +10,6 @@ type Notification = {
   time: string
   unread?: boolean
 }
-
-const STUB_NOTIFICATIONS: Notification[] = [
-  {
-    id: 'booking-starts-soon',
-    title: 'Бронь скоро начнется',
-    message: 'Рабочее место A-14 будет доступно с 14:00.',
-    time: '10 мин назад',
-    unread: true,
-  },
-  {
-    id: 'room-confirmed',
-    title: 'Переговорная подтверждена',
-    message: 'Комната B2 забронирована сегодня с 16:00 до 17:00.',
-    time: '1 час назад',
-    unread: true,
-  },
-  {
-    id: 'equipment-ready',
-    title: 'Техника готова к выдаче',
-    message: 'Ноутбук MacBook Pro 14" можно забрать на ресепшене.',
-    time: 'Вчера',
-  },
-]
 
 function BellIcon() {
   return (
@@ -51,8 +30,44 @@ function CloseIcon() {
 }
 
 export default function NotificationCenter() {
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
-  const unreadCount = STUB_NOTIFICATIONS.filter(notification => notification.unread).length
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [hasStreamError, setHasStreamError] = useState(false)
+  const unreadCount = notifications.filter(notification => notification.unread).length
+
+  useEffect(() => {
+    if (!user?.id) {
+      setNotifications([])
+      setHasStreamError(false)
+      return
+    }
+
+    const source = createNotificationsStream(
+      user.id,
+      message => {
+        setHasStreamError(false)
+        setNotifications(prev => {
+          if (prev.some(notification => notification.id === message.id)) return prev
+          return [
+            {
+              id: message.id,
+              title: 'Новое уведомление',
+              message: message.text,
+              time: 'Только что',
+              unread: true,
+            },
+            ...prev,
+          ]
+        })
+      },
+      () => {
+        setHasStreamError(true)
+      },
+    )
+
+    return () => source.close()
+  }, [user?.id])
 
   useEffect(() => {
     if (!isOpen) return
@@ -64,6 +79,27 @@ export default function NotificationCenter() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [isOpen])
+
+  async function handleNotificationClick(notification: Notification) {
+    if (!user?.id) return
+
+    setNotifications(prev =>
+      prev.map(item =>
+        item.id === notification.id ? { ...item, unread: false } : item,
+      ),
+    )
+
+    try {
+      await confirmNotification(user.id, notification.id)
+      setNotifications(prev => prev.filter(item => item.id !== notification.id))
+    } catch {
+      setNotifications(prev =>
+        prev.map(item =>
+          item.id === notification.id ? { ...item, unread: true } : item,
+        ),
+      )
+    }
+  }
 
   return (
     <>
@@ -89,7 +125,9 @@ export default function NotificationCenter() {
             <div className={styles.header}>
               <div>
                 <h2 id="notifications-title" className={styles.title}>Уведомления</h2>
-                <p className={styles.subtitle}>Пока показаны тестовые данные</p>
+                <p className={styles.subtitle}>
+                  {hasStreamError ? 'Сервис уведомлений недоступен' : 'Онлайн-уведомления'}
+                </p>
               </div>
               <button
                 type="button"
@@ -102,8 +140,18 @@ export default function NotificationCenter() {
             </div>
 
             <div className={styles.list}>
-              {STUB_NOTIFICATIONS.map(notification => (
-                <article key={notification.id} className={styles.item}>
+              {notifications.length === 0 && (
+                <div className={styles.emptyState}>
+                  Новых уведомлений нет
+                </div>
+              )}
+
+              {notifications.map(notification => (
+                <article
+                  key={notification.id}
+                  className={styles.item}
+                  onClick={() => handleNotificationClick(notification)}
+                >
                   <div className={notification.unread ? styles.unreadDot : styles.readDot} />
                   <div className={styles.itemBody}>
                     <div className={styles.itemTop}>
