@@ -1,8 +1,8 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { useAuth } from '../../context/AuthContext'
-import { getResourcesList } from '../../api/resourceApi'
-import { getUsers } from '../../api/authApi'
+import { useAuth } from '../../features/auth/model/AuthContext'
+import { getResourcesList } from '../../features/resources/api/resourceApi'
+import { getUsers } from '../../features/auth/api/userApi'
 import styles from './AdminLayout.module.css'
 
 // ─── Icons ────────────────────────────────────────────────────────────────────

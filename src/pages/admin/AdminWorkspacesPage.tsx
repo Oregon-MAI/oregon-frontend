@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import type { Resource, ResourceStatus } from '../../types/resource'
+import { getResourceBookings } from '../../features/bookings/api/bookingApi'
 import {
   getResourcesList,
   createResource,
   updateResource,
   deleteResource,
   changeResourceStatus,
-  getResourceBookings,
-} from '../../api/resourceApi'
+} from '../../features/resources/api/resourceApi'
 import styles from './AdminWorkspacesPage.module.css'
 
 

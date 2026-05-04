@@ -1,8 +1,8 @@
 import type { Desk } from '../../types/map'
 import styles from './BookingPanel.module.css'
 import { useState } from 'react'
-import { createBooking } from '../../api/resourceApi'
-import { useAuth } from '../../context/AuthContext'
+import { createBooking } from '../../features/bookings/api/bookingApi'
+import { useAuth } from '../../features/auth/model/AuthContext'
 
 // Все слоты по 15 минут с 09:00 до 15:30
 const ALL_SLOTS = [

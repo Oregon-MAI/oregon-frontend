@@ -1,7 +1,7 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { register, decodeToken } from '../api/authApi'
-import { useAuth } from '../context/AuthContext'
+import { register, decodeToken } from '../features/auth/api/authApi'
+import { useAuth } from '../features/auth/model/AuthContext'
 import styles from './LoginPage.module.css'
 
 function EyeOn() {

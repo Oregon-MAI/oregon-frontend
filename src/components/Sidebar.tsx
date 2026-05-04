@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../features/auth/model/AuthContext'
 import styles from './Sidebar.module.css'
 import { useNavigate } from 'react-router-dom'
 function IconMap() {

@@ -12,12 +12,11 @@ RUN npm run build
 # ── Stage 2: serve ────────────────────────────────────────────────────────────
 FROM node:20-alpine AS runner
 
-RUN npm install -g serve
-
 WORKDIR /app
 
 COPY --from=builder /app/dist ./dist
+COPY server.cjs ./server.cjs
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "dist", "-l", "3000"]
+CMD ["node", "server.cjs"]

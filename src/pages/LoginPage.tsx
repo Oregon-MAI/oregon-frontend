@@ -1,8 +1,9 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../features/auth/model/AuthContext'
 import styles from './LoginPage.module.css'
-import { login, decodeToken, getUser } from '../api/authApi'
+import { login, decodeToken } from '../features/auth/api/authApi'
+import { getUser } from '../features/auth/api/userApi'
 
 function EyeOn() {
   return (

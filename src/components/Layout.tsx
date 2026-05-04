@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../features/auth/model/AuthContext'
 import NotificationCenter from './NotificationCenter'
 import Sidebar from './Sidebar'
 import styles from './Layout.module.css'

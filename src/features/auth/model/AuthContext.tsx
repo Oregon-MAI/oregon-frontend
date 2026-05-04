@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useEffect, type Dispatch, type SetStateAction } from 'react'
-import type { Booking } from '../types/map'
-import { decodeToken, getUser } from '../api/authApi'
-import { getMyBookings } from '../api/resourceApi'
-// import { validate } from '../api/authApi'
+import { createContext, useContext, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { getMyBookings } from '../../bookings/api/bookingApi'
+import { getUser } from '../api/userApi'
+import { decodeToken } from '../api/authApi'
+import type { Booking } from '../../../types/map'
 
 export interface User {
   id: string
@@ -46,7 +46,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsLoading(false)
   }, [])
 
-  // Загружаем брони каждый раз когда меняется пользователь
   useEffect(() => {
     if (!user?.id) return
     getMyBookings(user.id)

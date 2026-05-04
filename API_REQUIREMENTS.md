@@ -1,27 +1,48 @@
-# API Requirements — Frontend T1
+# API Requirements — T1 Workspace Frontend
 
-Базовый URL: `VITE_API_URL` (по умолчанию `/api/v1`)
+Документ описывает HTTP-контракт, который сейчас использует фронтенд.
 
-Все защищённые ручки требуют заголовок:
+## Base URLs
+
+Основной API:
+
+```text
+VITE_API_URL=/api/v1
 ```
-Authorization: Bearer {access_token}
+
+В dev и production фронт ходит относительными URL. Прокси:
+
+```text
+/api -> http://localhost:8000
+/notifications -> http://localhost:8000
 ```
 
----
+Production server проксирует `/api` и `/notifications` в `API_GATEWAY_URL`.
+По умолчанию:
 
-## 1. Аутентификация
+```text
+API_GATEWAY_URL=http://localhost:8000
+```
 
-### POST /auth/login
-Вход по логину и паролю.
+Все защищенные ручки должны получать:
 
-**Request:**
+```http
+Authorization: Bearer <access_token>
+```
+
+## Auth
+
+### POST /api/v1/auth/login
+
 ```json
 {
   "login": "string",
   "password": "string"
 }
 ```
-**Response:**
+
+Response:
+
 ```json
 {
   "access_token": "string",
@@ -29,12 +50,8 @@ Authorization: Bearer {access_token}
 }
 ```
 
----
+### POST /api/v1/auth/register
 
-### POST /auth/register
-Регистрация нового пользователя.
-
-**Request:**
 ```json
 {
   "login": "string",
@@ -44,7 +61,9 @@ Authorization: Bearer {access_token}
   "email": "string"
 }
 ```
-**Response:**
+
+Response:
+
 ```json
 {
   "access_token": "string",
@@ -52,12 +71,43 @@ Authorization: Bearer {access_token}
 }
 ```
 
----
+### POST /api/v1/auth/validate
 
-### POST /auth/validate
-Проверка текущей сессии и получение данных пользователя. Вызывается при каждом открытии приложения.
+Фронт использует для проверки access token через gateway/SSO.
 
-**Response:**
+Response:
+
+```json
+{
+  "id": "string",
+  "roles": ["ADMIN"],
+  "exp": 1770000000
+}
+```
+
+### POST /api/v1/auth/refresh
+
+Refresh token передается в заголовке:
+
+```http
+Authorization: Bearer <refresh_token>
+```
+
+Response:
+
+```json
+{
+  "access_token": "string",
+  "refresh_token": "string"
+}
+```
+
+## Users
+
+### GET /api/v1/user/user?id=<uuid>
+
+Response:
+
 ```json
 {
   "id": "string",
@@ -65,31 +115,47 @@ Authorization: Bearer {access_token}
   "name": "string",
   "surname": "string",
   "email": "string",
-  "roles": ["string"]
+  "roles": [
+    { "name": "ADMIN" }
+  ]
 }
 ```
-Роли: `ADMIN`, `USER` 
 
----
+### GET /api/v1/user/users
 
-### POST /auth/refresh
-Обновление access_token по refresh_token. Вызывается автоматически при 401.
+Response:
 
-**Response:**
+```json
+[
+  {
+    "id": "string",
+    "login": "string",
+    "name": "string",
+    "surname": "string",
+    "email": "string",
+    "roles": [
+      { "name": "USER" }
+    ]
+  }
+]
+```
+
+### DELETE /api/v1/user/delete_user
+
+Request body:
+
 ```json
 {
-  "access_token": "string",
-  "refresh_token": "string"
+  "id": "string"
 }
 ```
 
----
+## Resources
 
-## 2. Ресурсы (ResourcePublicService)
+Ресурс — единая сущность для рабочих мест, переговорных и оборудования.
 
-Все рабочие места, переговорки и оборудование — единая сущность `Resource`.
+### Resource
 
-### Структура Resource
 ```json
 {
   "resource_id": "string",
@@ -97,223 +163,391 @@ Authorization: Bearer {access_token}
   "type": "RESOURCE_TYPE_WORKSPACE",
   "location": "string",
   "status": "RESOURCE_STATUS_AVAILABLE",
-  "meeting_room": { "capacity": 8, "has_projector": true, "has_whiteboard": true },
-  "workspace":    { "has_monitor": true },
-  "device":       { "device_type": "string", "serial_number": "string", "model": "string", "description": "string" },
-  "created_at": "timestamp",
-  "updated_at": "timestamp"
+  "meeting_room": {
+    "capacity": 8,
+    "has_projector": true,
+    "has_whiteboard": true
+  },
+  "workspace": {
+    "has_monitor": true
+  },
+  "device": {
+    "device_type": "laptop",
+    "serial_number": "string",
+    "model": "string",
+    "description": "string"
+  },
+  "created_at": "2026-05-04T10:00:00Z",
+  "updated_at": "2026-05-04T10:00:00Z"
 }
 ```
 
-> `oneof details` из proto сериализуется плоско — только одно из полей (`meeting_room`, `workspace`, `device`) присутствует в ответе в зависимости от типа ресурса.
+`meeting_room`, `workspace`, `device` — proto `oneof`; в одном ресурсе приходит только одно из этих полей.
 
-**Типы (`type`):**
-| Значение | Что это |
-|----------|---------|
-| `RESOURCE_TYPE_MEETING_ROOM` | Переговорная комната |
-| `RESOURCE_TYPE_WORKSPACE` | Рабочее место / стол |
-| `RESOURCE_TYPE_DEVICE` | Оборудование |
+Resource types:
 
-**Статусы (`status`):**
-| Значение | Что это |
-|----------|---------|
-| `RESOURCE_STATUS_AVAILABLE` | Свободен |
-| `RESOURCE_STATUS_OCCUPIED` | Занят прямо сейчас |
-| `RESOURCE_STATUS_MAINTENANCE` | Плановое обслуживание |
-| `RESOURCE_STATUS_EMERGENCY` | Форс-мажор |
-
-> Статус `mine` (забронировано мной) — фронтенд определяет сам, сверяя `resource_id` с бронированиями из `/bookings/my`.
-
----
-
-### GetResourcesList
-Получить список ресурсов с фильтром по типу. Используется для страниц карты, переговорок и оборудования.
-
-**Request:**
-```json
-{
-  "types": ["RESOURCE_TYPE_WORKSPACE"]
-}
+```text
+RESOURCE_TYPE_MEETING_ROOM
+RESOURCE_TYPE_WORKSPACE
+RESOURCE_TYPE_DEVICE
 ```
-Можно передать несколько типов или пустой массив (вернёт все).
 
-**Response:**
+Resource statuses:
+
+```text
+RESOURCE_STATUS_AVAILABLE
+RESOURCE_STATUS_OCCUPIED
+RESOURCE_STATUS_MAINTENANCE
+RESOURCE_STATUS_EMERGENCY
+```
+
+### GET /api/v1/resources/list
+
+Получить список ресурсов. Фильтр по типу передается повторяющимся query-параметром:
+
+```text
+GET /api/v1/resources/list?type=RESOURCE_TYPE_DEVICE
+GET /api/v1/resources/list?type=RESOURCE_TYPE_MEETING_ROOM&type=RESOURCE_TYPE_WORKSPACE
+```
+
+Response:
+
 ```json
 {
-  "resources": [ /* Resource[] */ ]
+  "resources": []
 }
 ```
 
----
+### GET /api/v1/resources
 
-### GetAvailableResources
-Получить только свободные ресурсы. Фильтрация по типу и локации.
+Получить доступные ресурсы с фильтрами:
 
-**Request:**
+```text
+GET /api/v1/resources?type=RESOURCE_TYPE_MEETING_ROOM&location=Office
+```
+
+Фронт также может передавать `starts_at` и `ends_at`, но текущий gateway учитывает только `type` и `location`.
+
+Response:
+
 ```json
 {
-  "types": ["RESOURCE_TYPE_MEETING_ROOM"],
-  "location": "11 этаж"
+  "resources": [],
+  "total_count": 0
 }
 ```
-**Response:**
+
+### GET /api/v1/resources/:id
+
+Response:
+
 ```json
 {
-  "resources": [ /* Resource[] */ ],
-  "total_count": 5
+  "resource": {}
 }
 ```
 
----
+### POST /api/v1/resources
 
-### GetResource
-Получить один ресурс по ID.
+Admin only.
 
-**Request:**
-```json
-{ "resource_id": "string" }
-```
-**Response:**
-```json
-{ "resource": { /* Resource */ } }
-```
+Meeting room:
 
----
-
-### CreateResource
-Создать новый ресурс (только администратор).
-
-**Request:**
 ```json
 {
-  "name": "Переговорка A3",
+  "name": "Meeting Room Alpha",
   "type": "RESOURCE_TYPE_MEETING_ROOM",
-  "location": "11 этаж, крыло А",
-  "meeting_room": { "capacity": 6, "has_projector": true, "has_whiteboard": false }
-}
-```
-**Response:**
-```json
-{ "resource": { /* Resource */ } }
-```
-
----
-
-### UpdateResource
-Обновить поля ресурса (только администратор). Передаётся `field_mask` с именами изменяемых полей.
-
-**Request:**
-```json
-{
-  "resource_id": "string",
-  "resource": { "name": "Новое название" },
-  "field_mask": { "paths": ["name"] }
-}
-```
-**Response:**
-```json
-{ "resource": { /* Resource */ } }
-```
-
----
-
-### ChangeResourceStatus
-Изменить статус ресурса с причиной (только администратор).
-
-**Request:**
-```json
-{
-  "resource_id": "string",
-  "status": "RESOURCE_STATUS_MAINTENANCE",
-  "reason": "Плановый ремонт кондиционера"
-}
-```
-**Response:**
-```json
-{ "resource": { /* Resource */ } }
-```
-
----
-
-### DeleteResource
-Удалить ресурс (только администратор).
-
-**Request:**
-```json
-{ "resource_id": "string" }
-```
-**Response:**
-```json
-{ "success": true }
-```
-
----
-
-## 3. Бронирования ресурсов
-
-Запросы на бронирование идут в отдельный booking-сервис. `resource_id` берётся из Resource.
-
-### POST /bookings
-Забронировать любой ресурс.
-
-**Request:**
-```json
-{
-  "resource_id": "string",
-  "date": "YYYY-MM-DD",
-  "time_from": "HH:MM",
-  "time_to": "HH:MM"
-}
-```
-**Response:**
-```json
-{
-  "id": "string",
-  "resource_id": "string",
-  "resource_name": "string",
-  "date": "YYYY-MM-DD",
-  "time_from": "HH:MM",
-  "time_to": "HH:MM"
-}
-```
-
----
-
-## 4. Бронирования пользователя
-
-### GET /bookings/my
-Получить список всех активных бронирований текущего пользователя.
-
-**Response:**
-```json
-[
-  {
-    "id": "string",
-    "resource_id": "string",
-    "resource_name": "string",
-    "date": "YYYY-MM-DD",
-    "time_from": "HH:MM",
-    "time_to": "HH:MM"
+  "location": "Office 1, Floor 3",
+  "meeting_room": {
+    "capacity": 12,
+    "has_projector": true,
+    "has_whiteboard": true
   }
-]
-```
-
----
-
-### DELETE /bookings/{id}
-Отменить бронирование.
-
-**Response:** `204 No Content` или `{ "success": true }`
-
----
-
-## 5. Обработка ошибок
-
-Все ручки при ошибке возвращают:
-```json
-{
-  "message": "Описание ошибки"
 }
 ```
 
+Workspace:
 
+```json
+{
+  "name": "A-1",
+  "type": "RESOURCE_TYPE_WORKSPACE",
+  "location": "11 этаж",
+  "workspace": {
+    "has_monitor": true
+  }
+}
+```
+
+Device:
+
+```json
+{
+  "name": "MacBook Pro",
+  "type": "RESOURCE_TYPE_DEVICE",
+  "location": "Склад",
+  "device": {
+    "device_type": "laptop",
+    "serial_number": "SN-001",
+    "model": "MacBook Pro 14",
+    "description": "M3"
+  }
+}
+```
+
+Response:
+
+```json
+{
+  "resource": {}
+}
+```
+
+### PUT /api/v1/resources/:id
+
+Admin only. Фронт отправляет resource payload и маску измененных полей.
+
+```json
+{
+  "resource": {
+    "name": "Meeting Room Omega",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "Office 2, Floor 1",
+    "meeting_room": {
+      "capacity": 10,
+      "has_projector": true,
+      "has_whiteboard": false
+    }
+  },
+  "paths": ["name", "type", "location", "meeting_room"],
+  "field_mask": "name,type,location,meeting_room"
+}
+```
+
+Фронт временно отправляет и `paths`, и `field_mask`, потому что README gateway использовал `paths`, а proto-поле называется `field_mask`.
+
+Response:
+
+```json
+{
+  "resource": {}
+}
+```
+
+### PATCH /api/v1/resources/:id/status
+
+```json
+{
+  "status": "RESOURCE_STATUS_MAINTENANCE",
+  "reason": "Projector maintenance"
+}
+```
+
+Response:
+
+```json
+{
+  "resource": {}
+}
+```
+
+### DELETE /api/v1/resources/:id
+
+Response:
+
+```json
+{
+  "success": true
+}
+```
+
+### GET /api/v1/resources/:id/status
+
+Проверка доступности ресурса.
+
+Response:
+
+```json
+{
+  "is_available": true,
+  "status": "RESOURCE_STATUS_AVAILABLE"
+}
+```
+
+### PATCH /api/v1/resources/:id/occupancy
+
+Системная ручка для booking/resource интеграции.
+
+```json
+{
+  "is_occupied": true
+}
+```
+
+## Bookings
+
+### Booking
+
+```json
+{
+  "booking_id": "string",
+  "resource_id": "string",
+  "user_id": "string",
+  "resource_name": "string",
+  "resource_location": "string",
+  "resource_type": "string",
+  "starts_at": "2026-05-04T10:00:00Z",
+  "ends_at": "2026-05-04T11:00:00Z",
+  "status": "BOOKING_STATUS_CONFIRMED",
+  "cancel_reason": "string",
+  "created_at": "2026-05-04T09:00:00Z",
+  "updated_at": "2026-05-04T09:00:00Z"
+}
+```
+
+Booking statuses:
+
+```text
+BOOKING_STATUS_CONFIRMED
+BOOKING_STATUS_CANCELED
+```
+
+### POST /api/v1/bookings
+
+Фронт отправляет `user_id`, но gateway может переопределить его из access token.
+
+```json
+{
+  "resource_id": "string",
+  "user_id": "string",
+  "starts_at": "2026-05-04T10:00:00.000Z",
+  "ends_at": "2026-05-04T11:00:00.000Z"
+}
+```
+
+Response:
+
+```json
+{
+  "booking": {}
+}
+```
+
+### GET /api/v1/bookings?user_id=<uuid>
+
+Получить бронирования пользователя.
+
+Response:
+
+```json
+{
+  "bookings": []
+}
+```
+
+### GET /api/v1/bookings/:booking_id
+
+Response:
+
+```json
+{
+  "booking": {}
+}
+```
+
+### POST /api/v1/bookings/:booking_id/cancel
+
+Отмена бронирования пользователем.
+
+Response:
+
+```json
+{
+  "booking": {}
+}
+```
+
+### POST /api/v1/admin/bookings/:booking_id/cancel
+
+Admin only. Административная отмена бронирования.
+
+Response:
+
+```json
+{
+  "booking": {}
+}
+```
+
+### GET /api/v1/resources/:id/bookings?from=<RFC3339>&to=<RFC3339>
+
+Получить бронирования ресурса за интервал.
+
+```text
+GET /api/v1/resources/RESOURCE_ID/bookings?from=2026-05-04T00:00:00.000Z&to=2026-05-04T23:59:59.000Z
+```
+
+Response:
+
+```json
+{
+  "bookings": []
+}
+```
+
+## Notifications
+
+Notifications идут через Envoy/gateway route без `/api/v1`:
+
+```text
+/notifications
+```
+
+Все notification-запросы отправляют:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+### GET /notifications/:user_id
+
+SSE stream. Фронт использует `fetch` stream, потому что native `EventSource` не умеет отправлять `Authorization`.
+
+События приходят в формате:
+
+```text
+data: {"id":"string","text":"string","user_id":"string"}
+```
+
+### POST /notifications/confirm/:user_id/:message_id
+
+Подтверждение прочтения уведомления.
+
+Response:
+
+```text
+success
+```
+
+Фронт делает retry на `502`, `503`, `504`.
+
+## Frontend Data Mapping
+
+Фронт нормализует backend DTO в UI-модели:
+
+- `Resource` нормализуется в `features/resources/lib/resourceMappers.ts`.
+- `Booking` нормализуется в `features/bookings/lib/bookingMappers.ts`.
+- `details` fallback поддерживается только для обратной совместимости; новые запросы отправляют `meeting_room`, `workspace`, `device`.
+- UI-статус `mine` фронт вычисляет сам по пересечению `resource_id` с бронированиями текущего пользователя.
+
+## Error Shape
+
+Gateway обычно возвращает ошибки так:
+
+```json
+{
+  "error": "message"
+}
+```
+
+SSO/notification service могут вернуть свой формат ошибки. Фронт не завязан на единый error DTO и обрабатывает неуспешный HTTP status.

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { register, getUsers, deleteUser } from '../../api/authApi'
+import { register } from '../../features/auth/api/authApi'
+import { deleteUser, getUsers } from '../../features/auth/api/userApi'
 import styles from './AdminWorkspacesPage.module.css'
 
 interface UserDto {

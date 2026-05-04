@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import type { Resource, ResourceStatus } from '../../types/resource'
-import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus, getResourceBookings } from '../../api/resourceApi'
+import { getResourceBookings } from '../../features/bookings/api/bookingApi'
+import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus } from '../../features/resources/api/resourceApi'
 
 function isoToTime(iso: string): string {
   const d = new Date(iso)

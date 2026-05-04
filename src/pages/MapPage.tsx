@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-import { createBooking } from '../api/resourceApi'
+import { useAuth } from '../features/auth/model/AuthContext'
+import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
 import OfficeMap from '../components/OfficeMap/OfficeMap'
 import NotificationCenter from '../components/NotificationCenter'
 import type { Zone, Desk } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './MapPage.module.css'
-import { getResourcesList, getResourceBookings } from '../api/resourceApi'
+import { getResourcesList } from '../features/resources/api/resourceApi'
 import TimeSelect from '../components/TimeSelect'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

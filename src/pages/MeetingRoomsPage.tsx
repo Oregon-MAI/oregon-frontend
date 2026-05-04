@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useAuth } from '../features/auth/model/AuthContext'
 import NotificationCenter from '../components/NotificationCenter'
 import styles from './MeetingRoomsPage.module.css'
 import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
-import { getResourcesList, createBooking, getResourceBookings } from '../api/resourceApi'
+import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
+import { getResourcesList } from '../features/resources/api/resourceApi'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
