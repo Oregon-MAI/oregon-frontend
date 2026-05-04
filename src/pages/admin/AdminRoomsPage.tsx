@@ -253,7 +253,13 @@ export default function AdminRoomsPage() {
     if (!editTarget) return
     const updated = await updateResource(
       editTarget.resource_id,
-      { name: form.name, type: 'RESOURCE_TYPE_MEETING_ROOM', location: form.location, details: { capacity: Number(form.capacity), has_projector: form.has_projector, has_whiteboard: form.has_whiteboard } },
+      {
+        name: form.name,
+        type: 'RESOURCE_TYPE_MEETING_ROOM',
+        location: form.location,
+        status: editTarget.status,
+        details: { capacity: Number(form.capacity), has_projector: form.has_projector, has_whiteboard: form.has_whiteboard },
+      },
     )
     if (form.unavailable && editTarget.status === 'RESOURCE_STATUS_AVAILABLE') {
       await changeResourceStatus({ resource_id: editTarget.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })

@@ -92,6 +92,13 @@ const TYPE_LABELS: Record<Equipment['type'], string> = {
   tv:       'Телевизор',
 }
 
+function isOnFloor(location: string, floor: number): boolean {
+  const normalized = location.trim()
+  if (!normalized) return floor === 11
+
+  return new RegExp(`(^|\\D)${floor}(\\D|$)`).test(normalized)
+}
+
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 function IconMap() {
@@ -333,13 +340,14 @@ export default function EquipmentPage() {
   }, [bookings, date, timeFrom, timeTo, refreshKey])
 
   const filtered = equipment.filter(e => {
+    if (!isOnFloor(e.location, currentFloor)) return false
     if (tab === 'mine' && e.status !== 'mine') return false
     if (typeFilter !== 'all' && e.type !== typeFilter) return false
     return true
   })
 
-  const freeCount  = equipment.filter(e => e.status === 'free').length
-  const totalCount = equipment.length
+  const freeCount  = filtered.filter(e => e.status === 'free').length
+  const totalCount = filtered.length
 
   function handleTake(item: Equipment) {
     setConfirmItem(item)

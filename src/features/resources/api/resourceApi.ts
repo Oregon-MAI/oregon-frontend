@@ -1,6 +1,6 @@
 import { api } from '../../../shared/api/httpClient'
 import type { Resource, ResourceType, CreateResourceRequest, ChangeResourceStatusRequest } from '../../../types/resource'
-import { extractResource, getResourceUpdatePaths, normalizeResource, withTypedResourceDetails } from '../lib/resourceMappers'
+import { extractResource, normalizeResource, withTypedResourceDetails } from '../lib/resourceMappers'
 
 export async function getResourcesList(types?: ResourceType[]): Promise<Resource[]> {
   const { data } = await api.get<{ resources: Resource[] }>('/resources/list', {
@@ -39,11 +39,13 @@ export async function createResource(payload: CreateResourceRequest): Promise<Re
 }
 
 export async function updateResource(resource_id: string, resource: Partial<Resource>): Promise<Resource> {
-  const paths = getResourceUpdatePaths(resource)
+  const { meeting_room, workspace, device, ...rest } = resource
+  const details = resource.details ?? meeting_room ?? workspace ?? device
+
   const { data } = await api.put(`/resources/${resource_id}`, {
-    resource: withTypedResourceDetails(resource),
-    paths,
-    field_mask: paths.join(','),
+    ...rest,
+    resource_id,
+    ...(details ? { details } : {}),
   })
   return extractResource(data)
 }

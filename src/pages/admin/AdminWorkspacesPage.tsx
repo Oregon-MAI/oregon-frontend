@@ -322,7 +322,13 @@ export default function AdminWorkspacesPage() {
     if (!editTarget) return
     const updated = await updateResource(
       editTarget.resource_id,
-      { name: editTarget.name, type: 'RESOURCE_TYPE_WORKSPACE', location: `${form.floor} этаж`, details: { has_monitor: form.has_monitor } },
+      {
+        name: editTarget.name,
+        type: 'RESOURCE_TYPE_WORKSPACE',
+        location: `${form.floor} этаж`,
+        status: editTarget.status,
+        details: { has_monitor: form.has_monitor },
+      },
     )
     if (form.unavailable && editTarget.status === 'RESOURCE_STATUS_AVAILABLE') {
       await changeResourceStatus({ resource_id: editTarget.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })

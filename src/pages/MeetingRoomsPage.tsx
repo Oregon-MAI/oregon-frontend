@@ -141,6 +141,7 @@ function IconCal() {
 // ─── Sidebar with filters ─────────────────────────────────────────────────────
 
 function RoomsSidebar({
+  currentFloor, setCurrentFloor,
   minCapacity, setMinCapacity,
   selectedAmenities, toggleAmenity,
   date, setDate,
@@ -150,6 +151,8 @@ function RoomsSidebar({
   hasFilters,
   bookings,
 }: {
+  currentFloor: number
+  setCurrentFloor: (floor: number) => void
   minCapacity: number
   setMinCapacity: (v: number) => void
   selectedAmenities: string[]
@@ -166,7 +169,6 @@ function RoomsSidebar({
 }) {
   const navigate = useNavigate()
   const [floorsOpen, setFloorsOpen] = useState(false)
-  const [currentFloor, setCurrentFloor] = useState(11)
   const today = new Date().toISOString().slice(0, 10)
   const todayBookings = bookings.filter(b => b.date === today)
 
@@ -404,6 +406,7 @@ export default function MeetingRoomsPage() {
   const [timeFrom,          setTimeFrom]          = useState('11:00')
   const [timeTo,            setTimeTo]            = useState('13:00')
   const [date,              setDate]              = useState(defaultDate())
+  const [currentFloor,      setCurrentFloor]      = useState(11)
   const [rooms,             setRooms]             = useState<Room[]>([])
   const [confirmRoom,       setConfirmRoom]       = useState<Room | null>(null)
   const [toast,             setToast]             = useState<string | null>(null)
@@ -456,9 +459,11 @@ export default function MeetingRoomsPage() {
   function handleReset() {
     setSelectedAmenities([])
     setMinCapacity(0)
+    setCurrentFloor(11)
   }
 
   const filteredRooms = rooms.filter((r: Room) => {
+    if (r.floor !== currentFloor) return false
     if (minCapacity > 0 && r.capacity > 0 && r.capacity < minCapacity) return false
     if (selectedAmenities.length > 0 && !selectedAmenities.every(a => r.amenities.includes(a))) return false
     return true
@@ -507,6 +512,8 @@ export default function MeetingRoomsPage() {
       <div className={styles.body}>
         {/* Сайдбар с фильтрами */}
         <RoomsSidebar
+          currentFloor={currentFloor}
+          setCurrentFloor={setCurrentFloor}
           minCapacity={minCapacity}
           setMinCapacity={setMinCapacity}
           selectedAmenities={selectedAmenities}
@@ -518,7 +525,7 @@ export default function MeetingRoomsPage() {
           timeTo={timeTo}
           setTimeTo={setTimeTo}
           onReset={handleReset}
-          hasFilters={selectedAmenities.length > 0 || minCapacity > 0}
+          hasFilters={selectedAmenities.length > 0 || minCapacity > 0 || currentFloor !== 11}
           bookings={bookings}
         />
 
@@ -533,7 +540,7 @@ export default function MeetingRoomsPage() {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
-                11 этаж · Найдено {freeCount} из {totalCount}
+                {currentFloor} этаж · Найдено {freeCount} из {totalCount}
               </div>
             </div>
             <div className={styles.pageHint}>

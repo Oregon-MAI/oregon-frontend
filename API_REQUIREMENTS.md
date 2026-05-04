@@ -305,26 +305,39 @@ Response:
 
 ### PUT /api/v1/resources/:id
 
-Admin only. Фронт отправляет resource payload и маску измененных полей.
+Admin only. Gateway на `main` принимает плоский payload ресурса. `resource_id` можно передать в body, но основным источником остается `:id` из URL.
 
 ```json
 {
-  "resource": {
-    "name": "Meeting Room Omega",
-    "type": "RESOURCE_TYPE_MEETING_ROOM",
-    "location": "Office 2, Floor 1",
-    "meeting_room": {
-      "capacity": 10,
-      "has_projector": true,
-      "has_whiteboard": false
-    }
-  },
-  "paths": ["name", "type", "location", "meeting_room"],
-  "field_mask": "name,type,location,meeting_room"
+  "resource_id": "uuid",
+  "name": "Meeting Room Omega",
+  "type": "RESOURCE_TYPE_MEETING_ROOM",
+  "location": "Office 2, Floor 1",
+  "status": "RESOURCE_STATUS_AVAILABLE",
+  "details": {
+    "capacity": 10,
+    "has_projector": true,
+    "has_whiteboard": false
+  }
 }
 ```
 
-Фронт временно отправляет и `paths`, и `field_mask`, потому что README gateway использовал `paths`, а proto-поле называется `field_mask`.
+Для рабочих мест `details` выглядит так:
+
+```json
+{ "has_monitor": true }
+```
+
+Для техники:
+
+```json
+{
+  "device_type": "laptop",
+  "serial_number": "SN123456",
+  "model": "Apple M3 Pro",
+  "description": "16GB RAM"
+}
+```
 
 Response:
 

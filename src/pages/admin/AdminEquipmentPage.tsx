@@ -258,7 +258,13 @@ export default function AdminEquipmentPage() {
     if (!editTarget) return
     const updated = await updateResource(
       editTarget.resource_id,
-      { name: form.name, type: 'RESOURCE_TYPE_DEVICE', location: form.location, details: { device_type: form.device_type, model: form.model, serial_number: form.serial_number, description: form.description } },
+      {
+        name: form.name,
+        type: 'RESOURCE_TYPE_DEVICE',
+        location: form.location,
+        status: editTarget.status,
+        details: { device_type: form.device_type, model: form.model, serial_number: form.serial_number, description: form.description },
+      },
     )
     if (form.unavailable && editTarget.status === 'RESOURCE_STATUS_AVAILABLE') {
       await changeResourceStatus({ resource_id: editTarget.resource_id, status: 'RESOURCE_STATUS_MAINTENANCE', reason: form.unavailableReason || 'Временно недоступно' })

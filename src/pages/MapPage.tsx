@@ -52,6 +52,13 @@ function expandBookingToSlots(startsAt: string, endsAt: string): string[] {
   return slots
 }
 
+function isResourceOnFloor(resource: Resource, floor: number): boolean {
+  const location = resource.location?.trim()
+  if (!location) return floor === 11
+
+  return new RegExp(`(^|\\D)${floor}(\\D|$)`).test(location)
+}
+
 function resourcesToZones(
   resources: Resource[],
   myResourceIds: Set<string>,
@@ -131,6 +138,7 @@ const ALL_AMENITIES = ['Монитор']
 
 function MapSidebar({
   selectedAmenities, toggleAmenity,
+  currentFloor, setCurrentFloor,
   date, setDate,
   timeFrom, setTimeFrom,
   timeTo, setTimeTo,
@@ -138,6 +146,8 @@ function MapSidebar({
 }: {
   selectedAmenities: string[]
   toggleAmenity: (a: string) => void
+  currentFloor: number
+  setCurrentFloor: (floor: number) => void
   date: string
   setDate: (v: string) => void
   timeFrom: string
@@ -148,7 +158,6 @@ function MapSidebar({
 }) {
   const navigate = useNavigate()
   const [floorsOpen, setFloorsOpen] = useState(false)
-  const [currentFloor, setCurrentFloor] = useState(11)
   const today = new Date().toISOString().slice(0, 10)
   const todayBookings = bookings.filter(b => b.date === today)
 
@@ -290,6 +299,7 @@ export default function MapPage() {
   const [date,              setDate]              = useState(defaultDate())
   const [timeFrom,          setTimeFrom]          = useState(defaultTimeFrom())
   const [timeTo,            setTimeTo]            = useState('18:00')
+  const [currentFloor,      setCurrentFloor]      = useState(11)
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
   const [confirmDesk,           setConfirmDesk]           = useState<Desk | null>(null)
   const [toast,                 setToast]                 = useState<string | null>(null)
@@ -305,7 +315,9 @@ export default function MapPage() {
     setLoading(true)
     getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
       .then(async all => {
-        const workspaces = all.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE')
+        const workspaces = all.filter(r =>
+          r.type === 'RESOURCE_TYPE_WORKSPACE' && isResourceOnFloor(r, currentFloor)
+        )
         const bookingsPerResource = await Promise.all(
           workspaces.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
         )
@@ -327,7 +339,7 @@ export default function MapPage() {
         setResources(marked)
       })
       .finally(() => setLoading(false))
-  }, [date, timeFrom, timeTo, refreshKey])
+  }, [date, timeFrom, timeTo, currentFloor, refreshKey])
 
   // Пересчитываем статусы мгновенно при изменении броней
   useEffect(() => {
@@ -416,6 +428,8 @@ export default function MapPage() {
         <MapSidebar
           selectedAmenities={selectedAmenities}
           toggleAmenity={toggleAmenity}
+          currentFloor={currentFloor}
+          setCurrentFloor={setCurrentFloor}
           date={date}
           setDate={setDate}
           timeFrom={timeFrom}
@@ -435,7 +449,7 @@ export default function MapPage() {
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
-                БЦ «Арена», 11 этаж
+                БЦ «Арена», {currentFloor} этаж
               </div>
             </div>
             <div className={styles.pageHint}>
