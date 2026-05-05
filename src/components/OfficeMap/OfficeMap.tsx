@@ -6,261 +6,208 @@ interface Props {
   onDeskClick?: (desk: Desk) => void
 }
 
-// ── Figma SVG ──
-// Стол: 60×28, rx=4
-// Стул: полукруг path, rx~=8.26 от центра стола 
-// Стул сверху: path "M cx-8.26,chairY A 8.26,8.26 0 0 1 cx+8.26,chairY Z" 
-// Стул снизу: sweep=0, выпуклость вниз
-// Зазор стул-стол: ~2px
+type SeatPoint = {
+  x: number
+  y: number
+  rotate?: number
+}
 
-// ── ЗОНА A ──
-// Стол 44×28 rx=4 (из фигмы: rect x=48..92 w=44, h=28)
-// Стул: полукруг cx=центр стола, rx=8.26 ry=8.26
-function DeskA({ desk, onClick }: { desk: Desk; chairPos?: string; onClick: (d: Desk) => void }) {
-  const isBusy = desk.status === 'busy'
-  const isMine = desk.status === 'mine'
+const SEAT_POINTS: SeatPoint[] = [
+  { x: 72, y: 25 }, { x: 112, y: 25 }, { x: 152, y: 25 },
+  { x: 190, y: 24 }, { x: 232, y: 24 }, { x: 272, y: 24 },
+  { x: 315, y: 24 }, { x: 356, y: 24 }, { x: 397, y: 24 },
+  { x: 438, y: 24 }, { x: 479, y: 24 }, { x: 520, y: 24 },
+  { x: 560, y: 24 }, { x: 603, y: 24 }, { x: 646, y: 24 },
+  { x: 690, y: 24 }, { x: 732, y: 24 }, { x: 776, y: 24 },
+  { x: 900, y: 48, rotate: 90 }, { x: 972, y: 48, rotate: 90 },
+  { x: 905, y: 150 }, { x: 955, y: 150 },
+  { x: 905, y: 230 }, { x: 955, y: 230 },
+  { x: 905, y: 305 }, { x: 955, y: 305 },
+  { x: 820, y: 385 }, { x: 870, y: 385 }, { x: 920, y: 385 }, { x: 970, y: 385 },
+  { x: 820, y: 455 }, { x: 870, y: 455 }, { x: 920, y: 455 }, { x: 970, y: 455 },
+  { x: 785, y: 548 }, { x: 835, y: 548 }, { x: 885, y: 548 }, { x: 935, y: 548 },
+  { x: 110, y: 115 }, { x: 145, y: 115 },
+  { x: 250, y: 145, rotate: 90 }, { x: 330, y: 145, rotate: 90 }, { x: 420, y: 145, rotate: 90 },
+  { x: 152, y: 360 }, { x: 190, y: 360 }, { x: 230, y: 360 },
+  { x: 152, y: 440 }, { x: 190, y: 440 }, { x: 230, y: 440 },
+  { x: 370, y: 415, rotate: 90 }, { x: 420, y: 415, rotate: 90 },
+  { x: 145, y: 560 }, { x: 185, y: 560 }, { x: 225, y: 560 },
+  { x: 585, y: 560 }, { x: 630, y: 560 },
+  { x: 705, y: 560 }, { x: 750, y: 560 },
+]
 
-  const fill = isBusy ? '#9CA3AF' : isMine ? '#1A56DB' : '#A7F3D0'
-  const stroke = isBusy ? '#E5E7EB' : isMine ? '#1245B5' : '#E5E7EB'
-  const textColor = isMine ? '#fff' : '#059669'
-  const circleColor = isMine ? '#F97316' : '#D1D5DB'
+function deskOrder(desk: Desk): number {
+  const match = desk.id.match(/\d+/)
+  return match ? Number(match[0]) : Number.MAX_SAFE_INTEGER
+}
 
-  const tooltip = isBusy && desk.bookedSlots.length > 0
-    ? `Занято: ${desk.bookedSlots.join(', ')}`
-    : undefined
+function flattenDesks(zones: Zone[]): Desk[] {
+  const byZone = new Map(zones.map(zone => [zone.id, zone.desks]))
+  return (['A', 'B', 'D'] as const)
+    .flatMap(zone => [...(byZone.get(zone) ?? [])].sort((a, b) => deskOrder(a) - deskOrder(b)))
+}
 
+function colorForDesk(desk: Desk): string {
+  if (desk.status === 'mine') return '#1A56DB'
+  if (desk.status === 'busy') return '#9CA3AF'
+  return '#A7F3D0'
+}
+
+function textForDesk(desk: Desk): string {
+  if (desk.status === 'mine') return '#ffffff'
+  if (desk.status === 'busy') return '#ffffff'
+  return '#047857'
+}
+
+function FloorPlanSvg() {
   return (
-    <div className={styles.deskWrap} data-tooltip={tooltip}>
-      <svg
-        width="46" height="46"
-        viewBox="0 0 72 72"
-        style={{ cursor: isBusy ? 'default' : 'pointer' }}
-        onClick={() => !isBusy && onClick(desk)}
-      >
-        {/* Стол */}
-        <rect x="2" y="2" width="68" height="68" rx="10"
-          fill={fill} stroke={stroke} strokeWidth="1.5" />
-
-        {/* Если занят — круг внутри */}
-        {isBusy && (
-          <circle cx="36" cy="36" r="10" fill={circleColor} />
-        )}
-
-        {isMine && (
-          <circle cx="36" cy="36" r="10" fill="#F97316" />
-        )}
-
-        {/* ID */}
-        {!isBusy && !isMine && (
-          <text x="36" y="36"
-            textAnchor="middle" dominantBaseline="middle"
-            fontSize="20" fontWeight="700"
-            fontFamily="Plus Jakarta Sans, sans-serif"
-            fill={textColor}>
-            {desk.id.replace('-', '')}
-          </text>
-        )}
-      </svg>
-    </div>
+    <svg className={styles.floorSvg} viewBox="0 0 1094 656" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <g className={styles.walls}>
+        <line x1="57.4571" y1="77.3563" x2="1.45707" y2="306.356" />
+        <path d="M0.1346 304.506L108 312.5" />
+        <path d="M106.5 424.428L179.5 424.428" />
+        <path d="M176 424.524L214 424.524M239 424.524L277 424.524" />
+        <path d="M78.5001 310L99.75 298.25L121 286.5" />
+        <path d="M120 287H191H262" />
+        <path d="M34 168L109.5 168L185 168" />
+        <path d="M54 95L118.5 95L183 95" />
+        <path d="M183 76H204H225" />
+        <path d="M242 76L252.5 76L263 76" />
+        <path d="M263 2L263 39L263 76" />
+        <path d="M263 76H284H305" />
+        <path d="M322 76L332.5 76L343 76" />
+        <path d="M343 2L343 39L343 76" />
+        <path d="M343 76H364H385" />
+        <path d="M402 76L412.5 76L423 76" />
+        <path d="M423 2L423 39L423 76" />
+        <path d="M211 174L211 216L211 258" />
+        <path d="M249 174L249 216L249 258" />
+        <path d="M452 102L452 141.5L452 181" />
+        <path d="M268 102L268 141.5L268 181" />
+        <path d="M330 102L330 141.5L330 181" />
+        <path d="M249 214H230H211" />
+        <path d="M452 179H358.5L265 179" />
+        <path d="M423 76H444H465" />
+        <path d="M482 76L492.5 76L503 76" />
+        <path d="M503 2L503 39L503 76" />
+        <path d="M503 76H524H545" />
+        <path d="M562 76L572.5 76L583 76" />
+        <path d="M583 2L583 39L583 76" />
+        <path d="M579 76H600H621" />
+        <path d="M638 76L648.5 76L659 76" />
+        <path d="M659 2L659 39L659 76" />
+        <path d="M659 76H680H701" />
+        <path d="M718 76L728.5 76L739 76" />
+        <path d="M739 2V54V106" />
+        <path d="M864 3V54.5V106" />
+        <path d="M897 104L897 128L897 152" />
+        <path d="M897 167L897 172.5L897 178" />
+        <path d="M1012 104L949 104H886" />
+        <path d="M1012 176L954.5 176L897 176" />
+        <path d="M897 176L897 203.5L897 231" />
+        <path d="M897 246L897 251.5L897 257" />
+        <path d="M1012 255L954.5 255L897 255" />
+        <path d="M864 246L836.5 246L809 246" />
+        <path d="M833 317L821 317L809 317" />
+        <path d="M867 317L855 317L843 317" />
+        <path d="M864 317V281.5V246" />
+        <path d="M897 257L897 281L897 305" />
+        <path d="M897 320L897 325.5L897 331" />
+        <path d="M1012 329L954.5 329L897 329" />
+        <path d="M1051 461H930L809 461" />
+        <path d="M809 246L809 353.5L809 461" />
+        <path d="M864 104H823L782 104" />
+        <path d="M762 104H750.5H739" />
+        <path d="M183 143L183 155.5L183 168" />
+        <path d="M183 93L183 108L183 123" />
+        <path d="M183 2L183 41.5L183 81" />
+        <path d="M262 356L262 309L262 262" />
+        <path d="M277 462L277 422.5L277 383" />
+        <path d="M276 461H285.5H295" />
+        <path d="M306 461H315.5H325" />
+        <path d="M323 461H332.5H342" />
+        <path d="M353 461H362.5H372" />
+        <path d="M369 461H378.5H388" />
+        <path d="M398 461H407.5H417" />
+        <path d="M324 461L324 421.5L324 382" />
+        <path d="M371 461L371 421.5L371 382" />
+        <path d="M415 460L415 420.5L415 381" />
+        <path d="M391 263H326.5H262" />
+        <path d="M391 262L391 322.5L391 383" />
+        <path d="M248 383L338.5 383L415 383" />
+        <path d="M178.777 454.072L178.777 423" />
+        <path d="M178.777 498.072L178.777 467" />
+        <line x1="106.5" y1="311" x2="106.5" y2="606" />
+        <line x1="105" y1="604.5" x2="795" y2="604.5" />
+        <line x1="794.46" y1="604.572" x2="946.46" y2="653.572" />
+        <line x1="945.676" y1="655.295" x2="1091.68" y2="381.295" />
+        <path d="M1092.22 383.282L1010 329.5" />
+        <path d="M57.5 78L57.5 0" />
+        <path d="M58 1.5H1012" />
+        <line x1="1010.5" y1="3" x2="1010.5" y2="331" />
+        <line x1="107" y1="498.5" x2="224" y2="498.5" />
+        <line x1="244" y1="498.5" x2="324" y2="498.5" />
+        <line x1="366" y1="498.5" x2="580" y2="498.5" />
+        <line x1="598" y1="498.5" x2="618" y2="498.5" />
+        <line x1="616.5" y1="604" x2="616.5" y2="498" />
+        <line x1="450.5" y1="606" x2="450.5" y2="500" />
+        <line x1="366" y1="543.5" x2="452" y2="543.5" />
+        <line y1="-1.5" x2="19" y2="-1.5" transform="matrix(0 1 -0.999995 0.00309596 415 526)" />
+        <line y1="-1.5" x2="19" y2="-1.5" transform="matrix(0 1 -0.999995 0.00309596 366 526)" />
+        <line y1="-1.5" x2="14" y2="-1.5" transform="matrix(0 1 -0.999995 0.00309596 415 498)" />
+        <line y1="-1.5" x2="14" y2="-1.5" transform="matrix(0 1 -0.999995 0.00309596 366 498)" />
+        <line x1="285.5" y1="500" x2="285.5" y2="545" />
+        <line x1="284" y1="543.5" x2="324" y2="543.5" />
+        <line x1="322.5" y1="606" x2="322.5" y2="545" />
+      </g>
+      <g opacity="0.6">
+        <rect x="455" y="383" width="134" height="78" rx="9" fill="#D9D9D9"/>
+        <rect x="455.5" y="383.5" width="133" height="77" rx="8.5" stroke="black" strokeOpacity="0.2"/>
+        <rect x="442" y="237" width="305" height="122" rx="9" fill="#D9D9D9"/>
+        <rect x="442.5" y="237.5" width="304" height="121" rx="8.5" stroke="black" strokeOpacity="0.26"/>
+      </g>
+    </svg>
   )
 }
 
-
-// ── ЗОНА D ──
-// Из Figma: стол rect 59.47×28.087 rx=4, стул path полукруг
-// Свободно: #A7F3D0, занято: #9CA3AF, моё: #1A56DB + стул #D97706
-function DeskD({ desk, chairPos, onClick }: { desk: Desk; chairPos: 'top' | 'bottom'; onClick?: (d: Desk) => void }) {
-  const isBusy = desk.status === 'busy'
-  const isMine = desk.status === 'mine'
-
-  const deskFill  = isMine ? '#1A56DB' : isBusy ? '#9CA3AF' : '#A7F3D0'
-  const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
-  const textFill  = isMine ? '#ffffff' : isBusy ? 'transparent' : '#059669'
-
-  const W = 69, H = 32, CRX = 9.5, CRY = 9.5
-  const gap = 2
-  const SVG_H = CRY + gap + H
-  const cx = W / 2
-  const isTop = chairPos === 'top'
-  const deskY  = isTop ? CRY + gap : 0
-  const chairY = isTop ? CRY : H
-  const sweep  = isTop ? 1 : 0
-
-  const tooltip = isBusy && desk.bookedSlots.length > 0
-    ? `Занято: ${desk.bookedSlots.join(', ')}`
-    : undefined
-
-  return (
-    <div className={styles.deskWrap} data-tooltip={tooltip}>
-      <svg
-        width={W} height={SVG_H} viewBox={`0 0 ${W} ${SVG_H}`}
-        style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
-        onClick={() => !isBusy && onClick?.(desk)}
-      >
-        <path
-          d={`M ${cx - CRX},${chairY} A ${CRX},${CRY} 0 0 ${sweep} ${cx + CRX},${chairY} Z`}
-          fill={chairFill}
-        />
-        <rect x="0" y={deskY} width={W} height={H} rx="4" fill={deskFill} />
-        {isMine && (
-          <circle cx={cx} cy={deskY + H / 2} r="10" fill="#F97316" />
-        )}
-        {!isBusy && !isMine && (
-          <text x={cx} y={deskY + H / 2} textAnchor="middle" dominantBaseline="central"
-            fontSize="13" fontWeight="700" fill={textFill}
-            fontFamily="Plus Jakarta Sans, sans-serif">
-            {desk.id.replace('-', '')}
-          </text>
-        )}
-      </svg>
-    </div>
-  )
-}
-
-// ── ЗОНА B ──
-// transform → {svgTransform на группу, позиция текста}
-const DESK_B_VARIANTS: Record<string, { g: string; tx: number; ty: number }> = {
-  'scaleY(-1)':   { g: 'translate(0,45) scale(1,-1)',   tx: 30, ty: 37 },
-  'scale(-1,-1)': { g: 'translate(44,45) scale(-1,-1)', tx: 11,  ty: 37 },
-  'scale(-1,1)':  { g: 'translate(44,0) scale(-1,1)',   tx: 11,  ty: 8  },
-}
-
-function DeskB({ desk, onClick, transform }: { desk: Desk; onClick?: (d: Desk) => void; transform?: string }) {
-  const isBusy = desk.status === 'busy'
-  const isMine = desk.status === 'mine'
-
-  const deskFill  = isMine ? '#1A56DB' : isBusy ? '#9CA3AF' : '#A7F3D0'
-  const chairFill = isMine ? '#D97706' : isBusy ? '#D1D5DB' : '#A7F3D0'
-  const textFill  = isMine ? '#ffffff' : '#059669'
-
-  const v = transform ? DESK_B_VARIANTS[transform] : undefined
-  const gTransform = v?.g
-  const tx = v?.tx ?? 30
-  const ty = v?.ty ?? 8
-
-  const tooltip = isBusy && desk.bookedSlots.length > 0
-    ? `Занято: ${desk.bookedSlots.join(', ')}`
-    : undefined
-
-  return (
-    <div className={styles.deskWrap} data-tooltip={tooltip}>
-      <svg width="51" height="52" viewBox="0 0 44 45" fill="none" xmlns="http://www.w3.org/2000/svg"
-        style={{ cursor: isBusy ? 'default' : 'pointer', display: 'block', flexShrink: 0 }}
-        onClick={() => !isBusy && onClick?.(desk)}
-      >
-        <g transform={gTransform}>
-          <path d="M0 0H44V45H28V16H0Z" fill={deskFill} />
-          <path d="M17 15.4999C17 15.4999 22.5 15.5 25.5 19C28.5 22.5 28.5 27.9999 28.5 27.9999" stroke="white"/>
-          <path d="M13 39C9.13401 39 6 35.866 6 32L6 29C6 25.134 9.13401 22 13 22H16C19.866 22 23 25.134 23 29V32C23 35.866 19.866 39 16 39H13Z" fill={chairFill}/>
-          <line y1="0.5" x2="44" y2="0.5" stroke="white"/>
-          <line x1="0.5" y1="1" x2="0.5" y2="16" stroke="white"/>
-          <line x1="43.5" y1="1" x2="43.5" y2="45" stroke="white"/>
-          <path d="M43 45H28V44H43V45Z" fill="white"/>
-          <line y1="15.5" x2="17" y2="15.5" stroke="white"/>
-          <line x1="28.5413" y1="45.0011" x2="28.5" y2="28.0012" stroke="white"/>
-        </g>
-        {!isBusy && !isMine && (
-          <text x={tx} y={ty} textAnchor="middle" dominantBaseline="central"
-            fontSize="11" fontWeight="700" fill={textFill}
-            fontFamily="Plus Jakarta Sans, sans-serif">
-            {desk.id.replace('-', '')}
-          </text>
-        )}
-      </svg>
-    </div>
-  )
-}
-
-// ── MAIN ──
 export default function OfficeMap({ zones, onDeskClick }: Props) {
-  const zoneA = zones.find(z => z.id === 'A')
-  const zoneB = zones.find(z => z.id === 'B')
-  const zoneD = zones.find(z => z.id === 'D')
-
-  const chunk = (arr: Desk[], n: number) => {
-    const out: Desk[][] = []
-    for (let i = 0; i < arr.length; i += n) out.push(arr.slice(i, i + n))
-    return out
-  }
-
-  // Зона A: блоки по 6 (3 col × 2 row), стулья у верхнего ряда сверху, нижнего снизу
-  const aBlocks = chunk(zoneA?.desks || [], 6)
-  // Зона D: блоки по 6 (3 col × 2 row)
-  const dBlocks = chunk(zoneD?.desks || [], 6)
-  // Зона B: блоки по 4 (2×2)
-  const bBlocks = chunk(zoneB?.desks || [], 4)
+  const desks = flattenDesks(zones)
 
   return (
     <div className={styles.map}>
-      {/* Зона A */}
-      {zoneA && (
-        <div className={styles.zoneCard}>
-          <div className={styles.zoneLabel}>ЗОНА  A</div>
-          <div className={styles.zoneAGrid}>
-            {aBlocks.map((block, bi) => (
-              <div key={bi} className={styles.blockA}>
-                {/* Верхний ряд — стул сверху */}
-                <div className={styles.deskRow}>
-                  {block.slice(0, 3).map(d => (
-                    <DeskA key={d.id} desk={d} chairPos="top" onClick={onDeskClick ?? (() => {})} />
-                  ))}
-                </div>
-                {/* Нижний ряд — стул снизу */}
-                <div className={styles.deskRow}>
-                  {block.slice(3, 6).map(d => (
-                    <DeskA key={d.id} desk={d} chairPos="bottom" onClick={onDeskClick ?? (() => {})} />
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      <div className={styles.plan}>
+        <FloorPlanSvg />
+        {desks.map((desk, index) => {
+          const point = SEAT_POINTS[index]
+          if (!point) return null
 
-      <div className={styles.rightCol}>
-        {/* Зона D */}
-        {zoneD && (
-          <div className={styles.zoneCard}>
-            <div className={styles.zoneLabel}>ЗОНА  D</div>
-            <div className={styles.zoneDGrid}>
-              {dBlocks.map((block, bi) => (
-                <div key={bi} className={styles.blockD}>
-                  <div className={styles.blockDRow}>
-                    {block.slice(0, 3).map(d => (
-                      <DeskD key={d.id} desk={d} chairPos="top" onClick={onDeskClick} />
-                    ))}
-                  </div>
-                  <div className={styles.blockDRow}>
-                    {block.slice(3, 6).map(d => (
-                      <DeskD key={d.id} desk={d} chairPos="bottom" onClick={onDeskClick} />
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          const isBusy = desk.status === 'busy'
+          const tooltip = isBusy && desk.bookedSlots.length > 0
+            ? `Занято: ${desk.bookedSlots.join(', ')}`
+            : undefined
 
-        {/* Зона B */}
-        {zoneB && (
-          <div className={styles.zoneCard}>
-            <div className={styles.zoneLabel}>ЗОНА  B</div>
-            <div className={styles.zoneBGrid}>
-              {bBlocks.map((block, bi) => (
-                <div key={bi} className={styles.blockB}>
-                  <div className={styles.deskRow}>
-                    {block.slice(0, 1).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scaleY(-1)" />)}
-                    {block.slice(1, 2).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scale(-1,-1)" />)}
-                  </div>
-                  <div className={styles.deskRow}>
-                    {block.slice(2, 3).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scaleY(1)" />)}
-                    {block.slice(3, 4).map(d => <DeskB key={d.id} desk={d} onClick={onDeskClick} transform="scale(-1,1)" />)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+          return (
+            <button
+              key={desk.resourceId ?? desk.id}
+              type="button"
+              className={styles.desk}
+              data-status={desk.status}
+              data-tooltip={tooltip}
+              style={{
+                left: `${(point.x / 1094) * 100}%`,
+                top: `${(point.y / 656) * 100}%`,
+                background: colorForDesk(desk),
+                color: textForDesk(desk),
+                transform: `translate(-50%, -50%) rotate(${point.rotate ?? 0}deg)`,
+              }}
+              disabled={isBusy || desk.status === 'mine'}
+              onClick={() => onDeskClick?.(desk)}
+              aria-label={`Место ${desk.id}`}
+            >
+              {desk.id}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

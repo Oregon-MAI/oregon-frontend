@@ -462,6 +462,13 @@ export default function MapPage() {
             <button className={styles.tab} onClick={() => navigate('/rooms')}>Переговорные</button>
           </div>
 
+          <div className={styles.mapPanel}>
+            {loading
+              ? <div className={styles.loading}>Загрузка...</div>
+              : <OfficeMap zones={filteredZones} onDeskClick={handleDeskClick} />
+            }
+          </div>
+
           <div className={styles.legend}>
             <div className={styles.legendItem}>
               <div className={`${styles.legendDot} ${styles.dotFree}`} />
@@ -476,11 +483,6 @@ export default function MapPage() {
               Моё место
             </div>
           </div>
-
-          {loading
-            ? <div className={styles.loading}>Загрузка...</div>
-            : <OfficeMap zones={filteredZones} onDeskClick={handleDeskClick} />
-          }
         </main>
       </div>
 
