@@ -20,6 +20,26 @@ const ZONE_NAMES: Record<Zone, string> = {
   D: 'Дизайн',
 }
 
+function parseWorkspaceName(name: string): { zone: Zone; number: string; numeric: number } {
+  const [rawZone, rawNumber = ''] = name.split('-')
+  const zone = (ZONES.includes(rawZone as Zone) ? rawZone : 'A') as Zone
+  const number = rawNumber.replace(/\D/g, '')
+  return { zone, number, numeric: Number(number) || 0 }
+}
+
+function compareWorkspaces(a: Resource, b: Resource): number {
+  const left = parseWorkspaceName(a.name)
+  const right = parseWorkspaceName(b.name)
+  const zoneDiff = ZONES.indexOf(left.zone) - ZONES.indexOf(right.zone)
+  if (zoneDiff !== 0) return zoneDiff
+  if (left.numeric !== right.numeric) return left.numeric - right.numeric
+  return a.name.localeCompare(b.name, 'ru')
+}
+
+function getFloorValue(location: string | undefined): string {
+  return location?.match(/\d+/)?.[0] ?? ''
+}
+
 function statusLabel(s: ResourceStatus): { text: string; cls: string } {
   switch (s) {
     case 'RESOURCE_STATUS_AVAILABLE':  return { text: 'Доступно',   cls: 'available' }
@@ -117,7 +137,6 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
                     <button
                       key={z}
                       type="button"
-                      disabled={mode === 'edit'}
                       onClick={() => set('zone', z)}
                       style={{
                         flex: 1,
@@ -127,7 +146,7 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
                         background: form.zone === z ? '#EFF6FF' : '#fff',
                         color: form.zone === z ? '#1A56DB' : '#374151',
                         fontWeight: form.zone === z ? 700 : 400,
-                        cursor: mode === 'edit' ? 'default' : 'pointer',
+                        cursor: 'pointer',
                         fontSize: 14,
                       }}
                     >
@@ -151,7 +170,6 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
                     ? e.target.value.replace(/[^\d\s]/g, '')
                     : e.target.value.replace(/\D/g, '')
                   )}
-                  readOnly={mode === 'edit'}
                 />
                 {mode === 'add' && (
                   <span className={styles.formHelper}>
@@ -166,12 +184,15 @@ function WorkspaceModal({ mode, initial, onSave, onClose }: {
 
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Этаж *</label>
-              <input
-                className={styles.formInput}
-                placeholder="11"
-                value={form.floor}
-                onChange={e => set('floor', e.target.value.replace(/\D/g, ''))}
-              />
+              <div className={styles.floorInputWrap}>
+                <input
+                  className={`${styles.formInput} ${styles.floorInput}`}
+                  placeholder="11"
+                  value={form.floor}
+                  onChange={e => set('floor', e.target.value.replace(/\D/g, ''))}
+                />
+                <span className={styles.floorSuffix}>этаж</span>
+              </div>
             </div>
           </div>
 
@@ -277,11 +298,11 @@ export default function AdminWorkspacesPage() {
 
 
   function resourceToForm(r: Resource): WorkspaceForm {
-    const [zone, number] = r.name.split('-')
+    const { zone, number } = parseWorkspaceName(r.name)
     return {
-      zone: (ZONES.includes(zone as Zone) ? zone : 'A') as Zone,
-      number: number ?? '',
-      floor: r.location ?? '',
+      zone,
+      number,
+      floor: getFloorValue(r.location),
       has_monitor: r.workspace?.has_monitor ?? false,
       unavailable: r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY',
       unavailableReason: '',
@@ -314,16 +335,22 @@ export default function AdminWorkspacesPage() {
       }
       return resource
     }))
-    setResources(prev => [...created, ...prev])
+    setResources(prev => [...created, ...prev].sort(compareWorkspaces))
     showToast(created.length === 1 ? `Место ${created[0].name} добавлено` : `Добавлено ${created.length} мест`)
   }
 
   async function handleEdit(form: WorkspaceForm) {
     if (!editTarget) return
+    const name = `${form.zone}-${form.number.trim()}`
+    const conflict = resources.some(r => r.resource_id !== editTarget.resource_id && r.name === name)
+    if (conflict) {
+      throw new Error(`Место ${name} уже существует`)
+    }
+
     const updated = await updateResource(
       editTarget.resource_id,
       {
-        name: editTarget.name,
+        name,
         type: 'RESOURCE_TYPE_WORKSPACE',
         location: `${form.floor} этаж`,
         status: editTarget.status,
@@ -337,8 +364,8 @@ export default function AdminWorkspacesPage() {
       await changeResourceStatus({ resource_id: editTarget.resource_id, status: 'RESOURCE_STATUS_AVAILABLE', reason: '' })
       updated.status = 'RESOURCE_STATUS_AVAILABLE'
     }
-    setResources(prev => prev.map(r => r.resource_id === updated.resource_id ? updated : r))
-    showToast(`Место ${editTarget.name} обновлено`)
+    setResources(prev => prev.map(r => r.resource_id === updated.resource_id ? updated : r).sort(compareWorkspaces))
+    showToast(`Место ${name} обновлено`)
   }
 
   async function handleDelete(id: string) {
@@ -347,6 +374,8 @@ export default function AdminWorkspacesPage() {
     setDeleteConfirm(null)
     showToast('Место удалено')
   }
+
+  const sortedResources = [...resources].sort(compareWorkspaces)
 
   return (
     <div className={styles.page}>
@@ -380,7 +409,7 @@ export default function AdminWorkspacesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {resources.map(r => {
+                  {sortedResources.map(r => {
                     const [zone] = r.name.split('-')
                     const zoneName = ZONE_NAMES[zone as Zone] ?? 'Общая зона'
                     const { text, cls } = statusLabel(effectiveStatus(r, bookedNowIds))

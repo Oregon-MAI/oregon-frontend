@@ -133,16 +133,28 @@ export default function AdminUsersPage() {
   }
 
   async function handleCreate(form: UserForm) {
+    const login = form.login.trim()
+    const email = form.email.trim()
+    const loginExists = users.some(u => u.login.toLowerCase() === login.toLowerCase())
+    if (loginExists) {
+      throw new Error(`Пользователь с логином ${login} уже существует`)
+    }
+
+    const emailExists = users.some(u => u.email.toLowerCase() === email.toLowerCase())
+    if (emailExists) {
+      throw new Error(`Пользователь с email ${email} уже существует`)
+    }
+
     await register({
-      login: form.login,
+      login,
       password: form.password,
-      name: form.name,
-      surname: form.surname,
-      email: form.email,
+      name: form.name.trim(),
+      surname: form.surname.trim(),
+      email,
     })
     const list = await getUsers()
     setUsers(list)
-    showToast(`Пользователь ${form.login} создан`)
+    showToast(`Пользователь ${login} создан`)
   }
 
   async function handleDelete(id: string) {

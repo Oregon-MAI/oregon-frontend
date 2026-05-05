@@ -43,9 +43,11 @@ export async function updateResource(resource_id: string, resource: Partial<Reso
   const details = resource.details ?? meeting_room ?? workspace ?? device
 
   const { data } = await api.put(`/resources/${resource_id}`, {
-    ...rest,
-    resource_id,
-    ...(details ? { details } : {}),
+    name: rest.name,
+    type: rest.type,
+    location: rest.location,
+    status: rest.status,
+    details: details ?? {},
   })
   return extractResource(data)
 }

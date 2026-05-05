@@ -305,11 +305,10 @@ Response:
 
 ### PUT /api/v1/resources/:id
 
-Admin only. Gateway на `main` принимает плоский payload ресурса. `resource_id` можно передать в body, но основным источником остается `:id` из URL.
+Admin only. Gateway принимает измененный ресурс плоским объектом. `details` всегда должен присутствовать.
 
 ```json
 {
-  "resource_id": "uuid",
   "name": "Meeting Room Omega",
   "type": "RESOURCE_TYPE_MEETING_ROOM",
   "location": "Office 2, Floor 1",

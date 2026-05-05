@@ -436,6 +436,25 @@
   border-color: #1A56DB;
 }
 
+.floorInputWrap {
+  position: relative;
+}
+
+.floorInput {
+  width: 100%;
+  padding-right: 48px;
+}
+
+.floorSuffix {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  color: #9CA3AF;
+  font-size: 13px;
+  pointer-events: none;
+}
+
 .formInputOrange {
   border-color: #F59E0B;
 }

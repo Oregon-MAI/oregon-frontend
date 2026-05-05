@@ -52,9 +52,13 @@ export function getResourceUpdatePaths(resource: Partial<Resource>): string[] {
   if (resource.type !== undefined) paths.push('type')
   if (resource.location !== undefined) paths.push('location')
   if (resource.status !== undefined) paths.push('status')
-  if (resource.meeting_room !== undefined || (resource.details !== undefined && resource.type === 'RESOURCE_TYPE_MEETING_ROOM')) paths.push('meeting_room')
-  if (resource.workspace !== undefined || (resource.details !== undefined && resource.type === 'RESOURCE_TYPE_WORKSPACE')) paths.push('workspace')
-  if (resource.device !== undefined || (resource.details !== undefined && resource.type === 'RESOURCE_TYPE_DEVICE')) paths.push('device')
+  if (resource.details !== undefined) {
+    paths.push('details')
+  } else {
+    if (resource.meeting_room !== undefined) paths.push('meeting_room')
+    if (resource.workspace !== undefined) paths.push('workspace')
+    if (resource.device !== undefined) paths.push('device')
+  }
   return Array.from(new Set(paths))
 }
 
