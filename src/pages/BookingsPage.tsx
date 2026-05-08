@@ -4,6 +4,7 @@ import { useAuth } from '../features/auth/model/AuthContext'
 import NotificationCenter from '../components/NotificationCenter'
 import { cancelBooking, getMyBookings } from '../features/bookings/api/bookingApi'
 import { getResourcesList } from '../features/resources/api/resourceApi'
+import { isResourceBlocked } from '../features/resources/lib/resourceStatus'
 import type { Booking } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './BookingsPage.module.css'
@@ -215,12 +216,14 @@ export default function BookingsPage() {
     let rawBookings: Booking[] = ctxBookings
 
     getMyBookings(user.id)
-      .then(b => { rawBookings = b; setBookings(b) })
+      .then(b => { rawBookings = b })
       .catch(() => {})
       .finally(async () => {
         try {
           const resources = await getResourcesList()
           const resMap = new Map<string, Resource>(resources.map(r => [r.resource_id, r]))
+          rawBookings = rawBookings.filter(b => !isResourceBlocked(resMap.get(b.resourceId)))
+          setBookings(rawBookings)
 
           const enriched: EnrichedBooking[] = rawBookings.map(b => {
             const r = resMap.get(b.resourceId)

@@ -62,12 +62,17 @@ export default function LoginPage() {
       localStorage.setItem('access_token', tokens.access_token)
       localStorage.setItem('refresh_token', tokens.refresh_token)
       const decoded = decodeToken(tokens.access_token)
+      let roles = decoded?.roles.map(role => role.toUpperCase()) ?? []
       if (decoded?.id) {
-        getUser(decoded.id)
-          .then(u => setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles: u.roles.map(r => r.name) }))
-          .catch(() => setUser({ id: decoded.id, login: email.trim(), name: '', surname: '', email: '', roles: decoded.roles }))
+        try {
+          const u = await getUser(decoded.id)
+          roles = u.roles.map(r => r.name.toUpperCase())
+          setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles })
+        } catch {
+          setUser({ id: decoded.id, login: email.trim(), name: '', surname: '', email: '', roles })
+        }
       }
-      const isAdmin = decoded?.roles?.includes('admin') ?? false
+      const isAdmin = roles.includes('ADMIN')
       navigate(isAdmin ? '/admin' : '/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {

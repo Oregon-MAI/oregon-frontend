@@ -8,6 +8,7 @@ import type { Zone, Desk } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './MapPage.module.css'
 import { getResourcesList } from '../features/resources/api/resourceApi'
+import { isResourceBlocked } from '../features/resources/lib/resourceStatus'
 import TimeSelect from '../components/TimeSelect'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -74,10 +75,12 @@ function resourcesToZones(
     if (r.workspace?.has_monitor) amenities.push('Монитор')
 
     const isMine = myResourceIds.has(r.resource_id)
-    const isUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
+    const isStructurallyUnavailable = isResourceBlocked(r)
+    const isOccupied = r.status === 'RESOURCE_STATUS_OCCUPIED'
     const status: 'free' | 'busy' | 'mine' =
+      isStructurallyUnavailable ? 'busy' :
       isMine ? 'mine' :
-      isUnavailable ? 'busy' : 'free'
+      isOccupied ? 'busy' : 'free'
 
     const desk: Desk = {
       resourceId: r.resource_id,
@@ -333,7 +336,8 @@ export default function MapPage() {
             b.starts_at && b.ends_at &&
             b.starts_at < selectedTo && b.ends_at > selectedFrom
           )
-          return isBusy ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const } : r
+          const isStructural = isResourceBlocked(r)
+          return isBusy && !isStructural ? { ...r, status: 'RESOURCE_STATUS_OCCUPIED' as const } : r
         })
         setBookedSlotsByResource(slotsByResource)
         setResources(marked)

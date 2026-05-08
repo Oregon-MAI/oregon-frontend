@@ -7,6 +7,7 @@ import TimeSelect from '../components/TimeSelect'
 import type { Resource } from '../types/resource'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
 import { getResourcesList } from '../features/resources/api/resourceApi'
+import { isResourceBlocked } from '../features/resources/lib/resourceStatus'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,10 +53,12 @@ function resourceToRoom(r: Resource, myResourceIds: Set<string>, slots: { from: 
   if (mr?.has_whiteboard) amenities.push('Маркерная')
 
   const isMine = myResourceIds.has(r.resource_id)
-  const isStructurallyUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
+  const isStructurallyUnavailable = isResourceBlocked(r)
+  const isOccupied = r.status === 'RESOURCE_STATUS_OCCUPIED'
   const status: Room['status'] =
+    isStructurallyUnavailable ? 'busy' :
     isMine ? 'mine' :
-    isStructurallyUnavailable ? 'busy' : 'free'
+    isOccupied ? 'busy' : 'free'
 
   // location может быть просто числом этажа ("11") — показываем как есть
   const floor = parseInt(r.location) || 11
@@ -438,9 +441,9 @@ export default function MeetingRoomsPage() {
             b.starts_at < selectedTo && b.ends_at > selectedFrom
           )
           const isMine = myResourceIds.has(r.resource_id)
-          const isStructural = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
-          const rWithStatus = isBusyAtSelected && !isMine
-            ? { ...r, status: 'RESOURCE_STATUS_MAINTENANCE' as const }
+          const isStructural = isResourceBlocked(r)
+          const rWithStatus = isBusyAtSelected && !isMine && !isStructural
+            ? { ...r, status: 'RESOURCE_STATUS_OCCUPIED' as const }
             : !isStructural
               ? { ...r, status: 'RESOURCE_STATUS_AVAILABLE' as const }
               : r
