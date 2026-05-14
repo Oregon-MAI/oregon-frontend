@@ -5,6 +5,11 @@ const TOKEN = process.env.TOKEN
 const MAP_PATH = process.env.MAP_PATH ?? 'map.json'
 const CREATE_DELAY_MS = Number(process.env.CREATE_DELAY_MS ?? 250)
 const MAX_RETRIES = Number(process.env.MAX_RETRIES ?? 5)
+const DEFAULT_RESOURCE_TYPES = ['RESOURCE_TYPE_WORKSPACE', 'RESOURCE_TYPE_MEETING_ROOM']
+const IMPORT_TYPES = (process.env.IMPORT_TYPES ?? DEFAULT_RESOURCE_TYPES.join(','))
+  .split(',')
+  .map(type => type.trim())
+  .filter(Boolean)
 
 if (!TOKEN) {
   console.error('TOKEN is required. Example: TOKEN="..." API_URL="http://localhost:8000/api/v1" node scripts/import-workspaces.mjs')
@@ -40,7 +45,7 @@ function floorKey(resource) {
 }
 
 function resourceKey(resource) {
-  return `${resource.name}|${floorKey(resource)}`
+  return `${resource.type}|${resource.name}|${floorKey(resource)}`
 }
 
 function toCreatePayload(resource) {
@@ -56,7 +61,11 @@ function toCreatePayload(resource) {
   if (resource.type === 'RESOURCE_TYPE_MEETING_ROOM') {
     return {
       ...rest,
-      meeting_room: meeting_room ?? details,
+      meeting_room: meeting_room ?? details ?? {
+        capacity: 6,
+        has_projector: false,
+        has_whiteboard: false,
+      },
     }
   }
 
@@ -123,17 +132,21 @@ async function requestWithRetry(path, options = {}) {
 }
 
 const raw = await fs.readFile(MAP_PATH, 'utf8')
-const workspaces = JSON.parse(raw)
+const mapResources = JSON.parse(raw)
+const resourcesToImport = mapResources.filter(resource => IMPORT_TYPES.includes(resource.type))
 
-const existingResponse = await requestWithRetry('/resources/list?type=RESOURCE_TYPE_WORKSPACE')
-const existingResources = existingResponse.resources ?? []
+const existingResources = []
+for (const type of IMPORT_TYPES) {
+  const existingResponse = await requestWithRetry(`/resources/list?type=${encodeURIComponent(type)}`)
+  existingResources.push(...(existingResponse.resources ?? []))
+}
 const existingKeys = new Set(existingResources.map(resourceKey))
 
 let created = 0
 let skipped = 0
 
-for (const workspace of workspaces) {
-  const key = resourceKey(workspace)
+for (const resource of resourcesToImport) {
+  const key = resourceKey(resource)
   if (existingKeys.has(key)) {
     skipped += 1
     continue
@@ -142,18 +155,18 @@ for (const workspace of workspaces) {
   try {
     await requestWithRetry('/resources', {
       method: 'POST',
-      body: JSON.stringify(toCreatePayload(workspace)),
+      body: JSON.stringify(toCreatePayload(resource)),
     })
   } catch (error) {
-    throw new Error(`Failed to create ${workspace.name}, floor ${floorKey(workspace)}. ${error.message}`)
+    throw new Error(`Failed to create ${resource.name}, type ${resource.type}, floor ${floorKey(resource)}. ${error.message}`)
   }
 
   existingKeys.add(key)
   created += 1
-  console.log(`created ${workspace.name}, floor ${floorKey(workspace)}`)
+  console.log(`created ${resource.name}, type ${resource.type}, floor ${floorKey(resource)}`)
   if (CREATE_DELAY_MS > 0) {
     await wait(CREATE_DELAY_MS)
   }
 }
 
-console.log(`Done. created=${created}, skipped=${skipped}, total=${workspaces.length}`)
+console.log(`Done. created=${created}, skipped=${skipped}, total=${resourcesToImport.length}, types=${IMPORT_TYPES.join(',')}`)

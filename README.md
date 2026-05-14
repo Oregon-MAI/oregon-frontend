@@ -3,7 +3,12 @@
 ## Запуск
 
 Перед запуском фронта должен быть поднят backend/infra gateway на `http://localhost:8000`.
+Для вноса рабочих мест в бд запустить:
+```
+TOKEN="..." API_URL="http://localhost:8000/api/v1" node scripts/import-workspaces.mjs
 
+```
+**токен брать из локального хранилища браузера после входа в админку.**
 ### Dev
 
 ```bash
