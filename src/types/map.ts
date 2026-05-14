@@ -6,12 +6,23 @@ export interface Desk {
   status: 'free' | 'busy' | 'mine'
   amenities: string[]
   bookedSlots: string[]
+  location?: string
 }
 
 export interface Zone {
   id: 'A' | 'B' | 'D'
   name: string
   desks: Desk[]
+}
+
+export interface MapRoom {
+  resourceId?: string
+  id: string
+  status: 'free' | 'busy' | 'mine'
+  capacity: number
+  amenities: string[]
+  bookedSlots: string[]
+  location?: string
 }
 
 export interface Booking {

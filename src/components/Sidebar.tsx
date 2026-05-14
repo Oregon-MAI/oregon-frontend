@@ -33,7 +33,7 @@ export default function Sidebar() {
   const { bookings } = useAuth()
   const [activeNav, setActiveNav] = useState('map')
   const [floorsOpen, setFloorsOpen] = useState(false)
-  const [currentFloor, setCurrentFloor] = useState(11)
+  const [currentFloor, setCurrentFloor] = useState(20)
 
   // Брони на сегодня для виджета
   const today = new Date().toISOString().slice(0, 10)
@@ -78,7 +78,7 @@ export default function Sidebar() {
       </button>
       {floorsOpen && (
         <div>
-          {[11, 12, 13, 14].map(floor => (
+          {[20, 21, 22].map(floor => (
             <button
               key={floor}
               type="button"

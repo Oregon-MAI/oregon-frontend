@@ -187,14 +187,21 @@
 }
 
 /* ─── Content ─────────────────────────────────────────────────────── */
-.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #fff;
+}
 
 /* ─── Page header ─────────────────────────────────────────────────── */
 .pageHeader {
   background: #fff;
-  padding: 14px 20px 0;
+  padding: 14px 20px;
   display: flex; align-items: flex-start; justify-content: space-between;
   flex-shrink: 0;
+  border-bottom: 1px solid #E5E7EB;
 }
 
 .pageHeaderLeft { display: flex; align-items: baseline; gap: 12px; }
@@ -212,7 +219,7 @@
   font-size: 12px; color: #6B7280;
   background: #F3F5F9; border: 1px solid #E5E7EB;
   border-radius: 20px; padding: 4px 14px;
-  margin-top: 6px; white-space: nowrap;
+  margin-top: 2px; white-space: nowrap;
 }
 
 /* ─── Tabs ─────────────────────────────────────────────────────────── */
@@ -250,7 +257,7 @@
 }
 
 .legend {
-  display: flex; gap: 20px; align-items: center;
+  display: flex; gap: 18px; align-items: center; flex-wrap: wrap;
   padding: 10px 20px 12px; background: #fff;
   border-top: 1px solid #E5E7EB;
   flex-shrink: 0;
@@ -269,6 +276,7 @@
 .dotFree { background: #A7F3D0; border: 1.5px solid #E5E7EB; }
 .dotBusy { background: #9CA3AF; }
 .dotMine { background: #1A56DB; }
+.dotRoomFree { background: #FECACA; border: 1.5px solid #FCA5A5; }
 
 .loading {
   flex: 1;
@@ -287,7 +295,7 @@
 .modal {
   position: fixed; top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  width: 380px; background: #fff;
+  width: min(560px, calc(100vw - 32px)); background: #fff;
   border-radius: 12px;
   box-shadow: 0 8px 40px rgba(17,24,39,.18);
   z-index: 50; padding: 24px;
@@ -308,7 +316,7 @@
 .modalDetails {
   display: flex; flex-direction: column; gap: 10px;
   background: #F3F5F9; border-radius: 8px;
-  padding: 14px 16px; margin-bottom: 20px;
+  padding: 14px 16px; margin-bottom: 16px;
 }
 
 .modalRow {
@@ -324,6 +332,89 @@
   font-weight: 600; color: #1A56DB; font-size: 14px;
 }
 
+.timelineBlock {
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 18px;
+}
+
+.timelineHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.timelineHeader span:last-child {
+  color: #6B7280;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.timelineHint {
+  margin-top: 4px;
+  margin-bottom: 10px;
+  color: #9CA3AF;
+  font-size: 12px;
+}
+
+.timelineSlots {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(58px, 1fr));
+  gap: 6px;
+}
+
+.timelineSlot {
+  min-height: 30px;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 6px;
+  background: #fff;
+  color: #374151;
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .12s, border-color .12s, color .12s;
+}
+
+.timelineSlot:hover:not(:disabled) {
+  border-color: #1A56DB;
+  background: #EBF2FF;
+  color: #1A56DB;
+}
+
+.timelineSlotBusy {
+  border-color: transparent;
+  background: #F3F5F9;
+  color: #9CA3AF;
+  cursor: default;
+  text-decoration: line-through;
+}
+
+.timelineSlotSelected {
+  border-color: #1245B5;
+  background: #1A56DB;
+  color: #fff;
+}
+
+.timelineSlotRange {
+  border-color: #C4D9FA;
+  background: #EBF2FF;
+  color: #1A56DB;
+}
+
+.timelineError {
+  margin-top: 10px;
+  color: #DC2626;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .modalFooter { display: flex; gap: 8px; }
 
 .btnConfirm {
@@ -335,6 +426,11 @@
 }
 
 .btnConfirm:hover { background: #1245B5; }
+
+.btnConfirm:disabled {
+  background: #C4D9FA;
+  cursor: default;
+}
 
 .btnCancelModal {
   background: #111827; color: #fff;

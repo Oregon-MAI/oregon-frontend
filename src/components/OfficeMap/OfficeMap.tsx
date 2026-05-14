@@ -1,9 +1,13 @@
-import type { Zone, Desk } from '../../types/map'
+import type { Zone, Desk, MapRoom } from '../../types/map'
+import type { CSSProperties } from 'react'
+import { parseWorkspaceLocation } from '../../features/resources/lib/workspaceLocation'
 import styles from './OfficeMap.module.css'
 
 interface Props {
   zones: Zone[]
+  rooms?: MapRoom[]
   onDeskClick?: (desk: Desk) => void
+  onRoomClick?: (room: MapRoom) => void
 }
 
 type SeatPoint = {
@@ -59,7 +63,12 @@ function textForDesk(desk: Desk): string {
   return '#047857'
 }
 
-function FloorPlanSvg() {
+export const FLOOR_PLAN_VIEWBOX = {
+  width: 1094,
+  height: 656,
+}
+
+export function FloorPlanSvg() {
   return (
     <svg className={styles.floorSvg} viewBox="0 0 1094 656" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
       <g className={styles.walls}>
@@ -170,7 +179,50 @@ function FloorPlanSvg() {
   )
 }
 
-export default function OfficeMap({ zones, onDeskClick }: Props) {
+function colorForRoom(room: MapRoom): string {
+  if (room.status === 'mine') return '#1A56DB'
+  if (room.status === 'busy') return '#9CA3AF'
+  return '#FECACA'
+}
+
+function textForRoom(room: MapRoom): string {
+  if (room.status === 'mine' || room.status === 'busy') return '#ffffff'
+  return '#991B1B'
+}
+
+function roomCapacityScale(capacity: number): number {
+  return 4 + Math.pow(Math.max(0, capacity - 4), 1.22)
+}
+
+function seatsWord(count: number): string {
+  const mod100 = count % 100
+  const mod10 = count % 10
+  if (mod100 >= 11 && mod100 <= 14) return 'мест'
+  if (mod10 === 1) return 'место'
+  if (mod10 >= 2 && mod10 <= 4) return 'места'
+  return 'мест'
+}
+
+function isSidewaysRotate(rotate: number | undefined): boolean {
+  const normalized = (((rotate ?? 0) % 360) + 360) % 360
+  return normalized === 90 || normalized === 270
+}
+
+function RoomCapacityLabel({ capacity, vertical }: { capacity: number; vertical: boolean }) {
+  const word = seatsWord(capacity)
+  if (!vertical) return <span className={styles.roomLabel}>{capacity} {word}</span>
+
+  return (
+    <span className={styles.roomLabel}>
+      <span className={styles.roomLabelLine}>{capacity}</span>
+      {word.split('').map(letter => (
+        <span key={letter} className={styles.roomLabelLine}>{letter}</span>
+      ))}
+    </span>
+  )
+}
+
+export default function OfficeMap({ zones, rooms = [], onDeskClick, onRoomClick }: Props) {
   const desks = flattenDesks(zones)
 
   return (
@@ -178,13 +230,13 @@ export default function OfficeMap({ zones, onDeskClick }: Props) {
       <div className={styles.plan}>
         <FloorPlanSvg />
         {desks.map((desk, index) => {
-          const point = SEAT_POINTS[index]
+          const location = parseWorkspaceLocation(desk.location)
+          const point = location?.x !== undefined && location.y !== undefined
+            ? { x: location.x, y: location.y, rotate: location.rotate }
+            : SEAT_POINTS[index]
           if (!point) return null
 
-          const isBusy = desk.status === 'busy'
-          const tooltip = isBusy && desk.bookedSlots.length > 0
-            ? `Занято: ${desk.bookedSlots.join(', ')}`
-            : undefined
+          const isMine = desk.status === 'mine'
 
           return (
             <button
@@ -192,19 +244,50 @@ export default function OfficeMap({ zones, onDeskClick }: Props) {
               type="button"
               className={styles.desk}
               data-status={desk.status}
-              data-tooltip={tooltip}
               style={{
                 left: `${(point.x / 1094) * 100}%`,
                 top: `${(point.y / 656) * 100}%`,
-                background: colorForDesk(desk),
-                color: textForDesk(desk),
+                '--desk-bg': colorForDesk(desk),
+                '--desk-text': textForDesk(desk),
                 transform: `translate(-50%, -50%) rotate(${point.rotate ?? 0}deg)`,
-              }}
-              disabled={isBusy || desk.status === 'mine'}
+              } as CSSProperties}
+              disabled={false}
               onClick={() => onDeskClick?.(desk)}
-              aria-label={`Место ${desk.id}`}
+              aria-label={isMine ? `Моё место ${desk.id}` : `Место ${desk.id}`}
             >
-              {desk.id}
+              <span className={styles.deskLabel} aria-hidden="true" />
+            </button>
+          )
+        })}
+        {rooms.map((room, index) => {
+          const location = parseWorkspaceLocation(room.location)
+          const point = location?.x !== undefined && location.y !== undefined
+            ? { x: location.x, y: location.y, rotate: location.rotate }
+            : { x: 520 + (index % 4) * 70, y: 300 + Math.floor(index / 4) * 70, rotate: 0 }
+          const isMine = room.status === 'mine'
+          const isVerticalLabel = isSidewaysRotate(point.rotate)
+
+          return (
+            <button
+              key={room.resourceId ?? room.id}
+              type="button"
+              className={styles.room}
+              data-status={room.status}
+              data-label-mode={isVerticalLabel ? 'vertical' : undefined}
+              style={{
+                left: `${(point.x / FLOOR_PLAN_VIEWBOX.width) * 100}%`,
+                top: `${(point.y / FLOOR_PLAN_VIEWBOX.height) * 100}%`,
+                '--room-bg': colorForRoom(room),
+                '--room-text': textForRoom(room),
+                '--room-capacity-scale': roomCapacityScale(room.capacity),
+                '--room-label-rotate': `${-(point.rotate ?? 0)}deg`,
+                transform: `translate(-50%, -50%) rotate(${point.rotate ?? 0}deg)`,
+              } as CSSProperties}
+              disabled={false}
+              onClick={() => onRoomClick?.(room)}
+              aria-label={isMine ? `Моя переговорная ${room.id}` : `Переговорная ${room.id}`}
+            >
+              <RoomCapacityLabel capacity={room.capacity} vertical={isVerticalLabel} />
             </button>
           )
         })}

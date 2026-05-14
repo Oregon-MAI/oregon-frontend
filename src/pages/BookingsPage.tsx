@@ -4,6 +4,7 @@ import { useAuth } from '../features/auth/model/AuthContext'
 import NotificationCenter from '../components/NotificationCenter'
 import { cancelBooking, getMyBookings } from '../features/bookings/api/bookingApi'
 import { getResourcesList } from '../features/resources/api/resourceApi'
+import { formatWorkspaceLocation } from '../features/resources/lib/workspaceLocation'
 import type { Booking } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './BookingsPage.module.css'
@@ -93,6 +94,16 @@ function detectType(r: Resource): ResourceType {
   if (r.type === 'RESOURCE_TYPE_MEETING_ROOM') return 'room'
   if (r.type === 'RESOURCE_TYPE_DEVICE')       return 'device'
   return 'workspace'
+}
+
+function formatBookingMeta(resource: Resource | undefined, bookingLocation?: string): string {
+  const location = formatWorkspaceLocation(resource?.location ?? bookingLocation)
+  if (!resource || resource.type !== 'RESOURCE_TYPE_MEETING_ROOM') return location
+
+  return [
+    location,
+    resource.meeting_room?.capacity ? `до ${resource.meeting_room.capacity} чел.` : '',
+  ].filter(Boolean).join(' · ')
 }
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -234,15 +245,13 @@ export default function BookingsPage() {
             const resourceName = b.resourceName && b.resourceName !== b.resourceId
               ? b.resourceName
               : (r?.name ?? b.resourceId)
-            const meta = r
-              ? [r.location, r.meeting_room?.capacity ? `до ${r.meeting_room.capacity} чел.` : ''].filter(Boolean).join(' · ')
-              : (b.resourceLocation ?? '')
+            const meta = formatBookingMeta(r, b.resourceLocation)
             return { ...b, resourceName, resourceType: rType, meta }
           })
           setLocal(enriched)
         } catch {
           const enriched: EnrichedBooking[] = rawBookings.map(b => ({
-            ...b, resourceType: 'workspace' as ResourceType, meta: b.resourceLocation ?? '',
+            ...b, resourceType: 'workspace' as ResourceType, meta: formatBookingMeta(undefined, b.resourceLocation),
           }))
           setLocal(enriched)
         }

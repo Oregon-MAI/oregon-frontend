@@ -75,10 +75,10 @@ function resourceToRoom(r: Resource, myResourceIds: Set<string>, slots: { from: 
 
 // TODO: remove stub when backend is ready
 const STUB_ROOMS: Room[] = [
-  { id: 'stub-room-1', name: 'Переговорная A1', floor: 11, wing: 'Крыло А', capacity: 6, status: 'free', amenities: ['Проектор', 'Маркерная', 'Wi-Fi'], bookedSlots: [] },
-  { id: 'stub-room-2', name: 'Переговорная A2', floor: 11, wing: 'Крыло А', capacity: 10, status: 'busy', busyUntil: '14:00', amenities: ['ВКС', 'Проектор', 'Wi-Fi'], bookedSlots: [{ from: '10:00', to: '14:00' }] },
-  { id: 'stub-room-3', name: 'Переговорная B1', floor: 11, wing: 'Крыло Б', capacity: 4, status: 'free', amenities: ['Маркерная', 'Wi-Fi'], bookedSlots: [] },
-  { id: 'stub-room-4', name: 'Переговорная B2', floor: 11, wing: 'Крыло Б', capacity: 15, status: 'free', amenities: ['ВКС', 'Проектор', 'Маркерная', 'Wi-Fi', 'Доска'], bookedSlots: [] },
+  { id: 'stub-room-1', name: 'Переговорная A1', floor: 20, wing: 'Крыло А', capacity: 6, status: 'free', amenities: ['Проектор', 'Маркерная', 'Wi-Fi'], bookedSlots: [] },
+  { id: 'stub-room-2', name: 'Переговорная A2', floor: 20, wing: 'Крыло А', capacity: 10, status: 'busy', busyUntil: '14:00', amenities: ['ВКС', 'Проектор', 'Wi-Fi'], bookedSlots: [{ from: '10:00', to: '14:00' }] },
+  { id: 'stub-room-3', name: 'Переговорная B1', floor: 20, wing: 'Крыло Б', capacity: 4, status: 'free', amenities: ['Маркерная', 'Wi-Fi'], bookedSlots: [] },
+  { id: 'stub-room-4', name: 'Переговорная B2', floor: 20, wing: 'Крыло Б', capacity: 15, status: 'free', amenities: ['ВКС', 'Проектор', 'Маркерная', 'Wi-Fi', 'Доска'], bookedSlots: [] },
 ]
 
 const ALL_AMENITIES = ['ВКС', 'Проектор', 'Маркерная', 'Wi-Fi', 'Доска']
@@ -196,7 +196,7 @@ function RoomsSidebar({
       </button>
       {floorsOpen && (
         <div>
-          {[11, 12, 13, 14].map(floor => (
+          {[20, 21, 22].map(floor => (
             <button
               key={floor}
               className={`${styles.sideBtn} ${currentFloor === floor ? styles.sideBtnActive : ''}`}
@@ -406,7 +406,7 @@ export default function MeetingRoomsPage() {
   const [timeFrom,          setTimeFrom]          = useState('11:00')
   const [timeTo,            setTimeTo]            = useState('13:00')
   const [date,              setDate]              = useState(defaultDate())
-  const [currentFloor,      setCurrentFloor]      = useState(11)
+  const [currentFloor,      setCurrentFloor]      = useState(20)
   const [rooms,             setRooms]             = useState<Room[]>([])
   const [confirmRoom,       setConfirmRoom]       = useState<Room | null>(null)
   const [toast,             setToast]             = useState<string | null>(null)
@@ -459,7 +459,7 @@ export default function MeetingRoomsPage() {
   function handleReset() {
     setSelectedAmenities([])
     setMinCapacity(0)
-    setCurrentFloor(11)
+    setCurrentFloor(20)
   }
 
   const filteredRooms = rooms.filter((r: Room) => {
@@ -525,7 +525,7 @@ export default function MeetingRoomsPage() {
           timeTo={timeTo}
           setTimeTo={setTimeTo}
           onReset={handleReset}
-          hasFilters={selectedAmenities.length > 0 || minCapacity > 0 || currentFloor !== 11}
+          hasFilters={selectedAmenities.length > 0 || minCapacity > 0 || currentFloor !== 20}
           bookings={bookings}
         />
 

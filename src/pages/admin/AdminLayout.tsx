@@ -16,15 +16,6 @@ function IconWorkspace() {
   )
 }
 
-function IconRoom() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="3" y="3" width="18" height="18" rx="2" />
-      <path d="M9 3v18M3 9h6M3 15h6" />
-    </svg>
-  )
-}
-
 function IconLaptop() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -140,8 +131,7 @@ export default function AdminLayout() {
         <div className={styles.sectionLabel}>РЕСУРСЫ</div>
 
         <nav className={styles.nav}>
-          <NavItem to="/admin/workspaces" icon={<IconWorkspace />} label="Рабочие места" count={counts.workspaces} />
-          <NavItem to="/admin/rooms" icon={<IconRoom />} label="Переговорные" count={counts.rooms} />
+          <NavItem to="/admin/workspaces" icon={<IconWorkspace />} label="Карта ресурсов" count={counts.workspaces + counts.rooms} />
           <NavItem to="/admin/equipment" icon={<IconLaptop />} label="Техника" count={counts.equipment} />
         </nav>
 

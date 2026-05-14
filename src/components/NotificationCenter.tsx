@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { confirmNotification, createNotificationsStream } from '../features/notifications/api/notificationApi'
 import { useAuth } from '../features/auth/model/AuthContext'
+import { formatWorkspaceLocation } from '../features/resources/lib/workspaceLocation'
 import styles from './NotificationCenter.module.css'
 
 type Notification = {
@@ -29,6 +30,12 @@ function CloseIcon() {
   )
 }
 
+function formatNotificationText(text: string): string {
+  return text.replace(/\{"floor"\s*:\s*\d+(?:\s*,\s*"x"\s*:\s*-?\d+(?:\.\d+)?)?(?:\s*,\s*"y"\s*:\s*-?\d+(?:\.\d+)?)?(?:\s*,\s*"rotate"\s*:\s*-?\d+(?:\.\d+)?)?\}/g, match => (
+    formatWorkspaceLocation(match)
+  ))
+}
+
 export default function NotificationCenter() {
   const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
@@ -53,7 +60,7 @@ export default function NotificationCenter() {
             {
               id: message.id,
               title: 'Новое уведомление',
-              message: message.text,
+              message: formatNotificationText(message.text),
               time: 'Только что',
               unread: true,
             },

@@ -79,7 +79,7 @@ export default function BookingPanel({ desk, onClose, onBooked }: Props) {
               Рабочее место <span className={styles.titleAccent}>{desk.id}</span>
             </div>
             <div className={styles.subtitle}>
-              БЦ «Арена» · 11 этаж · Зона {desk.zone} — {desk.zoneName ?? `Зона ${desk.zone}`}
+              БЦ «Арена» · 20 этаж · Зона {desk.zone} — {desk.zoneName ?? `Зона ${desk.zone}`}
             </div>
           </div>
           <button className={styles.closeBtn} onClick={handleClose}>×</button>

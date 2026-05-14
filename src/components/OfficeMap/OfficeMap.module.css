@@ -4,12 +4,12 @@
   min-height: 0;
   overflow: auto;
   background: #fff;
-  padding: 20px;
+  padding: 8px 16px 10px;
 }
 
 .plan {
   position: relative;
-  width: min(100%, 1094px, calc((100vh - 270px) * 1.667));
+  width: min(100%, 1360px, calc((100vh - 190px) * 1.667));
   aspect-ratio: 1094 / 656;
   margin: 0 auto;
   background: #fff;
@@ -36,23 +36,55 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 22px;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 6px;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12);
+  width: 3.016%;
+  height: 3.201%;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--desk-text, #047857);
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 800;
   line-height: 1;
   cursor: pointer;
-  transition: box-shadow 0.14s, outline-color 0.14s, opacity 0.14s;
+  transition: filter 0.14s, opacity 0.14s;
+}
+
+.deskLabel {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: block;
+  pointer-events: none;
+}
+
+.deskLabel::before,
+.deskLabel::after {
+  content: '';
+  position: absolute;
+  background: var(--desk-bg, #A7F3D0);
+}
+
+.deskLabel::before {
+  top: 0;
+  left: 0;
+  width: 97.06%;
+  height: 72%;
+  border-radius: 19% / 28%;
+}
+
+.deskLabel::after {
+  left: 35.06%;
+  top: 76.24%;
+  width: 26.97%;
+  height: 21.19%;
+  border-radius: 0 0 999px 999px;
 }
 
 .desk:hover:not(:disabled) {
   outline: 2px solid rgba(26, 86, 219, 0.35);
   outline-offset: 2px;
-  box-shadow: 0 5px 14px rgba(26, 86, 219, 0.22);
 }
 
 .desk:disabled {
@@ -60,41 +92,97 @@
 }
 
 .desk[data-status='mine'] {
-  border-color: rgba(255, 255, 255, 0.9);
-  box-shadow: 0 0 0 2px rgba(26, 86, 219, 0.18), 0 2px 8px rgba(26, 86, 219, 0.22);
+  outline: 2px solid rgba(26, 86, 219, 0.18);
+  outline-offset: 1px;
 }
 
 .desk[data-status='busy'] {
   opacity: 0.88;
 }
 
-.desk[data-tooltip]:hover::after {
-  content: attr(data-tooltip);
+.room {
   position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  max-width: 240px;
-  padding: 6px 8px;
-  border-radius: 6px;
-  background: #111827;
-  color: #fff;
-  font-size: 11px;
-  font-weight: 600;
-  line-height: 1.3;
-  white-space: nowrap;
-  pointer-events: none;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: calc((4.7% + (var(--room-capacity-scale, 6) * 0.185625%)));
+  height: 5.18%;
+  border: none;
+  border-radius: 7%;
+  background: var(--room-bg, #FECACA);
+  color: var(--room-text, #991B1B);
+  padding: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+  transition: filter 0.14s, opacity 0.14s;
 }
 
-.desk[data-tooltip]:hover::before {
+.room::before,
+.room::after {
   content: '';
   position: absolute;
-  bottom: calc(100% + 3px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 20;
-  border: 5px solid transparent;
-  border-top-color: #111827;
-  pointer-events: none;
+  top: 50%;
+  width: 8%;
+  height: 65%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--room-bg, #FECACA) 78%, #DC2626);
+  transform: translateY(-50%);
+}
+
+.room::before {
+  left: -10%;
+}
+
+.room::after {
+  right: -10%;
+}
+
+.roomLabel {
+  position: relative;
+  z-index: 1;
+  display: block;
+  overflow: hidden;
+  max-width: 100%;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transform: rotate(var(--room-label-rotate, 0deg));
+}
+
+.room[data-label-mode='vertical'] .roomLabel {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  width: 18px;
+  max-width: 18px;
+  white-space: normal;
+  text-align: center;
+  line-height: 0.95;
+}
+
+.roomLabelLine {
+  display: block;
+}
+
+.room:hover:not(:disabled) {
+  outline: 2px solid rgba(220, 38, 38, 0.32);
+  outline-offset: 2px;
+}
+
+.room:disabled {
+  cursor: default;
+}
+
+.room[data-status='mine'] {
+  outline: 2px solid rgba(26, 86, 219, 0.18);
+  outline-offset: 1px;
+}
+
+.room[data-status='busy'] {
+  opacity: 0.88;
 }

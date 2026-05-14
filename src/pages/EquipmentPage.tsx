@@ -77,11 +77,11 @@ function resourceToEquipment(r: Resource, myResourceIds: Set<string>, slots: str
 
 // TODO: remove stub when backend is ready
 const STUB_EQUIPMENT: Equipment[] = [
-  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '11 этаж · Крыло А', bookedSlots: [] },
-  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '11 этаж · Крыло Б', bookedSlots: [] },
-  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: '11 этаж · Крыло А', bookedSlots: [] },
-  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: '11 этаж · Ресепшн', bookedSlots: [] },
-  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: '11 этаж · Переговорная B2', bookedSlots: [] },
+  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '20 этаж · Крыло А', bookedSlots: [] },
+  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '20 этаж · Крыло Б', bookedSlots: [] },
+  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: '20 этаж · Крыло А', bookedSlots: [] },
+  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: '20 этаж · Ресепшн', bookedSlots: [] },
+  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: '20 этаж · Переговорная B2', bookedSlots: [] },
 ]
 
 const TYPE_LABELS: Record<Equipment['type'], string> = {
@@ -94,7 +94,7 @@ const TYPE_LABELS: Record<Equipment['type'], string> = {
 
 function isOnFloor(location: string, floor: number): boolean {
   const normalized = location.trim()
-  if (!normalized) return floor === 11
+  if (!normalized) return floor === 20
 
   return new RegExp(`(^|\\D)${floor}(\\D|$)`).test(normalized)
 }
@@ -284,7 +284,7 @@ export default function EquipmentPage() {
   const [timeTo,   setTimeTo]   = useState('13:00')
   const [refreshKey, setRefreshKey] = useState(0)
   const [floorsOpen, setFloorsOpen] = useState(false)
-  const [currentFloor, setCurrentFloor] = useState(11)
+  const [currentFloor, setCurrentFloor] = useState(20)
 
   const [equipment,   setEquipment]   = useState<Equipment[]>([])
   const [confirmItem, setConfirmItem] = useState<Equipment | null>(null)
@@ -413,7 +413,7 @@ export default function EquipmentPage() {
           </button>
           {floorsOpen && (
             <div>
-              {[11, 12, 13, 14].map(floor => (
+              {[20, 21, 22].map(floor => (
                 <button
                   key={floor}
                   className={`${styles.sideBtn} ${currentFloor === floor ? styles.sideBtnActive : ''}`}

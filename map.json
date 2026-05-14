@@ -1,0 +1,3296 @@
+[
+  {
+    "name": "Топаз",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":20,\"x\":180,\"y\":555,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 10,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Сигма",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":20,\"x\":348,\"y\":422,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 4,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Дельта",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":20,\"x\":300,\"y\":420,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 4,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Альфа",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":20,\"x\":530,\"y\":555,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 15,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Переговорная 1",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":20,\"x\":325,\"y\":320,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 8,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "A-1",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":80,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "Переговорная 2",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":20,\"x\":391,\"y\":423,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 6,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "A-2",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":120,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-3",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":160,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-4",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":80,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-5",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":120,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-6",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":160,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-7",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":205,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-8",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":240,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-9",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":205,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-10",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":240,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-11",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":285,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-12",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":320,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-13",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":285,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-14",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":320,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-15",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":365,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-16",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":400,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-17",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":365,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-18",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":400,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-19",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":445,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-20",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":480,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-21",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":445,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-22",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":480,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-23",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":525,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-24",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":560,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-25",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":525,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-26",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":560,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-27",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":605,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-28",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":640,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-29",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":605,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-30",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":640,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-31",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":680,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-32",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":715,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-33",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":680,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-34",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":715,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-35",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":760,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-36",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":800,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-37",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":840,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-38",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":760,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-39",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":800,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-40",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":840,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-41",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":910,\"y\":30,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-42",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":30,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-43",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":910,\"y\":65,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-44",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":65,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-45",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":970,\"y\":30,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-46",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":970,\"y\":65,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-47",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":995,\"y\":65,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-48",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":995,\"y\":30,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-49",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-50",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":975,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-51",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-52",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":975,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-53",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":190,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-54",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":975,\"y\":190,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-55",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":215,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-56",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":975,\"y\":215,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-57",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":270,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-58",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":975,\"y\":270,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-59",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":935,\"y\":295,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-60",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":975,\"y\":295,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-61",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":835,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-62",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":835,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-63",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":835,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-64",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":875,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-65",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":915,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-66",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":835,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-67",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":875,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-68",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":915,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-69",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":980,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-70",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":1020,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-71",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":980,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-72",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":1020,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-73",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":925,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-74",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":965,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-75",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":1005,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-76",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":925,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-77",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":965,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-78",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":1005,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-79",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":75,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-80",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":110,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-81",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":145,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-82",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":75,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-83",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":110,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-84",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":145,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-85",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":285,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-86",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":285,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-87",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":345,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-88",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":345,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-89",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":400,\"y\":160,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-90",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":400,\"y\":125,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-91",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":430,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-92",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":430,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-93",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":230,\"y\":230,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-94",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":230,\"y\":200,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-95",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":135,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-96",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":170,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-97",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":205,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-98",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":205,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-99",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":170,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-100",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":135,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-101",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":130,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-102",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":165,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-103",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":200,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-104",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":200,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-105",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":165,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-106",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":130,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-107",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":650,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-108",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":685,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-109",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":685,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-110",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":650,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-111",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":735,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-112",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":770,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-113",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":770,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-114",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":735,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-115",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":300,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-116",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":20,\"x\":300,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-1",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":80,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-2",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":120,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-3",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":160,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-4",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":80,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-5",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":120,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-6",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":160,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-7",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":205,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-8",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":240,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-9",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":205,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-10",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":240,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-11",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":285,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-12",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":320,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-13",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":285,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-14",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":320,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-15",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":365,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-16",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":400,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-17",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":365,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-18",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":400,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-19",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":445,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-20",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":480,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-21",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":445,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-22",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":480,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-23",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":525,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-24",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":560,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-25",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":525,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-26",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":560,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-27",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":605,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-28",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":640,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-29",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":605,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-30",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":640,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-31",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":680,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-32",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":715,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-33",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":680,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-34",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":715,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-35",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":760,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-36",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":800,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-37",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":840,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-38",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":760,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-39",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":800,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-40",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":840,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-41",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":910,\"y\":30,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-42",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":30,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-43",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":910,\"y\":65,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-44",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":65,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-45",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":970,\"y\":30,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-46",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":970,\"y\":65,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-47",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":995,\"y\":65,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-48",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":995,\"y\":30,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-49",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-50",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":975,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-51",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-52",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":975,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-53",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":190,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-54",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":975,\"y\":190,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-55",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":215,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-56",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":975,\"y\":215,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-57",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":270,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-58",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":975,\"y\":270,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-59",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":935,\"y\":295,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-60",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":975,\"y\":295,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-61",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":835,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-62",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":835,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-63",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":835,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-64",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":875,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-65",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":915,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-66",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":835,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-67",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":875,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-68",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":915,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-69",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":980,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-70",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":1020,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-71",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":980,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-72",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":1020,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-73",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":925,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-74",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":965,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-75",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":1005,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-76",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":925,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-77",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":965,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-78",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":1005,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-79",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":75,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-80",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":110,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-81",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":145,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-82",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":75,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-83",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":110,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-84",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":145,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-85",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":285,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-86",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":285,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-87",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":345,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-88",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":345,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-89",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":400,\"y\":160,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-90",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":400,\"y\":125,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-91",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":430,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-92",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":430,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-93",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":230,\"y\":230,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-94",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":230,\"y\":200,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-95",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":135,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-96",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":170,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-97",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":205,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-98",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":205,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-99",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":170,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-100",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":135,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-101",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":130,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-102",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":165,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-103",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":200,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-104",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":200,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-105",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":165,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-106",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":130,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-107",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":650,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-108",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":685,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-109",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":685,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-110",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":650,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-111",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":735,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-112",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":770,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-113",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":770,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-114",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":21,\"x\":735,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-1",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":80,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-2",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":120,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-3",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":160,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-4",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":80,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-5",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":120,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-6",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":160,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-7",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":205,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-8",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":240,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-9",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":205,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-10",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":240,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-11",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":285,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-12",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":320,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-13",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":285,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-14",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":320,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-15",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":365,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-16",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":400,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-17",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":365,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-18",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":400,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-19",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":445,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-20",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":480,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-21",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":445,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-22",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":480,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-23",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":525,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-24",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":560,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-25",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":525,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-26",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":560,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-27",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":605,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-28",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":640,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-29",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":605,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-30",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":640,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-31",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":680,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-32",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":715,\"y\":20,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-33",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":680,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-34",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":715,\"y\":45,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-35",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":760,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-36",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":800,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-37",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":840,\"y\":25,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-38",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":760,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-39",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":800,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-40",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":840,\"y\":50,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-41",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":910,\"y\":30,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-42",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":30,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-43",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":910,\"y\":65,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-44",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":65,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-45",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":970,\"y\":30,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-46",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":970,\"y\":65,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-47",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":995,\"y\":65,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-48",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":995,\"y\":30,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-49",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-50",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":975,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-51",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-52",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":975,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-53",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":190,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-54",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":975,\"y\":190,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-55",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":215,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-56",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":975,\"y\":215,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-57",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":270,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-58",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":975,\"y\":270,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-59",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":935,\"y\":295,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-60",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":975,\"y\":295,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-61",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":835,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-62",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":835,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-63",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":835,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-64",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":875,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-65",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":915,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-66",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":835,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-67",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":875,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-68",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":915,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-69",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":980,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-70",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":1020,\"y\":420,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-71",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":980,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-72",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":1020,\"y\":445,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-73",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":925,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-74",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":965,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-75",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":1005,\"y\":350,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-76",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":925,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-77",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":965,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-78",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":1005,\"y\":375,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-79",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":75,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-80",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":110,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-81",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":145,\"y\":145,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-82",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":75,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-83",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":110,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-84",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":145,\"y\":120,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-85",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":285,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-86",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":285,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-87",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":345,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-88",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":345,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-89",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":400,\"y\":160,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-90",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":400,\"y\":125,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-91",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":430,\"y\":125,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-92",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":430,\"y\":160,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-93",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":230,\"y\":230,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-94",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":230,\"y\":200,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-95",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":135,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-96",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":170,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-97",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":205,\"y\":330,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-98",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":205,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-99",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":170,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-100",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":135,\"y\":305,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-101",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":130,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-102",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":165,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-103",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":200,\"y\":405,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-104",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":200,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-105",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":165,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-106",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":130,\"y\":380,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-107",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":650,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-108",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":685,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-109",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":685,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-110",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":650,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-111",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":735,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-112",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":770,\"y\":585,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-113",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":770,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "A-114",
+    "type": "RESOURCE_TYPE_WORKSPACE",
+    "location": "{\"floor\":22,\"x\":735,\"y\":560,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "has_monitor": false
+    }
+  },
+  {
+    "name": "Топаз",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":21,\"x\":180,\"y\":555,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 10,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Топаз",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":22,\"x\":180,\"y\":555,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 10,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Сигма",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":21,\"x\":348,\"y\":422,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 4,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Сигма",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":22,\"x\":348,\"y\":422,\"rotate\":90}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 4,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Дельта",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":21,\"x\":300,\"y\":420,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 4,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Дельта",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":22,\"x\":300,\"y\":420,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 4,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Альфа",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":21,\"x\":530,\"y\":555,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 15,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Альфа",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":22,\"x\":530,\"y\":555,\"rotate\":0}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 15,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Переговорная 1",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":21,\"x\":325,\"y\":320,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 8,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Переговорная 1",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":22,\"x\":325,\"y\":320,\"rotate\":180}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 8,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Переговорная 2",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":21,\"x\":391,\"y\":423,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 6,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  },
+  {
+    "name": "Переговорная 2",
+    "type": "RESOURCE_TYPE_MEETING_ROOM",
+    "location": "{\"floor\":22,\"x\":391,\"y\":423,\"rotate\":270}",
+    "status": "RESOURCE_STATUS_AVAILABLE",
+    "details": {
+      "capacity": 6,
+      "has_projector": true,
+      "has_whiteboard": true
+    }
+  }
+]

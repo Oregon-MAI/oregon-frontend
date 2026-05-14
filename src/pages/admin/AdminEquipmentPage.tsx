@@ -113,7 +113,7 @@ function EquipmentModal({ mode, initial, onSave, onClose }: {
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>Локация *</label>
-              <input className={styles.formInput} placeholder="11 этаж · Крыло А" value={form.location}
+              <input className={styles.formInput} placeholder="20 этаж · Крыло А" value={form.location}
                 onChange={e => set('location', e.target.value)} />
             </div>
           </div>

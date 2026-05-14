@@ -4,11 +4,12 @@ import { useAuth } from '../features/auth/model/AuthContext'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
 import OfficeMap from '../components/OfficeMap/OfficeMap'
 import NotificationCenter from '../components/NotificationCenter'
-import type { Zone, Desk } from '../types/map'
+import type { Zone, Desk, MapRoom } from '../types/map'
 import type { Resource } from '../types/resource'
 import styles from './MapPage.module.css'
 import { getResourcesList } from '../features/resources/api/resourceApi'
 import TimeSelect from '../components/TimeSelect'
+import { getWorkspaceFloor } from '../features/resources/lib/workspaceLocation'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -34,6 +35,24 @@ function defaultTimeFrom(): string {
   return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
 }
 
+const TIME_SLOTS = Array.from({ length: 37 }, (_, i) => {
+  const total = 9 * 60 + i * 15
+  const h = Math.floor(total / 60)
+  const m = total % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`
+})
+
+function timeIndex(time: string): number {
+  return TIME_SLOTS.indexOf(time)
+}
+
+function hasBusySlotBetween(busySlots: string[], from: string, to: string): boolean {
+  const fromIndex = timeIndex(from)
+  const toIndex = timeIndex(to)
+  if (fromIndex < 0 || toIndex < 0 || toIndex <= fromIndex) return true
+  return TIME_SLOTS.slice(fromIndex, toIndex).some(slot => busySlots.includes(slot))
+}
+
 // ─── Converter ────────────────────────────────────────────────────────────────
 
 function isoToTime(iso: string): string {
@@ -53,10 +72,7 @@ function expandBookingToSlots(startsAt: string, endsAt: string): string[] {
 }
 
 function isResourceOnFloor(resource: Resource, floor: number): boolean {
-  const location = resource.location?.trim()
-  if (!location) return floor === 11
-
-  return new RegExp(`(^|\\D)${floor}(\\D|$)`).test(location)
+  return (getWorkspaceFloor(resource.location) ?? 20) === floor
 }
 
 function resourcesToZones(
@@ -86,6 +102,7 @@ function resourcesToZones(
       status,
       amenities,
       bookedSlots: bookedSlotsByResource.get(r.resource_id) ?? [],
+      location: r.location,
     }
 
     if (!zoneMap.has(zoneKey)) zoneMap.set(zoneKey, [])
@@ -101,6 +118,36 @@ function resourcesToZones(
       return na - nb
     }),
   }))
+}
+
+function resourcesToRooms(
+  resources: Resource[],
+  myResourceIds: Set<string>,
+  bookedSlotsByResource: Map<string, string[]>,
+): MapRoom[] {
+  return resources
+    .filter(r => r.type === 'RESOURCE_TYPE_MEETING_ROOM')
+    .map(r => {
+      const amenities: string[] = []
+      if (r.meeting_room?.has_projector) amenities.push('Проектор')
+      if (r.meeting_room?.has_whiteboard) amenities.push('Маркерная')
+
+      const isMine = myResourceIds.has(r.resource_id)
+      const isUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
+      const status: MapRoom['status'] =
+        isMine ? 'mine' :
+        isUnavailable ? 'busy' : 'free'
+
+      return {
+        resourceId: r.resource_id,
+        id: r.name,
+        status,
+        capacity: r.meeting_room?.capacity ?? 0,
+        amenities,
+        bookedSlots: bookedSlotsByResource.get(r.resource_id) ?? [],
+        location: r.location,
+      }
+    })
 }
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -183,7 +230,7 @@ function MapSidebar({
       </button>
       {floorsOpen && (
         <div>
-          {[11, 12, 13, 14].map(floor => (
+          {[20, 21, 22].map(floor => (
             <button
               key={floor}
               className={`${styles.sideBtn} ${currentFloor === floor ? styles.sideBtnActive : ''}`}
@@ -249,22 +296,62 @@ function MapSidebar({
 
 // ─── Confirm modal ────────────────────────────────────────────────────────────
 
+type BookableMapItem = Desk | MapRoom
+
+function isMapRoom(item: BookableMapItem): item is MapRoom {
+  return 'capacity' in item
+}
+
 function ConfirmModal({
-  desk, timeFrom, timeTo, date, onConfirm, onCancel,
+  item, timeFrom, timeTo, date, onConfirm, onCancel,
 }: {
-  desk: Desk; timeFrom: string; timeTo: string; date: string
-  onConfirm: () => void; onCancel: () => void
+  item: BookableMapItem; timeFrom: string; timeTo: string; date: string
+  onConfirm: (from: string, to: string) => void; onCancel: () => void
 }) {
+  const isRoom = isMapRoom(item)
+  const [selectedFrom, setSelectedFrom] = useState(timeFrom)
+  const [selectedTo, setSelectedTo] = useState(timeTo)
+  const [rangeError, setRangeError] = useState<string | null>(null)
+
+  const isUnavailable = item.status === 'busy' && item.bookedSlots.length === 0
+  const fromIndex = timeIndex(selectedFrom)
+  const toIndex = timeIndex(selectedTo)
+  const canBook = !isUnavailable &&
+    fromIndex >= 0 &&
+    toIndex > fromIndex &&
+    !hasBusySlotBetween(item.bookedSlots, selectedFrom, selectedTo)
+
+  function handleSlotClick(slot: string) {
+    if (item.bookedSlots.includes(slot)) return
+
+    setRangeError(null)
+    const clickedIndex = timeIndex(slot)
+    if (clickedIndex < 0) return
+
+    if (clickedIndex <= fromIndex || selectedTo) {
+      setSelectedFrom(slot)
+      setSelectedTo('')
+      return
+    }
+
+    if (hasBusySlotBetween(item.bookedSlots, selectedFrom, slot)) {
+      setRangeError('В выбранном интервале уже есть бронь')
+      return
+    }
+
+    setSelectedTo(slot)
+  }
+
   return (
     <>
       <div className={styles.overlay} onClick={onCancel} />
       <div className={styles.modal}>
         <div className={styles.modalTitle}>Подтвердите бронирование</div>
-        <div className={styles.modalRoom}>Место {desk.id}</div>
+        <div className={styles.modalRoom}>{isRoom ? item.id : `Место ${item.id}`}</div>
         <div className={styles.modalDetails}>
           {[
-            ['Зона',      `Зона ${desk.zone}`],
-            ['Оснащение', desk.amenities.length ? desk.amenities.join(', ') : 'Нет'],
+            ...(isRoom ? [['Вместимость', item.capacity > 0 ? `до ${item.capacity} чел.` : '—']] : [['Зона', `Зона ${item.zone}`]]),
+            ['Оснащение', item.amenities.length ? item.amenities.join(', ') : 'Нет'],
             ['Дата',      date],
           ].map(([label, value]) => (
             <div key={label} className={styles.modalRow}>
@@ -274,11 +361,40 @@ function ConfirmModal({
           ))}
           <div className={styles.modalRow}>
             <span className={styles.modalLabel}>Время</span>
-            <span className={styles.modalTime}>{timeFrom} — {timeTo}</span>
+            <span className={styles.modalTime}>{selectedFrom || '—'} — {selectedTo || '—'}</span>
           </div>
         </div>
+        <div className={styles.timelineBlock}>
+          <div className={styles.timelineHeader}>
+            <span>Расписание дня</span>
+            <span>{date}</span>
+          </div>
+          <div className={styles.timelineHint}>Выберите начало и конец свободного интервала</div>
+          <div className={styles.timelineSlots}>
+            {TIME_SLOTS.map(slot => {
+              const index = timeIndex(slot)
+              const isBusy = item.bookedSlots.includes(slot)
+              const isStart = slot === selectedFrom
+              const isEnd = slot === selectedTo
+              const isRange = fromIndex >= 0 && toIndex > fromIndex && index > fromIndex && index < toIndex
+              return (
+                <button
+                  key={slot}
+                  type="button"
+                  disabled={isBusy}
+                  className={`${styles.timelineSlot} ${isBusy ? styles.timelineSlotBusy : ''} ${(isStart || isEnd) ? styles.timelineSlotSelected : ''} ${isRange ? styles.timelineSlotRange : ''}`}
+                  onClick={() => handleSlotClick(slot)}
+                >
+                  {slot}
+                </button>
+              )
+            })}
+          </div>
+          {isUnavailable && <div className={styles.timelineError}>Ресурс сейчас недоступен для бронирования</div>}
+          {rangeError && <div className={styles.timelineError}>{rangeError}</div>}
+        </div>
         <div className={styles.modalFooter}>
-          <button className={styles.btnConfirm} onClick={onConfirm}>Подтвердить</button>
+          <button className={styles.btnConfirm} onClick={() => onConfirm(selectedFrom, selectedTo)} disabled={!canBook}>Подтвердить</button>
           <button className={styles.btnCancelModal} onClick={onCancel}>Отмена</button>
         </div>
       </div>
@@ -294,14 +410,15 @@ export default function MapPage() {
   const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
 
   const [zones,             setZones]             = useState<Zone[]>([])
+  const [rooms,             setRooms]             = useState<MapRoom[]>([])
   const [resources,         setResources]         = useState<Resource[]>([])
   const [loading,           setLoading]           = useState(true)
   const [date,              setDate]              = useState(defaultDate())
   const [timeFrom,          setTimeFrom]          = useState(defaultTimeFrom())
   const [timeTo,            setTimeTo]            = useState('18:00')
-  const [currentFloor,      setCurrentFloor]      = useState(11)
+  const [currentFloor,      setCurrentFloor]      = useState(20)
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([])
-  const [confirmDesk,           setConfirmDesk]           = useState<Desk | null>(null)
+  const [confirmItem,           setConfirmItem]           = useState<BookableMapItem | null>(null)
   const [toast,                 setToast]                 = useState<string | null>(null)
   const [refreshKey,            setRefreshKey]            = useState(0)
   const [bookedSlotsByResource, setBookedSlotsByResource] = useState<Map<string, string[]>>(new Map())
@@ -313,16 +430,17 @@ export default function MapPage() {
     const dayFrom      = new Date(`${date}T00:00:00`).toISOString()
     const dayTo        = new Date(`${date}T23:59:59`).toISOString()
     setLoading(true)
-    getResourcesList(['RESOURCE_TYPE_WORKSPACE'])
+    getResourcesList(['RESOURCE_TYPE_WORKSPACE', 'RESOURCE_TYPE_MEETING_ROOM'])
       .then(async all => {
-        const workspaces = all.filter(r =>
-          r.type === 'RESOURCE_TYPE_WORKSPACE' && isResourceOnFloor(r, currentFloor)
+        const mapResources = all.filter(r =>
+          (r.type === 'RESOURCE_TYPE_WORKSPACE' || r.type === 'RESOURCE_TYPE_MEETING_ROOM') &&
+          isResourceOnFloor(r, currentFloor)
         )
         const bookingsPerResource = await Promise.all(
-          workspaces.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
+          mapResources.map(r => getResourceBookings(r.resource_id, dayFrom, dayTo).catch(() => []))
         )
         const slotsByResource = new Map<string, string[]>()
-        const marked = workspaces.map((r, i) => {
+        const marked = mapResources.map((r, i) => {
           const bs = bookingsPerResource[i]
           slotsByResource.set(
             r.resource_id,
@@ -343,7 +461,10 @@ export default function MapPage() {
 
   // Пересчитываем статусы мгновенно при изменении броней
   useEffect(() => {
-    if (resources.length === 0) return
+    if (resources.length === 0) {
+      setZones([])
+      return
+    }
     const myResourceIds = new Set(
       bookings
         .filter(b =>
@@ -353,7 +474,8 @@ export default function MapPage() {
         )
         .map(b => b.resourceId)
     )
-    setZones(resourcesToZones(resources, myResourceIds, bookedSlotsByResource))
+    setZones(resourcesToZones(resources.filter(r => r.type === 'RESOURCE_TYPE_WORKSPACE'), myResourceIds, bookedSlotsByResource))
+    setRooms(resourcesToRooms(resources, myResourceIds, bookedSlotsByResource))
   }, [resources, bookings, date, timeFrom, timeTo, bookedSlotsByResource])
 
   function toggleAmenity(a: string) {
@@ -375,30 +497,35 @@ export default function MapPage() {
       }))
 
   function handleDeskClick(desk: Desk) {
-    if (desk.status === 'busy' || desk.status === 'mine') return
-    setConfirmDesk(desk)
+    setConfirmItem(desk)
   }
 
-  async function handleConfirm() {
-    if (!confirmDesk || !user || !confirmDesk.resourceId) return
+  function handleRoomClick(room: MapRoom) {
+    setConfirmItem(room)
+  }
 
-    const bookingStart = new Date(`${date}T${timeFrom}:00`)
+  async function handleConfirm(selectedFrom: string, selectedTo: string) {
+    if (!confirmItem || !user || !confirmItem.resourceId) return
+
+    const bookingStart = new Date(`${date}T${selectedFrom}:00`)
     if (bookingStart <= new Date()) {
-      setConfirmDesk(null)
+      setConfirmItem(null)
       setToast('Выберите время в будущем')
       setTimeout(() => setToast(null), 3500)
       return
     }
 
     const userId = user.id
-    const resourceId = confirmDesk.resourceId
-    const desk = confirmDesk
-    setConfirmDesk(null)
+    const resourceId = confirmItem.resourceId
+    const item = confirmItem
+    setConfirmItem(null)
     try {
-      const newBooking = await createBooking(resourceId, userId, date, timeFrom, timeTo)
+      const newBooking = await createBooking(resourceId, userId, date, selectedFrom, selectedTo)
       setBookings(prev => [...prev, newBooking])
+      setTimeFrom(selectedFrom)
+      setTimeTo(selectedTo)
       setRefreshKey(k => k + 1)
-      setToast(`Место ${desk.id} забронировано на ${timeFrom}–${timeTo}`)
+      setToast(`${isMapRoom(item) ? item.id : `Место ${item.id}`} забронировано на ${selectedFrom}–${selectedTo}`)
     } catch {
       setToast('Не удалось забронировать. Попробуйте ещё раз.')
     }
@@ -457,15 +584,10 @@ export default function MapPage() {
             </div>
           </div>
 
-          <div className={styles.tabs}>
-            <button className={`${styles.tab} ${styles.tabActive}`}>Рабочие места</button>
-            <button className={styles.tab} onClick={() => navigate('/rooms')}>Переговорные</button>
-          </div>
-
           <div className={styles.mapPanel}>
             {loading
               ? <div className={styles.loading}>Загрузка...</div>
-              : <OfficeMap zones={filteredZones} onDeskClick={handleDeskClick} />
+              : <OfficeMap zones={filteredZones} rooms={rooms} onDeskClick={handleDeskClick} onRoomClick={handleRoomClick} />
             }
           </div>
 
@@ -480,20 +602,24 @@ export default function MapPage() {
             </div>
             <div className={styles.legendItem}>
               <div className={`${styles.legendDot} ${styles.dotMine}`} />
-              Моё место
+              Моё
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendDot} ${styles.dotRoomFree}`} />
+              Переговорная
             </div>
           </div>
         </main>
       </div>
 
-      {confirmDesk && (
+      {confirmItem && (
         <ConfirmModal
-          desk={confirmDesk}
+          item={confirmItem}
           timeFrom={timeFrom}
           timeTo={timeTo}
           date={date}
           onConfirm={handleConfirm}
-          onCancel={() => setConfirmDesk(null)}
+          onCancel={() => setConfirmItem(null)}
         />
       )}
 
