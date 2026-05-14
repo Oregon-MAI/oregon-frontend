@@ -17,7 +17,7 @@ export function AppRouter() {
       <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
       <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
       <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>
         <Route index element={<AdminWorkspacesPage />} />
         <Route path="workspaces" element={<AdminWorkspacesPage />} />
         <Route path="rooms" element={<AdminRoomsPage />} />

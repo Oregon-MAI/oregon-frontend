@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { register, decodeToken } from '../features/auth/api/authApi'
+import { register, decodeToken, validate as validateSession } from '../features/auth/api/authApi'
 import { useAuth } from '../features/auth/model/AuthContext'
 import styles from './LoginPage.module.css'
 
@@ -90,9 +90,17 @@ export default function RegisterPage() {
       if (!tokens?.access_token) throw new Error('no_backend')
       localStorage.setItem('access_token', tokens.access_token)
       localStorage.setItem('refresh_token', tokens.refresh_token)
+      const validated = await validateSession()
       const decoded = decodeToken(tokens.access_token)
-      setUser({ id: decoded?.id ?? '', login: login.trim(), name: name.trim(), surname: surname.trim(), email: email.trim(), roles: decoded?.roles ?? [] })
-      navigate('/map')
+      const userId = validated.id || decoded?.id
+      const roles = validated.roles?.length ? validated.roles : (decoded?.roles ?? [])
+
+      if (!userId) {
+        throw new Error('invalid_session')
+      }
+
+      setUser({ id: userId, login: login.trim(), name: name.trim(), surname: surname.trim(), email: email.trim(), roles })
+      navigate(roles.some(role => role.toLowerCase() === 'admin') ? '/admin' : '/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {
         const res = (err as { response?: { status?: number; data?: { message?: string; detail?: string } } }).response

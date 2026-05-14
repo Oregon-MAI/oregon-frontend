@@ -17,6 +17,6 @@ WORKDIR /app
 COPY --from=builder /app/dist ./dist
 COPY server.cjs ./server.cjs
 
-EXPOSE 3000
+EXPOSE 3001
 
 CMD ["node", "server.cjs"]

@@ -2,7 +2,7 @@ import { useState, FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
 import styles from './LoginPage.module.css'
-import { login, decodeToken } from '../features/auth/api/authApi'
+import { login, decodeToken, validate as validateSession } from '../features/auth/api/authApi'
 import { getUser } from '../features/auth/api/userApi'
 
 function EyeOn() {
@@ -61,13 +61,24 @@ export default function LoginPage() {
       if (!tokens?.access_token) throw new Error('no_backend')
       localStorage.setItem('access_token', tokens.access_token)
       localStorage.setItem('refresh_token', tokens.refresh_token)
+      const validated = await validateSession()
       const decoded = decodeToken(tokens.access_token)
-      if (decoded?.id) {
-        getUser(decoded.id)
-          .then(u => setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles: u.roles.map(r => r.name) }))
-          .catch(() => setUser({ id: decoded.id, login: email.trim(), name: '', surname: '', email: '', roles: decoded.roles }))
+      const userId = validated.id || decoded?.id
+      let roles = validated.roles?.length ? validated.roles : (decoded?.roles ?? [])
+
+      if (!userId) {
+        throw new Error('invalid_session')
       }
-      const isAdmin = decoded?.roles?.includes('admin') ?? false
+
+      try {
+        const u = await getUser(userId)
+        roles = u.roles.map(r => r.name)
+        setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles })
+      } catch {
+        setUser({ id: userId, login: email.trim(), name: '', surname: '', email: '', roles })
+      }
+
+      const isAdmin = roles.some(role => role.toLowerCase() === 'admin')
       navigate(isAdmin ? '/admin' : '/map')
     } catch (err: unknown) {
       if (err && typeof err === 'object' && 'response' in err) {

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { getMyBookings } from '../../bookings/api/bookingApi'
 import { getUser } from '../api/userApi'
-import { decodeToken } from '../api/authApi'
+import { decodeToken, refreshTokens, validate as validateSession } from '../api/authApi'
 import type { Booking } from '../../../types/map'
 
 export interface User {
@@ -30,20 +30,70 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem('access_token')
-    if (!token) {
-      setIsLoading(false)
-      return
+    let cancelled = false
+
+    function clearSession() {
+      localStorage.removeItem('access_token')
+      localStorage.removeItem('refresh_token')
+      setUser(null)
     }
 
-    const decoded = decodeToken(token)
-    if (decoded?.id) {
-      getUser(decoded.id)
-        .then(u => setUser({ id: u.id, login: u.login, name: u.name, surname: u.surname, email: u.email, roles: u.roles.map(r => r.name) }))
-        .catch(() => setUser({ id: decoded.id, login: '', name: '', surname: '', email: '', roles: decoded.roles }))
+    async function hydrateSession() {
+      try {
+        let token = localStorage.getItem('access_token')
+        const refreshToken = localStorage.getItem('refresh_token')
+
+        if (!token && refreshToken) {
+          const tokens = await refreshTokens()
+          localStorage.setItem('access_token', tokens.access_token)
+          localStorage.setItem('refresh_token', tokens.refresh_token)
+          token = tokens.access_token
+        }
+
+        if (!token) {
+          clearSession()
+          return
+        }
+
+        const validated = await validateSession()
+        const decoded = decodeToken(token)
+        const userId = validated.id || decoded?.id
+        const roles = validated.roles?.length ? validated.roles : (decoded?.roles ?? [])
+
+        if (!userId) {
+          clearSession()
+          return
+        }
+
+        try {
+          const u = await getUser(userId)
+          if (!cancelled) {
+            setUser({
+              id: u.id,
+              login: u.login,
+              name: u.name,
+              surname: u.surname,
+              email: u.email,
+              roles: u.roles.map(r => r.name),
+            })
+          }
+        } catch {
+          if (!cancelled) {
+            setUser({ id: userId, login: '', name: '', surname: '', email: '', roles })
+          }
+        }
+      } catch {
+        if (!cancelled) clearSession()
+      } finally {
+        if (!cancelled) setIsLoading(false)
+      }
     }
 
-    setIsLoading(false)
+    void hydrateSession()
+
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   useEffect(() => {
@@ -53,7 +103,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .catch(() => {})
   }, [user?.id])
 
-  const isAdmin = user?.roles?.includes('ADMIN') ?? false
+  const isAdmin = user?.roles?.some(role => role.toLowerCase() === 'admin') ?? false
 
   return (
     <AuthContext.Provider value={{ user, setUser, bookings, setBookings, isAdmin, isLoading }}>

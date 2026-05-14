@@ -3,7 +3,7 @@ const http = require('node:http')
 const path = require('node:path')
 const { URL } = require('node:url')
 
-const PORT = Number(process.env.PORT || 3000)
+const PORT = Number(process.env.PORT || 3001)
 const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:8000'
 const DIST_DIR = path.join(__dirname, 'dist')
 
