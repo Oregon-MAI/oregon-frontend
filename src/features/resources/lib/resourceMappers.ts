@@ -1,5 +1,6 @@
-import type { CreateResourceRequest, Resource } from '../../../types/resource'
+import type { CreateResourceRequest, Resource } from '../../../shared/types/resource'
 
+/** Normalizes backend resource DTO variants into the frontend Resource shape. */
 export function normalizeResource(r: Resource): Resource {
   const raw = r as unknown as Record<string, unknown>
   const details = raw.details as Record<string, unknown> | undefined
@@ -27,6 +28,7 @@ export function normalizeResource(r: Resource): Resource {
   }
 }
 
+/** Mirrors generic `details` into typed detail fields expected by different endpoints. */
 export function withTypedResourceDetails<T extends Partial<Resource> | CreateResourceRequest>(resource: T): T {
   const details = resource.details
   if (!details) return resource
@@ -46,6 +48,7 @@ export function withTypedResourceDetails<T extends Partial<Resource> | CreateRes
   return resource
 }
 
+/** Builds the protobuf-style update mask for changed resource fields. */
 export function getResourceUpdatePaths(resource: Partial<Resource>): string[] {
   const paths: string[] = []
   if (resource.name !== undefined) paths.push('name')
@@ -62,6 +65,7 @@ export function getResourceUpdatePaths(resource: Partial<Resource>): string[] {
   return Array.from(new Set(paths))
 }
 
+/** Unwraps a resource response and fails fast on empty backend payloads. */
 export function extractResource(data: unknown): Resource {
   if (!data) throw new Error('Пустой ответ от сервера')
   if (typeof data === 'object' && 'resource' in data) {

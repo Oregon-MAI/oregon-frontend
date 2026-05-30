@@ -241,7 +241,7 @@
 
 .right {
   flex: 1;
-  background-image: url('t1.jpeg');
+  background-image: url('../shared/assets/t1.jpeg');
   background-size: cover;
   background-position: center;
 }

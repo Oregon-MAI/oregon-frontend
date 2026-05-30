@@ -1,5 +1,5 @@
 import { Route, Routes } from 'react-router-dom'
-import ProtectedRoute from '../components/ProtectedRoute'
+import ProtectedRoute from './routes/ProtectedRoute'
 import AdminEquipmentPage from '../pages/admin/AdminEquipmentPage'
 import AdminLayout from '../pages/admin/AdminLayout'
 import AdminRoomsPage from '../pages/admin/AdminRoomsPage'
@@ -9,12 +9,17 @@ import BookingsPage from '../pages/BookingsPage'
 import EquipmentPage from '../pages/EquipmentPage'
 import LoginPage from '../pages/LoginPage'
 import MapPage from '../pages/MapPage'
+import MeetingRoomsPage from '../pages/MeetingRoomsPage'
+import RegisterPage from '../pages/RegisterPage'
 
+/** Central route table: public auth screens, protected user area and admin area. */
 export function AppRouter() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/map" element={<ProtectedRoute><MapPage /></ProtectedRoute>} />
+      <Route path="/rooms" element={<ProtectedRoute><MeetingRoomsPage /></ProtectedRoute>} />
       <Route path="/equipment" element={<ProtectedRoute><EquipmentPage /></ProtectedRoute>} />
       <Route path="/bookings" element={<ProtectedRoute><BookingsPage /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute requireAdmin><AdminLayout /></ProtectedRoute>}>

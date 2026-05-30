@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { confirmNotification, createNotificationsStream } from '../features/notifications/api/notificationApi'
-import { useAuth } from '../features/auth/model/AuthContext'
-import { formatWorkspaceLocation } from '../features/resources/lib/workspaceLocation'
+import { confirmNotification, createNotificationsStream } from '../../features/notifications/api/notificationApi'
+import { useAuth } from '../../features/auth/model/AuthContext'
+import { formatWorkspaceLocation } from '../../features/resources/lib/workspaceLocation'
 import styles from './NotificationCenter.module.css'
 
 type Notification = {

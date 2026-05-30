@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
-import NotificationCenter from '../components/NotificationCenter'
+import NotificationCenter from '../widgets/app-shell/NotificationCenter'
 import styles from './MeetingRoomsPage.module.css'
-import TimeSelect from '../components/TimeSelect'
-import type { Resource } from '../types/resource'
+import TimeSelect from '../shared/ui/TimeSelect/TimeSelect'
+import type { Resource } from '../shared/types/resource'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
 import { getResourcesList } from '../features/resources/api/resourceApi'
+import { getDefaultBookingDate, isoToLocalTime } from '../shared/lib/dateTime'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -24,24 +25,13 @@ interface Room {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function localDateStr(d: Date = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-}
-
 function defaultDate(): string {
-  const now = new Date()
-  return now.getHours() >= 19
-    ? localDateStr(new Date(now.getTime() + 86400000))
-    : localDateStr()
-}
-
-function isoToTime(iso: string): string {
-  const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  return getDefaultBookingDate()
 }
 
 // ─── Converter ────────────────────────────────────────────────────────────────
 
+/** Maps a backend meeting-room resource to the card model used by the page. */
 function resourceToRoom(r: Resource, myResourceIds: Set<string>, slots: { from: string; to: string }[]): Room {
   // бэкенд может вернуть camelCase
   const raw = r as unknown as Record<string, unknown>
@@ -73,7 +63,7 @@ function resourceToRoom(r: Resource, myResourceIds: Set<string>, slots: { from: 
   }
 }
 
-// TODO: remove stub when backend is ready
+// Demo fallback keeps the MVP screen usable if the meeting-room endpoint is unavailable.
 const STUB_ROOMS: Room[] = [
   { id: 'stub-room-1', name: 'Переговорная A1', floor: 20, wing: 'Крыло А', capacity: 6, status: 'free', amenities: ['Проектор', 'Маркерная', 'Wi-Fi'], bookedSlots: [] },
   { id: 'stub-room-2', name: 'Переговорная A2', floor: 20, wing: 'Крыло А', capacity: 10, status: 'busy', busyUntil: '14:00', amenities: ['ВКС', 'Проектор', 'Wi-Fi'], bookedSlots: [{ from: '10:00', to: '14:00' }] },
@@ -83,6 +73,7 @@ const STUB_ROOMS: Room[] = [
 
 const ALL_AMENITIES = ['ВКС', 'Проектор', 'Маркерная', 'Wi-Fi', 'Доска']
 
+/** Checks interval overlap between a room booking and selected filter time. */
 function isRoomBusyAt(room: Room, from: string, to: string) {
   return room.bookedSlots.some(b => from < b.to && to > b.from)
 }
@@ -396,6 +387,7 @@ function ConfirmModal({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+/** Meeting-room catalogue with capacity, amenity and time filters. */
 export default function MeetingRoomsPage() {
   const navigate = useNavigate()
   const { bookings, user } = useAuth()
@@ -432,7 +424,7 @@ export default function MeetingRoomsPage() {
           const bs = bookingsPerResource[i]
           const slots = bs
             .filter(b => b.starts_at && b.ends_at)
-            .map(b => ({ from: isoToTime(b.starts_at!), to: isoToTime(b.ends_at!) }))
+            .map(b => ({ from: isoToLocalTime(b.starts_at!), to: isoToLocalTime(b.ends_at!) }))
           const isBusyAtSelected = bs.some(b =>
             b.starts_at && b.ends_at &&
             b.starts_at < selectedTo && b.ends_at > selectedFrom
@@ -450,12 +442,14 @@ export default function MeetingRoomsPage() {
       .catch(() => setRooms(STUB_ROOMS))
   }, [bookings, date, timeFrom, timeTo, refreshKey])
 
+  /** Toggles a room amenity filter. */
   function toggleAmenity(a: string) {
     setSelectedAmenities(prev =>
       prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]
     )
   }
 
+  /** Resets all room filters to their default values. */
   function handleReset() {
     setSelectedAmenities([])
     setMinCapacity(0)
@@ -472,6 +466,7 @@ export default function MeetingRoomsPage() {
   const freeCount  = filteredRooms.filter((r: Room) => r.status === 'free' && !isRoomBusyAt(r, timeFrom, timeTo)).length
   const totalCount = filteredRooms.length
 
+  /** Books the selected meeting room for the chosen date and time range. */
   async function handleConfirm() {
     if (!confirmRoom || !user?.id) return
     const room = confirmRoom
@@ -486,6 +481,7 @@ export default function MeetingRoomsPage() {
     setTimeout(() => setToast(null), 3500)
   }
 
+  /** Starts cancellation flow for the current user's room booking. */
   function handleCancel(room: Room) {
     setToast(`Бронь ${room.name} отменена`)
     setTimeout(() => setToast(null), 3000)

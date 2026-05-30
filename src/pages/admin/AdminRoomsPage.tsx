@@ -1,12 +1,8 @@
 import { useState, useEffect } from 'react'
-import type { Resource, ResourceStatus } from '../../types/resource'
+import type { Resource, ResourceStatus } from '../../shared/types/resource'
 import { getResourceBookings } from '../../features/bookings/api/bookingApi'
 import { getResourcesList, createResource, updateResource, deleteResource, changeResourceStatus } from '../../features/resources/api/resourceApi'
-
-function isoToTime(iso: string): string {
-  const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
+import { isoToLocalTime } from '../../shared/lib/dateTime'
 import styles from './AdminWorkspacesPage.module.css'
 
 const PAGE_SIZE = 7
@@ -200,7 +196,7 @@ export default function AdminRoomsPage() {
         rooms.forEach((r, i) => {
           const slots = bookingsPerResource[i]
             .filter(b => b.starts_at && b.ends_at)
-            .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
+            .map(b => `${isoToLocalTime(b.starts_at!)}–${isoToLocalTime(b.ends_at!)}`)
           if (slots.length > 0) m.set(r.resource_id, slots)
           const active = bookingsPerResource[i].some(
             b => b.starts_at && b.ends_at && new Date(b.starts_at) <= now && new Date(b.ends_at) >= now

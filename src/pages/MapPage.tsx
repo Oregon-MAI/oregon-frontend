@@ -2,28 +2,23 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
-import OfficeMap from '../components/OfficeMap/OfficeMap'
-import NotificationCenter from '../components/NotificationCenter'
-import type { Zone, Desk, MapRoom } from '../types/map'
-import type { Resource } from '../types/resource'
+import OfficeMap from '../widgets/office-map/OfficeMap'
+import NotificationCenter from '../widgets/app-shell/NotificationCenter'
+import type { Zone, Desk, MapRoom } from '../shared/types/map'
+import type { Resource } from '../shared/types/resource'
 import styles from './MapPage.module.css'
 import { getResourcesList } from '../features/resources/api/resourceApi'
-import TimeSelect from '../components/TimeSelect'
+import TimeSelect from '../shared/ui/TimeSelect/TimeSelect'
 import { getWorkspaceFloor } from '../features/resources/lib/workspaceLocation'
+import { getDefaultBookingDate, isoToLocalTime } from '../shared/lib/dateTime'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function localDateStr(d: Date = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-}
-
 function defaultDate(): string {
-  const now = new Date()
-  return now.getHours() >= 19
-    ? localDateStr(new Date(now.getTime() + 86400000))
-    : localDateStr()
+  return getDefaultBookingDate()
 }
 
+/** Rounds the current time up to the next available 15-minute booking slot. */
 function defaultTimeFrom(): string {
   const now = new Date()
   const totalMin = now.getHours() * 60 + now.getMinutes()
@@ -46,6 +41,7 @@ function timeIndex(time: string): number {
   return TIME_SLOTS.indexOf(time)
 }
 
+/** Checks whether any already-booked slot overlaps the selected interval. */
 function hasBusySlotBetween(busySlots: string[], from: string, to: string): boolean {
   const fromIndex = timeIndex(from)
   const toIndex = timeIndex(to)
@@ -55,26 +51,24 @@ function hasBusySlotBetween(busySlots: string[], from: string, to: string): bool
 
 // ─── Converter ────────────────────────────────────────────────────────────────
 
-function isoToTime(iso: string): string {
-  const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-}
-
+/** Expands a backend booking interval into 15-minute slots for map highlighting. */
 function expandBookingToSlots(startsAt: string, endsAt: string): string[] {
   const slots: string[] = []
   const cur = new Date(startsAt)
   const end = new Date(endsAt)
   while (cur < end) {
-    slots.push(isoToTime(cur.toISOString()))
+    slots.push(isoToLocalTime(cur.toISOString()))
     cur.setMinutes(cur.getMinutes() + 15)
   }
   return slots
 }
 
+/** Matches a resource to the selected floor, defaulting legacy locations to floor 20. */
 function isResourceOnFloor(resource: Resource, floor: number): boolean {
   return (getWorkspaceFloor(resource.location) ?? 20) === floor
 }
 
+/** Groups workspace resources into map zones and marks current user's bookings. */
 function resourcesToZones(
   resources: Resource[],
   myResourceIds: Set<string>,
@@ -120,6 +114,7 @@ function resourcesToZones(
   }))
 }
 
+/** Converts meeting-room resources to map room markers. */
 function resourcesToRooms(
   resources: Resource[],
   myResourceIds: Set<string>,
@@ -298,6 +293,7 @@ function MapSidebar({
 
 type BookableMapItem = Desk | MapRoom
 
+/** Narrows a clicked map item to a meeting room. */
 function isMapRoom(item: BookableMapItem): item is MapRoom {
   return 'capacity' in item
 }
@@ -404,6 +400,7 @@ function ConfirmModal({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+/** Main office map screen with floor filters and resource booking flow. */
 export default function MapPage() {
   const navigate = useNavigate()
   const { bookings, setBookings, user } = useAuth()
@@ -478,6 +475,7 @@ export default function MapPage() {
     setRooms(resourcesToRooms(resources, myResourceIds, bookedSlotsByResource))
   }, [resources, bookings, date, timeFrom, timeTo, bookedSlotsByResource])
 
+  /** Toggles one amenity filter in the map sidebar. */
   function toggleAmenity(a: string) {
     setSelectedAmenities(prev =>
       prev.includes(a) ? prev.filter(x => x !== a) : [...prev, a]
@@ -496,14 +494,17 @@ export default function MapPage() {
         ),
       }))
 
+  /** Opens confirmation modal for a desk marker. */
   function handleDeskClick(desk: Desk) {
     setConfirmItem(desk)
   }
 
+  /** Opens confirmation modal for a meeting-room marker. */
   function handleRoomClick(room: MapRoom) {
     setConfirmItem(room)
   }
 
+  /** Creates the booking and refreshes map state after successful confirmation. */
   async function handleConfirm(selectedFrom: string, selectedTo: string) {
     if (!confirmItem || !user || !confirmItem.resourceId) return
 

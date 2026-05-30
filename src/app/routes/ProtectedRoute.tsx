@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
-import { useAuth } from '../features/auth/model/AuthContext'
+import { useAuth } from '../../features/auth/model/AuthContext'
 
+/** Redirects unauthenticated users to login and optionally enforces admin access. */
 export default function ProtectedRoute({
   children,
   requireAdmin = false,

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react'
-import type { Resource } from '../../types/resource'
+import type { Resource } from '../../shared/types/resource'
 import {
   getResourcesList,
   createResource,
@@ -8,7 +8,7 @@ import {
   deleteResource,
   changeResourceStatus,
 } from '../../features/resources/api/resourceApi'
-import { FloorPlanSvg, FLOOR_PLAN_VIEWBOX } from '../../components/OfficeMap/OfficeMap'
+import { FloorPlanSvg, FLOOR_PLAN_VIEWBOX } from '../../widgets/office-map/OfficeMap'
 import {
   getWorkspaceFloor,
   parseWorkspaceLocation,
@@ -26,6 +26,7 @@ const ZONE_NAMES: Record<Zone, string> = {
   D: 'Дизайн',
 }
 
+/** Splits a workspace name like A-12 into sortable zone and number parts. */
 function parseWorkspaceName(name: string): { zone: Zone; number: string; numeric: number } {
   const [rawZone, rawNumber = ''] = name.split('-')
   const zone = (ZONES.includes(rawZone as Zone) ? rawZone : 'A') as Zone
@@ -33,6 +34,7 @@ function parseWorkspaceName(name: string): { zone: Zone; number: string; numeric
   return { zone, number, numeric: Number(number) || 0 }
 }
 
+/** Sorts workspaces by configured zone order and numeric seat number. */
 function compareWorkspaces(a: Resource, b: Resource): number {
   const left = parseWorkspaceName(a.name)
   const right = parseWorkspaceName(b.name)
@@ -42,6 +44,7 @@ function compareWorkspaces(a: Resource, b: Resource): number {
   return a.name.localeCompare(b.name, 'ru')
 }
 
+/** Extracts the floor value used by admin forms from resource.location. */
 function getFloorValue(location: string | undefined): string {
   return getWorkspaceFloor(location)?.toString() ?? ''
 }
@@ -444,6 +447,7 @@ function RoomModal({ mode, initial, onSave, onClose, onDelete }: {
   )
 }
 
+/** Suggests the next free workspace number inside a zone. */
 function nextWorkspaceNumber(resources: Resource[], zone: Zone): string {
   const max = resources.reduce((acc, r) => {
     const parsed = parseWorkspaceName(r.name)
@@ -452,6 +456,7 @@ function nextWorkspaceNumber(resources: Resource[], zone: Zone): string {
   return String(max + 1)
 }
 
+/** Suggests the next room name by scanning saved resources and unsaved drafts. */
 function nextRoomName(resources: Resource[], drafts: DraftWorkspace[]): string {
   const max = [...resources.map(r => r.name), ...drafts.map(d => d.name)].reduce((acc, name) => {
     const match = name.match(/\d+/)
@@ -460,14 +465,17 @@ function nextRoomName(resources: Resource[], drafts: DraftWorkspace[]): string {
   return `Переговорная ${max + 1}`
 }
 
+/** Returns room capacity with the admin editor's default fallback. */
 function roomCapacity(resource: Resource): number {
   return resource.meeting_room?.capacity ?? 6
 }
 
+/** Scales room marker size non-linearly so large rooms are visible but not huge. */
 function roomCapacityScale(capacity: number): number {
   return 4 + Math.pow(Math.max(0, capacity - 4), 1.22)
 }
 
+/** Chooses the correct Russian word form for a number of seats. */
 function seatsWord(count: number): string {
   const mod100 = count % 100
   const mod10 = count % 10
@@ -496,6 +504,7 @@ function RoomCapacityLabel({ capacity, vertical, saving }: {
   )
 }
 
+/** Interactive floor-plan editor for placing, moving and rotating resources. */
 function AdminMapEditor({
   resources,
   currentFloor,
@@ -533,15 +542,18 @@ function AdminMapEditor({
     : undefined
   const selectedLabel = selectedResource?.name ?? selectedDraft?.name
 
+  /** Keeps rotation in the 0-359 degree range. */
   function normalizeRotate(rotate: number): number {
     return ((rotate % 360) + 360) % 360
   }
 
+  /** Detects vertical label orientation for rotated room markers. */
   function isSidewaysRotate(rotate: number): boolean {
     const normalized = normalizeRotate(rotate)
     return normalized === 90 || normalized === 270
   }
 
+  /** Snaps floor-plan coordinates to a small grid when the grid toggle is enabled. */
   function snapPoint(point: { x: number; y: number }): { x: number; y: number } {
     if (!snapToGrid) return point
 
@@ -552,6 +564,7 @@ function AdminMapEditor({
     }
   }
 
+  /** Places new draft resources at the center of the currently visible map viewport. */
   function visibleCenterPoint(): { x: number; y: number } {
     const viewport = viewportRef.current
     const plan = planRef.current
@@ -568,6 +581,7 @@ function AdminMapEditor({
     })
   }
 
+  /** Converts pointer coordinates from screen pixels into the SVG viewBox coordinate system. */
   function pointFromEvent(e: ReactPointerEvent): { x: number; y: number } {
     const rect = planRef.current?.getBoundingClientRect()
     if (!rect) return { x: FLOOR_PLAN_VIEWBOX.width / 2, y: FLOOR_PLAN_VIEWBOX.height / 2 }
@@ -582,6 +596,7 @@ function AdminMapEditor({
     return snapPoint(point)
   }
 
+  /** Adds an unsaved workspace or room draft to the current floor. */
   function addDraft() {
     const zone: Zone = 'A'
     const number = nextWorkspaceNumber([...resources, ...drafts.filter(d => d.kind === 'workspace').map(d => ({
@@ -624,6 +639,7 @@ function AdminMapEditor({
     setDrafts(prev => prev.map(d => d.tempId === id ? { ...d, ...patch } : d))
   }
 
+  /** Rotates selected draft locally or persists rotation for an existing resource. */
   async function rotateSelected(delta: number) {
     if (!selectedSeat) return
 
@@ -656,6 +672,7 @@ function AdminMapEditor({
     }
   }
 
+  /** Updates live marker coordinates during drag. */
   function handlePointerMove(e: ReactPointerEvent) {
     if (!dragging) return
     const point = pointFromEvent(e)
@@ -670,6 +687,7 @@ function AdminMapEditor({
     }
   }
 
+  /** Finalizes drag interactions and persists moved resources. */
   async function handlePointerUp(e: ReactPointerEvent) {
     if (!dragging) return
     const active = dragging
@@ -712,6 +730,7 @@ function AdminMapEditor({
     dragStartRef.current = null
   }
 
+  /** Persists a draft marker as a real backend resource. */
   async function saveDraft(draft: DraftWorkspace) {
     setSavingId(draft.tempId)
     setError(null)

@@ -1,155 +1,143 @@
-# T1 Workspace — Frontend
+# T1 Workspace Frontend
 
-## Запуск
+Frontend MVP для бронирования офисных ресурсов T1 Workspace: рабочих мест на карте офиса, переговорных, оборудования, пользовательских бронирований и административного управления ресурсами.
 
-Перед запуском фронта должен быть поднят backend/infra gateway на `http://localhost:8000`.
-Для вноса рабочих мест в бд запустить:
-```
-TOKEN="..." API_URL="http://localhost:8000/api/v1" node scripts/import-workspaces.mjs
+## Стек
 
-```
-**токен брать из локального хранилища браузера после входа в админку.**
-### Dev
+- React 18 + TypeScript
+- Vite
+- React Router v6
+- Axios
+- CSS Modules
+- Node.js production server для отдачи `dist` и proxy на backend gateway
+
+## Быстрый Старт
+
+Перед запуском фронта должен быть доступен backend/API gateway. По умолчанию проект ожидает gateway на `http://localhost:8000`.
 
 ```bash
 npm install
 npm run dev
 ```
 
-Открыть: `http://localhost:5173`
+Dev-адрес: `http://localhost:5173`
 
-### Production
+Production-сборка:
 
 ```bash
-npm install
 npm run build
 npm start
 ```
 
-Открыть: `http://localhost:3000`
+Production-адрес по умолчанию: `http://localhost:3000`
 
-Production server отдаёт `dist` и проксирует `/api` + `/notifications` на API gateway.
-По умолчанию gateway ожидается на `http://localhost:8000`.
-
-```bash
-API_GATEWAY_URL=http://localhost:8000 PORT=3000 npm start
-```
-
-Если `3000` занят:
+Если нужен другой gateway или порт:
 
 ```bash
-PORT=3001 npm start
+API_GATEWAY_URL=http://localhost:8000 PORT=3001 npm start
 ```
 
-### Docker
+## Переменные Окружения
+
+| Переменная | Где используется | Значение по умолчанию | Назначение |
+| --- | --- | --- | --- |
+| `VITE_API_URL` | dev/browser build | `/api/v1` | Base URL для основного API клиента |
+| `VITE_NOTIFICATIONS_URL` | dev/browser build | пусто, далее `/notifications` | Base URL для сервиса уведомлений |
+| `API_GATEWAY_URL` | `server.cjs` | `http://localhost:8000` | Gateway для production proxy |
+| `PORT` | `server.cjs` | `3000` | Порт production server |
+
+## Команды
+
+```bash
+npm run dev      # локальная разработка через Vite
+npm run build    # TypeScript check + production build
+npm start        # запуск server.cjs для dist
+```
+
+Для импорта рабочих мест в backend:
+
+```bash
+TOKEN="..." API_URL="http://localhost:8000/api/v1" node scripts/import-workspaces.mjs
+```
+
+`TOKEN` берётся из localStorage браузера после входа в админку.
+
+## Docker
 
 ```bash
 docker build -t t1-frontend .
 docker run --rm -p 3000:3000 -e API_GATEWAY_URL=http://host.docker.internal:8000 t1-frontend
 ```
 
-## Проверка
+## Архитектура
 
-```bash
-npm run build
-```
+Проект разложен по прикладной топологии, близкой к Feature-Sliced Design: верхний уровень показывает роль кода, а доменная логика живёт внутри своих feature-модулей.
 
-## Стек
-
-- **React 18** + **TypeScript**
-- **React Router v6** — маршрутизация
-- **Axios** — HTTP клиент с interceptor для автоматического refresh токенов
-- **CSS Modules** — стили
-
----
-
-## Структура
-
-```
+```text
 src/
-├── main.tsx                    # Точка входа React
+├── main.tsx                         # точка входа React
 ├── app/
-│   ├── providers.tsx           # Глобальные провайдеры приложения
-│   └── router.tsx              # Описание маршрутов
-├── shared/
-│   ├── api/httpClient.ts       # Общий axios client + refresh interceptor
-│   └── lib/jwt.ts              # Общие утилиты
-├── features/
+│   ├── providers.tsx                # глобальные провайдеры
+│   ├── router.tsx                   # единая таблица маршрутов
+│   └── routes/ProtectedRoute.tsx    # защита приватных/admin маршрутов
+├── pages/                           # страницы, собирающие фичи и виджеты
+│   ├── LoginPage.tsx
+│   ├── RegisterPage.tsx
+│   ├── MapPage.tsx
+│   ├── MeetingRoomsPage.tsx
+│   ├── EquipmentPage.tsx
+│   ├── BookingsPage.tsx
+│   └── admin/
+├── widgets/                         # крупные UI-блоки приложения
+│   ├── app-shell/                   # layout, sidebar, notification center
+│   └── office-map/                  # SVG-карта офиса и маркеры ресурсов
+├── features/                        # бизнес-домены
 │   ├── auth/
-│   │   ├── api/                # Auth/User ручки
+│   │   ├── api/
 │   │   └── model/AuthContext.tsx
 │   ├── bookings/
-│   │   ├── api/bookingApi.ts
-│   │   └── lib/bookingMappers.ts
+│   │   ├── api/
+│   │   └── lib/
 │   ├── notifications/
-│   │   └── api/notificationApi.ts
+│   │   └── api/
 │   └── resources/
-│       ├── api/resourceApi.ts
-│       └── lib/resourceMappers.ts
-├── types/
-│   ├── auth.ts                 # LoginRequest/Response, UserDto
-│   ├── map.ts                  # Desk, Zone, Booking
-│   └── resource.ts             # Resource, BookingRequest/Response
-├── components/
-│   ├── ProtectedRoute.tsx      # Защита маршрутов
-│   ├── Layout.tsx              # Топбар + сайдбар
-│   ├── OfficeMap/              # SVG карта офиса
-│   ├── BookingPanel/           # Панель бронирования рабочего места
-│   └── TimeSelect.tsx          # Выбор времени
-└── pages/
-    ├── LoginPage.tsx           # Вход
-    ├── RegisterPage.tsx        # Регистрация
-    ├── MapPage.tsx             # Карта офиса
-    ├── MeetingRoomsPage.tsx    # Переговорные
-    ├── EquipmentPage.tsx       # Оборудование
-    ├── BookingsPage.tsx        # Мои бронирования
-    └── admin/
-        ├── AdminLayout.tsx
-        ├── AdminWorkspacesPage.tsx
-        ├── AdminRoomsPage.tsx
-        ├── AdminEquipmentPage.tsx
-        └── AdminUsersPage.tsx
+│       ├── api/
+│       └── lib/
+├── shared/                          # код без привязки к конкретной странице
+    ├── api/httpClient.ts            # axios client + refresh-token очередь
+    ├── assets/
+    ├── lib/                         # JWT, дата/время и общие утилиты
+    ├── types/                       # DTO и общие модели
+    └── ui/TimeSelect/               # переиспользуемые UI-компоненты
 ```
 
-## Архитектурные правила
 
-- `app/` содержит сборку приложения: providers и router.
-- `shared/` содержит общую инфраструктуру, не привязанную к домену: HTTP client, JWT utilities.
-- `features/` содержит бизнес-домены: auth, resources, bookings, notifications.
-- `pages/` собирают экран из feature API, shared UI и локальной логики страницы.
-- `components/` — переиспользуемые UI-компоненты приложения.
-- `types/` — общие DTO/модели, которые используются в нескольких доменах.
-- Backend DTO нормализуются в `features/*/lib/*Mappers.ts`, а не внутри страниц.
-- Новые API-ручки добавляются в соответствующий `features/<domain>/api`, а не в общий файл.
-
-## API Контракт
-
-Актуальное описание ручек лежит в [API_REQUIREMENTS.md](./API_REQUIREMENTS.md).
-
-Коротко:
-
-- Основной gateway: `/api/v1`.
-- Notifications идут отдельно: `/notifications`.
-- В dev `/api` и `/notifications` проксируются Vite на `http://localhost:8000`.
-- В production этим занимается [server.cjs](./server.cjs).
-- Все защищенные запросы отправляют `Authorization: Bearer <access_token>`.
-
----
+- Маршруты в `src/app/router.tsx`.
+- Auth-состояние и текущий пользователь находятся в `src/features/auth/model/AuthContext.tsx`.
+- Все HTTP-вызовы лежат в `src/features/<domain>/api`.
+- Нормализация backend DTO выполняется в `src/features/<domain>/lib`
+- Общие DTO находятся в `src/shared/types`.
+- Утилиты без бизнес-зависимостей находятся в `src/shared/lib`.
+- Переиспользуемые контролы  в `src/shared/ui`.
+- Крупные экранные блоки, которые не являются самостоятельной страницей, кладутся в `src/widgets`.
+- Страницы в `src/pages` должны оставаться композиционным слоем: загружают данные, держат локальное состояние экрана и собирают UI.
 
 ## Маршруты
 
 | URL | Страница | Доступ |
-|-----|----------|--------|
-| `/login` | Вход | Публичный |
-| `/register` | Регистрация | Публичный |
-| `/map` | Карта офиса | Авторизованные |
-| `/rooms` | Переговорные | Авторизованные |
-| `/equipment` | Оборудование | Авторизованные |
-| `/bookings` | Мои бронирования | Авторизованные |
-| `/admin` | Панель администратора | Только `admin` |
-| `/admin/workspaces` | Управление рабочими местами | Только `admin` |
-| `/admin/rooms` | Управление переговорными | Только `admin` |
-| `/admin/equipment` | Управление оборудованием | Только `admin` |
-| `/admin/users` | Управление пользователями | Только `admin` |
+| --- | --- | --- |
+| `/login` | вход | публичный |
+| `/register` | регистрация | публичный |
+| `/map` | карта офиса и бронирование рабочих мест/переговорных | авторизованные |
+| `/rooms` | каталог переговорных | авторизованные |
+| `/equipment` | каталог оборудования | авторизованные |
+| `/bookings` | мои бронирования | авторизованные |
+| `/admin` | админ-панель, по умолчанию рабочие места | `admin` |
+| `/admin/workspaces` | управление рабочими местами и картой | `admin` |
+| `/admin/rooms` | управление переговорными | `admin` |
+| `/admin/equipment` | управление оборудованием | `admin` |
+| `/admin/users` | управление пользователями | `admin` |
 
----
+## API
+
+Актуальный контракт описан в [API_REQUIREMENTS.md](./API_REQUIREMENTS.md).

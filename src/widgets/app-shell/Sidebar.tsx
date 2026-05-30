@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { useAuth } from '../features/auth/model/AuthContext'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../features/auth/model/AuthContext'
+import { getTodayDate } from '../../shared/lib/dateTime'
 import styles from './Sidebar.module.css'
-import { useNavigate } from 'react-router-dom'
+
 function IconMap() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -31,29 +33,33 @@ function IconFile() {
 
 export default function Sidebar() {
   const { bookings } = useAuth()
-  const [activeNav, setActiveNav] = useState('map')
   const [floorsOpen, setFloorsOpen] = useState(false)
   const [currentFloor, setCurrentFloor] = useState(20)
-
-  // Брони на сегодня для виджета
-  const today = new Date().toISOString().slice(0, 10)
-  const todayBookings = bookings.filter(b => b.date === today)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  /** Highlights the active navigation button by the current route prefix. */
+  function isActive(path: string): boolean {
+    return location.pathname === path || location.pathname.startsWith(`${path}/`)
+  }
+
+  // Today widget reads cached user bookings from AuthContext.
+  const todayBookings = bookings.filter(b => b.date === getTodayDate())
 
   return (
     <aside className={styles.sidebar}>
       <div className={styles.groupLabel}>Ресурсы</div>
       <button
         type="button"
-        className={`${styles.sideBtn} ${activeNav === 'map' ? styles.sideBtnActive : ''}`}
-        onClick={() => setActiveNav('map')}
+        className={`${styles.sideBtn} ${isActive('/map') ? styles.sideBtnActive : ''}`}
+        onClick={() => navigate('/map')}
       >
         <IconMap />
         Карта офиса
       </button>
       <button
         type="button"
-        className={`${styles.sideBtn} ${activeNav === 'equipment' ? styles.sideBtnActive : ''}`}
+        className={`${styles.sideBtn} ${isActive('/equipment') ? styles.sideBtnActive : ''}`}
         onClick={() => navigate('/equipment')}
       >
         <IconMonitor />
@@ -61,8 +67,8 @@ export default function Sidebar() {
       </button>
       <button
         type="button"
-        className={`${styles.sideBtn} ${activeNav === 'reservations' ? styles.sideBtnActive : ''}`}
-        onClick={() => setActiveNav('reservations')}
+        className={`${styles.sideBtn} ${isActive('/bookings') ? styles.sideBtnActive : ''}`}
+        onClick={() => navigate('/bookings')}
       >
         <IconFile />
         Мои брони

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
-import NotificationCenter from '../components/NotificationCenter'
+import NotificationCenter from '../widgets/app-shell/NotificationCenter'
 import { cancelBooking, getMyBookings } from '../features/bookings/api/bookingApi'
 import { getResourcesList } from '../features/resources/api/resourceApi'
 import { formatWorkspaceLocation } from '../features/resources/lib/workspaceLocation'
-import type { Booking } from '../types/map'
-import type { Resource } from '../types/resource'
+import type { Booking } from '../shared/types/map'
+import type { Resource } from '../shared/types/resource'
+import { getTodayDate, timeToMinutes } from '../shared/lib/dateTime'
 import styles from './BookingsPage.module.css'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -16,38 +17,37 @@ const TIMELINE_END   = 18 * 60 // 18:00 in minutes
 const TIMELINE_MINS  = TIMELINE_END - TIMELINE_START
 const HOURS = Array.from({ length: 10 }, (_, i) => `${String(i + 9).padStart(2, '0')}:00`)
 
-function toMins(t: string) {
-  const [h, m] = t.split(':').map(Number)
-  return h * 60 + m
-}
-
+/** Converts booking time bounds into horizontal timeline bar positioning. */
 function barStyle(timeFrom: string, timeTo: string) {
-  const start = Math.max(toMins(timeFrom), TIMELINE_START)
-  const end   = Math.min(toMins(timeTo),   TIMELINE_END)
+  const start = Math.max(timeToMinutes(timeFrom), TIMELINE_START)
+  const end   = Math.min(timeToMinutes(timeTo),   TIMELINE_END)
   const left  = ((start - TIMELINE_START) / TIMELINE_MINS) * 100
   const width = ((end - start) / TIMELINE_MINS) * 100
   return { left: `${left}%`, width: `${Math.max(width, 0)}%` }
 }
 
+/** Returns the current-time marker position within the workday timeline. */
 function nowPct() {
   const now = new Date()
   const mins = now.getHours() * 60 + now.getMinutes()
   return ((mins - TIMELINE_START) / TIMELINE_MINS) * 100
 }
 
+/** Checks whether a booking is active at the current local time. */
 function isActiveNow(b: EnrichedBooking) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = getTodayDate()
   if (b.date !== today) return false
   const now = new Date().getHours() * 60 + new Date().getMinutes()
-  return toMins(b.timeFrom) <= now && now < toMins(b.timeTo)
+  return timeToMinutes(b.timeFrom) <= now && now < timeToMinutes(b.timeTo)
 }
 
+/** Checks whether a booking starts later than the current local time. */
 function isUpcoming(b: EnrichedBooking) {
-  const today = new Date().toISOString().slice(0, 10)
+  const today = getTodayDate()
   if (b.date < today) return false
   if (b.date === today) {
     const now = new Date().getHours() * 60 + new Date().getMinutes()
-    return toMins(b.timeFrom) > now
+    return timeToMinutes(b.timeFrom) > now
   }
   return true
 }
@@ -56,6 +56,7 @@ function fmtDate(dateStr: string) {
   return new Date(dateStr).toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }).replace('.', '')
 }
 
+/** Calculates Monday-Sunday range for the week that contains the base date. */
 function getWeekRange(base: Date) {
   const d = new Date(base)
   const day = d.getDay() || 7
@@ -90,12 +91,14 @@ interface EnrichedBooking extends Booking {
   meta: string  // floor · location info
 }
 
+/** Converts backend resource type enum to the page grouping key. */
 function detectType(r: Resource): ResourceType {
   if (r.type === 'RESOURCE_TYPE_MEETING_ROOM') return 'room'
   if (r.type === 'RESOURCE_TYPE_DEVICE')       return 'device'
   return 'workspace'
 }
 
+/** Builds the compact location/capacity line displayed under a booking title. */
 function formatBookingMeta(resource: Resource | undefined, bookingLocation?: string): string {
   const location = formatWorkspaceLocation(resource?.location ?? bookingLocation)
   if (!resource || resource.type !== 'RESOURCE_TYPE_MEETING_ROOM') return location
@@ -202,9 +205,10 @@ function GroupSection({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+/** User booking dashboard with weekly timeline and cancellation actions. */
 export default function BookingsPage() {
   const navigate = useNavigate()
-  const { user, bookings: ctxBookings, setBookings } = useAuth()
+  const { user, setBookings } = useAuth()
   const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
 
   const [bookings,     setLocal]     = useState<EnrichedBooking[]>([])
@@ -220,10 +224,10 @@ export default function BookingsPage() {
     return () => clearInterval(id)
   }, [])
 
-  // Загружаем брони + ресурсы для определения типов
+  // Loads bookings and resource metadata so the page can group bookings by type.
   useEffect(() => {
     if (!user?.id) return
-    let rawBookings: Booking[] = ctxBookings
+    let rawBookings: Booking[] = []
 
     getMyBookings(user.id)
       .then(b => { rawBookings = b; setBookings(b) })
@@ -256,9 +260,9 @@ export default function BookingsPage() {
           setLocal(enriched)
         }
       })
-  }, [user?.id]) // eslint-disable-line
+  }, [setBookings, user?.id])
 
-  // Фильтрация по выбранной неделе
+  // Filters bookings to the selected week range.
   const weekBookings = bookings.filter(b => {
     return b.date >= isoDate(weekStart) && b.date <= isoDate(weekEnd)
   })
@@ -270,20 +274,22 @@ export default function BookingsPage() {
     a.date === b.date ? a.timeFrom.localeCompare(b.timeFrom) : a.date.localeCompare(b.date)
   )
 
-  const today      = new Date().toISOString().slice(0, 10)
+  const today      = getTodayDate()
   const todayList  = bookings.filter(b => b.date === today)
 
+  /** Cancels a booking and updates both local and auth-context booking caches. */
   async function handleCancel(id: string) {
     try {
       await cancelBooking(id)
       setLocal(prev => prev.filter(b => b.id !== id))
-      setBookings(ctxBookings.filter(b => b.id !== id))
+      setBookings(prev => prev.filter(b => b.id !== id))
       showToast('Бронь отменена')
     } catch {
       showToast('Не удалось отменить бронь')
     }
   }
 
+  /** Shows a short-lived status message for booking actions. */
   function showToast(msg: string) {
     setToast(msg)
     setTimeout(() => setToast(null), 3000)

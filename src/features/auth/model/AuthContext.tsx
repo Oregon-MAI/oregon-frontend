@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type Dispatch, type Set
 import { getMyBookings } from '../../bookings/api/bookingApi'
 import { getUser } from '../api/userApi'
 import { decodeToken, refreshTokens, validate as validateSession } from '../api/authApi'
-import type { Booking } from '../../../types/map'
+import type { Booking } from '../../../shared/types/map'
 
 export interface User {
   id: string
@@ -24,6 +24,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null)
 
+/** Stores authenticated user state and a lightweight cache of the user's bookings. */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -32,12 +33,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     let cancelled = false
 
+    /** Removes local tokens and resets the user when auth cannot be recovered. */
     function clearSession() {
       localStorage.removeItem('access_token')
       localStorage.removeItem('refresh_token')
       setUser(null)
     }
 
+    /** Restores the browser session from saved tokens and validates it with the backend. */
     async function hydrateSession() {
       try {
         let token = localStorage.getItem('access_token')
@@ -112,6 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   )
 }
 
+/** Returns the auth context and guards against usage outside AuthProvider. */
 export function useAuth() {
   const context = useContext(AuthContext)
   if (!context) throw new Error('useAuth must be used within AuthProvider')

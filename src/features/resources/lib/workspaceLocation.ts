@@ -5,6 +5,7 @@ export interface WorkspaceMapLocation {
   rotate?: number
 }
 
+/** Parses JSON map coordinates or a legacy human-readable floor location. */
 export function parseWorkspaceLocation(location?: string): WorkspaceMapLocation | null {
   if (!location?.trim()) return null
 
@@ -27,6 +28,7 @@ export function parseWorkspaceLocation(location?: string): WorkspaceMapLocation 
   return Number.isFinite(floor) && floor > 0 ? { floor } : null
 }
 
+/** Serializes floor-plan coordinates into the compact JSON stored in resource.location. */
 export function serializeWorkspaceLocation(location: WorkspaceMapLocation): string {
   const payload: WorkspaceMapLocation = {
     floor: location.floor,
@@ -39,10 +41,12 @@ export function serializeWorkspaceLocation(location: WorkspaceMapLocation): stri
   return JSON.stringify(payload)
 }
 
+/** Returns only the floor number from a workspace location string. */
 export function getWorkspaceFloor(location?: string): number | null {
   return parseWorkspaceLocation(location)?.floor ?? null
 }
 
+/** Formats a workspace location for labels and notifications. */
 export function formatWorkspaceLocation(location?: string): string {
   const parsed = parseWorkspaceLocation(location)
   if (!parsed) return location || '—'

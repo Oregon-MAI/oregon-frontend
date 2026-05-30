@@ -16,6 +16,7 @@ export type NotificationsStream = {
   close: () => void
 }
 
+/** Builds notification URLs for both direct notification service and proxied setups. */
 function getNotificationsUrl(path: string): string {
   if (NOTIFICATIONS_BASE_URL.endsWith('/notifications')) {
     return `${NOTIFICATIONS_BASE_URL}${path}`
@@ -24,11 +25,13 @@ function getNotificationsUrl(path: string): string {
   return `${NOTIFICATIONS_BASE_URL}/notifications${path}`
 }
 
+/** Reads the current bearer token for fetch-based notification calls. */
 function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('access_token')
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
+/** Abort-aware timeout used by stream reconnects and confirmation retries. */
 function delay(ms: number, signal?: AbortSignal): Promise<void> {
   return new Promise(resolve => {
     const timeout = window.setTimeout(resolve, ms)
@@ -39,6 +42,7 @@ function delay(ms: number, signal?: AbortSignal): Promise<void> {
   })
 }
 
+/** Opens a reconnecting SSE-like stream for user notifications. */
 export function createNotificationsStream(
   userId: string,
   onMessage: (message: NotificationMessage) => void,
@@ -109,6 +113,7 @@ export function createNotificationsStream(
   }
 }
 
+/** Confirms a notification and retries temporary gateway failures. */
 export async function confirmNotification(userId: string, messageId: string): Promise<void> {
   if (NOTIFICATIONS_BASE_URL.startsWith('/api/v1')) {
     await api.post(`/notifications/confirm/${userId}/${messageId}`)

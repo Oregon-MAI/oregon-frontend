@@ -1,4 +1,4 @@
-import type { Zone, Desk, MapRoom } from '../../types/map'
+import type { Zone, Desk, MapRoom } from '../../shared/types/map'
 import type { CSSProperties } from 'react'
 import { parseWorkspaceLocation } from '../../features/resources/lib/workspaceLocation'
 import styles from './OfficeMap.module.css'

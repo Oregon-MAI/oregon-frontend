@@ -1,29 +1,18 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
-import NotificationCenter from '../components/NotificationCenter'
+import NotificationCenter from '../widgets/app-shell/NotificationCenter'
 import styles from './EquipmentPage.module.css'
-import TimeSelect from '../components/TimeSelect'
-import type { Resource } from '../types/resource'
+import TimeSelect from '../shared/ui/TimeSelect/TimeSelect'
+import type { Resource } from '../shared/types/resource'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
 import { getResourcesList } from '../features/resources/api/resourceApi'
+import { getDefaultBookingDate, isoToLocalTime } from '../shared/lib/dateTime'
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function localDateStr(d: Date = new Date()): string {
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
-}
-
 function defaultDate(): string {
-  const now = new Date()
-  return now.getHours() >= 19
-    ? localDateStr(new Date(now.getTime() + 86400000))
-    : localDateStr()
-}
-
-function isoToTime(iso: string): string {
-  const d = new Date(iso)
-  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+  return getDefaultBookingDate()
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -52,6 +41,7 @@ const DEVICE_TYPE_MAP: Record<string, Equipment['type']> = {
   tv: 'tv', television: 'tv',
 }
 
+/** Maps a backend device resource to the equipment-card model used by the page. */
 function resourceToEquipment(r: Resource, myResourceIds: Set<string>, slots: string[], mineUntil?: string): Equipment {
   const isMine = myResourceIds.has(r.resource_id)
   const isStructurallyUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
@@ -75,7 +65,7 @@ function resourceToEquipment(r: Resource, myResourceIds: Set<string>, slots: str
   }
 }
 
-// TODO: remove stub when backend is ready
+// Demo fallback keeps the MVP screen usable if the equipment endpoint is unavailable.
 const STUB_EQUIPMENT: Equipment[] = [
   { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '20 этаж · Крыло А', bookedSlots: [] },
   { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '20 этаж · Крыло Б', bookedSlots: [] },
@@ -92,6 +82,7 @@ const TYPE_LABELS: Record<Equipment['type'], string> = {
   tv:       'Телевизор',
 }
 
+/** Checks whether a human-readable location belongs to the selected floor. */
 function isOnFloor(location: string, floor: number): boolean {
   const normalized = location.trim()
   if (!normalized) return floor === 20
@@ -272,6 +263,7 @@ function ConfirmModal({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+/** Equipment catalogue with type, floor and time filters. */
 export default function EquipmentPage() {
   const navigate = useNavigate()
   const { bookings, user } = useAuth()
@@ -317,7 +309,7 @@ export default function EquipmentPage() {
           const bs = bookingsPerResource[i]
           const slots = bs
             .filter(b => b.starts_at && b.ends_at)
-            .map(b => `${isoToTime(b.starts_at!)}–${isoToTime(b.ends_at!)}`)
+            .map(b => `${isoToLocalTime(b.starts_at!)}–${isoToLocalTime(b.ends_at!)}`)
           const isBusyAtSelected = bs.some(b =>
             b.starts_at && b.ends_at &&
             b.starts_at < selectedTo && b.ends_at > selectedFrom
@@ -349,10 +341,12 @@ export default function EquipmentPage() {
   const freeCount  = filtered.filter(e => e.status === 'free').length
   const totalCount = filtered.length
 
+  /** Opens booking confirmation for a selected equipment item. */
   function handleTake(item: Equipment) {
     setConfirmItem(item)
   }
 
+  /** Creates an equipment booking for the chosen interval. */
   async function handleConfirm() {
     if (!confirmItem || !user?.id) return
     const item = confirmItem
@@ -367,6 +361,7 @@ export default function EquipmentPage() {
     setTimeout(() => setToast(null), 3500)
   }
 
+  /** Cancels the current user's active equipment booking. */
   function handleReturn(item: Equipment) {
     setToast(`${item.name} возвращена`)
     setTimeout(() => setToast(null), 3000)

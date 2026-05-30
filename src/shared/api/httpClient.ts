@@ -1,8 +1,9 @@
 import axios from 'axios'
-import type { LoginResponse } from '../../types/auth'
+import type { LoginResponse } from '../../shared/types/auth'
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '/api/v1'
 
+/** Shared Axios instance for all gateway requests. */
 export const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },
@@ -22,6 +23,7 @@ api.interceptors.request.use(config => {
 let isRefreshing = false
 let failedQueue: Array<{ resolve: (v: string) => void; reject: (e: unknown) => void }> = []
 
+/** Resolves requests that waited while one refresh-token request was in flight. */
 function processQueue(error: unknown, token: string | null) {
   failedQueue.forEach(p => (error ? p.reject(error) : p.resolve(token!)))
   failedQueue = []
@@ -64,6 +66,7 @@ api.interceptors.response.use(
   },
 )
 
+/** Requests a new access/refresh token pair using the saved refresh token. */
 export async function refreshTokens(): Promise<LoginResponse> {
   const refreshToken = localStorage.getItem('refresh_token')
   const url = BASE_URL.startsWith('http') ? `${BASE_URL}/auth/refresh` : `${window.location.origin}${BASE_URL}/auth/refresh`
