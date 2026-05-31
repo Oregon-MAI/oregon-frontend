@@ -3,7 +3,50 @@ const http = require('node:http')
 const path = require('node:path')
 const { URL } = require('node:url')
 
-const PORT = Number(process.env.PORT || 3001)
+function loadDotEnv() {
+  const envPath = path.join(__dirname, '.env')
+
+  if (!fs.existsSync(envPath)) {
+    return
+  }
+
+  const lines = fs.readFileSync(envPath, 'utf8').split(/\r?\n/)
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+
+    if (!trimmed || trimmed.startsWith('#')) {
+      continue
+    }
+
+    const match = trimmed.match(/^([\w.-]+)\s*=\s*(.*)$/)
+
+    if (!match) {
+      continue
+    }
+
+    const [, key, rawValue] = match
+
+    if (process.env[key] !== undefined) {
+      continue
+    }
+
+    const value = rawValue.trim().replace(/^['"]|['"]$/g, '')
+    process.env[key] = value
+  }
+}
+
+function parsePort(value, fallback) {
+  const port = Number(value)
+
+  return Number.isInteger(port) && port > 0 ? port : fallback
+}
+
+loadDotEnv()
+
+const HOST = process.env.FRONTEND_HOST || process.env.HOST || '0.0.0.0'
+const PUBLIC_HOST = process.env.FRONTEND_PUBLIC_HOST || '111.88.152.26'
+const PORT = parsePort(process.env.PORT || process.env.FRONTEND_PORT, 3001)
 const API_GATEWAY_URL = process.env.API_GATEWAY_URL || 'http://localhost:8000'
 const DIST_DIR = path.join(__dirname, 'dist')
 
@@ -105,7 +148,23 @@ const server = http.createServer((req, res) => {
   serveStatic(req, res)
 })
 
-server.listen(PORT, () => {
-  console.log(`Frontend server listening on http://localhost:${PORT}`)
+server.on('error', error => {
+  if (error.code === 'EADDRINUSE') {
+    console.error(`Frontend server failed to start: ${HOST}:${PORT} is already in use.`)
+    console.error('Use another port, for example: PORT=3001 npm start')
+    console.error('Or set PORT=3001 in .env.')
+    process.exit(1)
+  }
+
+  throw error
+})
+
+server.listen(PORT, HOST, () => {
+  const localHost = HOST === '0.0.0.0' || HOST === '::' ? 'localhost' : HOST
+
+  console.log(`Frontend server listening on http://${localHost}:${PORT}`)
+  if (HOST === '0.0.0.0' || HOST === '::') {
+    console.log(`External access is available via http://${PUBLIC_HOST}:${PORT}`)
+  }
   console.log(`Proxying /api and /notifications to ${API_GATEWAY_URL}`)
 })

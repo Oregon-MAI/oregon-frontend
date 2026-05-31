@@ -203,6 +203,26 @@ function GroupSection({
   )
 }
 
+function MobileBookingCard({ booking, onCancel }: { booking: EnrichedBooking; onCancel: (id: string) => void }) {
+  const active = isActiveNow(booking)
+  return (
+    <article className={styles.mobileBookingCard}>
+      <div className={styles.mobileBookingTop}>
+        <div>
+          <div className={styles.mobileBookingType}>{GROUP_LABELS[booking.resourceType]}</div>
+          <div className={styles.mobileBookingName}>{booking.resourceName}</div>
+        </div>
+        {active && <span className={styles.mobileNowBadge}>Сейчас</span>}
+      </div>
+      <div className={styles.mobileBookingMeta}>{fmtDate(booking.date)} · {booking.meta}</div>
+      <div className={styles.mobileBookingTime}>{booking.timeFrom}–{booking.timeTo}</div>
+      <button type="button" className={styles.mobileCancelBtn} onClick={() => onCancel(booking.id)}>
+        Отменить
+      </button>
+    </article>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 /** User booking dashboard with weekly timeline and cancellation actions. */
@@ -346,6 +366,18 @@ export default function BookingsPage() {
 
         {/* Основной контент */}
         <main className={styles.content}>
+          <nav className={styles.mobileNav} aria-label="Разделы">
+            <button type="button" className={styles.mobileNavBtn} onClick={() => navigate('/map')}>
+              <IconMap /> Карта
+            </button>
+            <button type="button" className={styles.mobileNavBtn} onClick={() => navigate('/equipment')}>
+              <IconMonitor /> Техника
+            </button>
+            <button type="button" className={`${styles.mobileNavBtn} ${styles.mobileNavBtnActive}`}>
+              <IconFile /> Брони
+            </button>
+          </nav>
+
           {/* Шапка */}
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Мои брони</h1>
@@ -358,6 +390,19 @@ export default function BookingsPage() {
                 <IconChevRight />
               </button>
             </div>
+          </div>
+
+          <div className={styles.mobileBookingsList}>
+            {weekBookings.length > 0 ? (
+              weekBookings
+                .slice()
+                .sort((a, b) => a.date === b.date ? a.timeFrom.localeCompare(b.timeFrom) : a.date.localeCompare(b.date))
+                .map(booking => (
+                  <MobileBookingCard key={booking.id} booking={booking} onCancel={handleCancel} />
+                ))
+            ) : (
+              <div className={styles.mobileEmpty}>Нет броней на выбранной неделе</div>
+            )}
           </div>
 
           {/* Timeline */}

@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import type { TouchEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
@@ -174,6 +175,29 @@ function IconFile() {
   )
 }
 
+function MapLegend({ className = '' }: { className?: string }) {
+  return (
+    <div className={`${styles.legend} ${className}`}>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotFree}`} />
+        Свободно
+      </div>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotBusy}`} />
+        Занято
+      </div>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotMine}`} />
+        Моё
+      </div>
+      <div className={styles.legendItem}>
+        <div className={`${styles.legendDot} ${styles.dotRoomFree}`} />
+        Переговорная
+      </div>
+    </div>
+  )
+}
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 const ALL_AMENITIES = ['Монитор']
@@ -292,6 +316,9 @@ function MapSidebar({
 // ─── Confirm modal ────────────────────────────────────────────────────────────
 
 type BookableMapItem = Desk | MapRoom
+type MobileSheetMode = 'hidden' | 'peek' | 'open'
+
+const SHEET_SWIPE_THRESHOLD = 42
 
 /** Narrows a clicked map item to a meeting room. */
 function isMapRoom(item: BookableMapItem): item is MapRoom {
@@ -308,6 +335,7 @@ function ConfirmModal({
   const [selectedFrom, setSelectedFrom] = useState(timeFrom)
   const [selectedTo, setSelectedTo] = useState(timeTo)
   const [rangeError, setRangeError] = useState<string | null>(null)
+  const touchStartY = useRef<number | null>(null)
 
   const isUnavailable = item.status === 'busy' && item.bookedSlots.length === 0
   const fromIndex = timeIndex(selectedFrom)
@@ -338,10 +366,27 @@ function ConfirmModal({
     setSelectedTo(slot)
   }
 
+  function handleSheetTouchStart(e: TouchEvent<HTMLDivElement>) {
+    touchStartY.current = e.touches[0]?.clientY ?? null
+  }
+
+  function handleSheetTouchEnd(e: TouchEvent<HTMLDivElement>) {
+    if (touchStartY.current === null) return
+    const deltaY = (e.changedTouches[0]?.clientY ?? touchStartY.current) - touchStartY.current
+    touchStartY.current = null
+    if (deltaY > SHEET_SWIPE_THRESHOLD) onCancel()
+  }
+
   return (
     <>
       <div className={styles.overlay} onClick={onCancel} />
       <div className={styles.modal}>
+        <div
+          className={styles.modalHandle}
+          aria-hidden="true"
+          onTouchStart={handleSheetTouchStart}
+          onTouchEnd={handleSheetTouchEnd}
+        />
         <div className={styles.modalTitle}>Подтвердите бронирование</div>
         <div className={styles.modalRoom}>{isRoom ? item.id : `Место ${item.id}`}</div>
         <div className={styles.modalDetails}>
@@ -419,6 +464,9 @@ export default function MapPage() {
   const [toast,                 setToast]                 = useState<string | null>(null)
   const [refreshKey,            setRefreshKey]            = useState(0)
   const [bookedSlotsByResource, setBookedSlotsByResource] = useState<Map<string, string[]>>(new Map())
+  const [mobileSheetMode,       setMobileSheetMode]       = useState<MobileSheetMode>('peek')
+  const mobileSheetTouchY = useRef<number | null>(null)
+  const mobileFiltersOpen = mobileSheetMode === 'open'
 
   // Загружаем ресурсы при изменении фильтров
   useEffect(() => {
@@ -504,6 +552,26 @@ export default function MapPage() {
     setConfirmItem(room)
   }
 
+  function handleMobileSheetTouchStart(e: TouchEvent<HTMLDivElement>) {
+    mobileSheetTouchY.current = e.touches[0]?.clientY ?? null
+  }
+
+  function handleMobileSheetTouchEnd(e: TouchEvent<HTMLDivElement>) {
+    if (mobileSheetTouchY.current === null) return
+    const deltaY = (e.changedTouches[0]?.clientY ?? mobileSheetTouchY.current) - mobileSheetTouchY.current
+    mobileSheetTouchY.current = null
+    if (Math.abs(deltaY) < SHEET_SWIPE_THRESHOLD) return
+
+    setMobileSheetMode(current => {
+      if (deltaY < 0) {
+        if (current === 'hidden') return 'peek'
+        return 'open'
+      }
+      if (current === 'open') return 'peek'
+      return 'hidden'
+    })
+  }
+
   /** Creates the booking and refreshes map state after successful confirmation. */
   async function handleConfirm(selectedFrom: string, selectedTo: string) {
     if (!confirmItem || !user || !confirmItem.resourceId) return
@@ -569,6 +637,47 @@ export default function MapPage() {
 
         {/* Контент */}
         <main className={styles.content}>
+          <div className={styles.mobileTopbar}>
+            <div className={styles.mobileBrand}>
+              <div className={styles.logoSq}>T1</div>
+              <span>Workspace</span>
+            </div>
+            <div className={styles.mobileTopbarRight}>
+              <NotificationCenter />
+              {displayName && <span className={styles.mobileUser}>{displayName}</span>}
+              <button
+                className={styles.mobileIconBtn}
+                type="button"
+                aria-label="Выйти"
+                onClick={() => {
+                  localStorage.removeItem('access_token')
+                  navigate('/login')
+                }}
+              >
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                  <polyline points="16 17 21 12 16 7"/>
+                  <line x1="21" y1="12" x2="9" y2="12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div className={styles.mobileMapControls}>
+            <div className={styles.mobileFloorPicker} aria-label="Выбор этажа">
+              {[20, 21, 22].map(floor => (
+                <button
+                  key={floor}
+                  type="button"
+                  className={`${styles.mobileFloorBtn} ${currentFloor === floor ? styles.mobileFloorBtnActive : ''}`}
+                  onClick={() => setCurrentFloor(floor)}
+                >
+                  {floor}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div className={styles.pageHeader}>
             <div className={styles.pageHeaderLeft}>
               <h1 className={styles.pageTitle}>Карта офиса</h1>
@@ -592,24 +701,80 @@ export default function MapPage() {
             }
           </div>
 
-          <div className={styles.legend}>
-            <div className={styles.legendItem}>
-              <div className={`${styles.legendDot} ${styles.dotFree}`} />
-              Свободно
+          <MapLegend />
+
+          <section
+            className={`${styles.mobileSheet} ${mobileSheetMode === 'hidden' ? styles.mobileSheetHidden : ''} ${mobileSheetMode === 'open' ? styles.mobileSheetOpen : ''}`}
+          >
+            <div
+              className={styles.mobileSheetHandle}
+              aria-hidden="true"
+              onTouchStart={handleMobileSheetTouchStart}
+              onTouchEnd={handleMobileSheetTouchEnd}
+            />
+            <div className={styles.mobileSheetHeader}>
+              <div>
+                <div className={styles.mobileSheetTitle}>БЦ «Арена», {currentFloor} этаж</div>
+                <div className={styles.mobileSheetMeta}>{date} · {timeFrom}–{timeTo}</div>
+              </div>
+              <button
+                type="button"
+                className={styles.mobileSheetToggle}
+                onClick={() => setMobileSheetMode(mode => mode === 'open' ? 'peek' : 'open')}
+              >
+                {mobileFiltersOpen ? 'Готово' : 'Параметры'}
+              </button>
             </div>
-            <div className={styles.legendItem}>
-              <div className={`${styles.legendDot} ${styles.dotBusy}`} />
-              Занято
+            <div className={styles.mobileQuickNav} aria-label="Разделы">
+              <button type="button" className={styles.mobileQuickNavBtn} onClick={() => navigate('/map')}>
+                <IconMap />
+                Карта
+              </button>
+              <button type="button" className={styles.mobileQuickNavBtn} onClick={() => navigate('/equipment')}>
+                <IconMonitor />
+                Техника
+              </button>
+              <button type="button" className={styles.mobileQuickNavBtn} onClick={() => navigate('/bookings')}>
+                <IconFile />
+                Брони
+              </button>
             </div>
-            <div className={styles.legendItem}>
-              <div className={`${styles.legendDot} ${styles.dotMine}`} />
-              Моё
+            <MapLegend className={styles.mobileLegend} />
+            <div className={styles.mobileSheetPanel}>
+              <div className={styles.mobileField}>
+                <span className={styles.mobileFieldLabel}>Дата</span>
+                <input
+                  type="date"
+                  value={date}
+                  onChange={e => setDate(e.target.value)}
+                  className={styles.mobileDateInput}
+                />
+              </div>
+              <div className={styles.mobileField}>
+                <span className={styles.mobileFieldLabel}>Время</span>
+                <div className={styles.mobileTimeRow}>
+                  <TimeSelect value={timeFrom} onChange={setTimeFrom} className={styles.mobileTimeInput} />
+                  <span className={styles.timeSep}>—</span>
+                  <TimeSelect value={timeTo} onChange={setTimeTo} className={styles.mobileTimeInput} />
+                </div>
+              </div>
+              <div className={styles.mobileField}>
+                <span className={styles.mobileFieldLabel}>Оснащение</span>
+                <div className={styles.mobileAmenityList}>
+                  {ALL_AMENITIES.map(a => (
+                    <button
+                      key={a}
+                      type="button"
+                      className={`${styles.amenityBtn} ${styles.mobileAmenityBtn} ${selectedAmenities.includes(a) ? styles.amenityBtnActive : ''}`}
+                      onClick={() => toggleAmenity(a)}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-            <div className={styles.legendItem}>
-              <div className={`${styles.legendDot} ${styles.dotRoomFree}`} />
-              Переговорная
-            </div>
-          </div>
+          </section>
         </main>
       </div>
 

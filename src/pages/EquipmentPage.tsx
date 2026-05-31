@@ -477,12 +477,66 @@ export default function EquipmentPage() {
 
         {/* Контент */}
         <main className={styles.content}>
+          <nav className={styles.mobileNav} aria-label="Разделы">
+            <button type="button" className={styles.mobileNavBtn} onClick={() => navigate('/map')}>
+              <IconMap /> Карта
+            </button>
+            <button type="button" className={`${styles.mobileNavBtn} ${styles.mobileNavBtnActive}`}>
+              <IconMonitor /> Техника
+            </button>
+            <button type="button" className={styles.mobileNavBtn} onClick={() => navigate('/bookings')}>
+              <IconFile /> Брони
+            </button>
+          </nav>
+
           <div className={styles.pageHeader}>
             <h1 className={styles.pageTitle}>Техника</h1>
             <div className={styles.pageCount}>
               Доступно {freeCount} из {totalCount} единиц
             </div>
           </div>
+
+          <section className={styles.mobileFilters}>
+            <div className={styles.mobileFloorPicker} aria-label="Выбор этажа">
+              {[20, 21, 22].map(floor => (
+                <button
+                  key={floor}
+                  type="button"
+                  className={`${styles.mobileFloorBtn} ${currentFloor === floor ? styles.mobileFloorBtnActive : ''}`}
+                  onClick={() => setCurrentFloor(floor)}
+                >
+                  {floor}
+                </button>
+              ))}
+            </div>
+            <select
+              value={typeFilter}
+              onChange={e => setTypeFilter(e.target.value as Equipment['type'] | 'all')}
+              className={styles.mobileSelect}
+              aria-label="Тип техники"
+            >
+              <option value="all">Вся техника</option>
+              <option value="laptop">Ноутбуки</option>
+              <option value="monitor">Мониторы</option>
+              <option value="camera">Камеры</option>
+              <option value="projector">Проекторы</option>
+              <option value="tv">Телевизоры</option>
+            </select>
+            <div className={styles.mobileDateTime}>
+              <input
+                type="date"
+                value={date}
+                onChange={e => setDate(e.target.value)}
+                className={styles.mobileDateInput}
+                aria-label="Дата"
+              />
+              <div className={styles.mobileTimeRow}>
+                <TimeSelect value={timeFrom} onChange={setTimeFrom} className={styles.mobileTimeInput} />
+                <span className={styles.timeSep}>—</span>
+                <TimeSelect value={timeTo} onChange={setTimeTo} className={styles.mobileTimeInput} />
+              </div>
+            </div>
+          </section>
 
           {/* Вкладки */}
           <div className={styles.tabs}>

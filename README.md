@@ -20,7 +20,10 @@ npm install
 npm run dev
 ```
 
-Dev-адрес: `http://localhost:5173`
+Dev-сервер по умолчанию слушает `0.0.0.0:5173`, поэтому доступен и локально, и по IP сервера:
+
+- `http://localhost:5173`
+- `http://111.88.152.26:5173`
 
 Production-сборка:
 
@@ -29,12 +32,22 @@ npm run build
 npm start
 ```
 
-Production-адрес по умолчанию: `http://localhost:3000`
+Production-сервер по умолчанию слушает `0.0.0.0:3001`:
+
+- `http://localhost:3001`
+- `http://111.88.152.26:3001`
 
 Если нужен другой gateway или порт:
 
 ```bash
 API_GATEWAY_URL=http://localhost:8000 PORT=3001 npm start
+```
+
+Или через `.env`:
+
+```bash
+cp .env.example .env
+npm run dev
 ```
 
 ## Переменные Окружения
@@ -43,8 +56,13 @@ API_GATEWAY_URL=http://localhost:8000 PORT=3001 npm start
 | --- | --- | --- | --- |
 | `VITE_API_URL` | dev/browser build | `/api/v1` | Base URL для основного API клиента |
 | `VITE_NOTIFICATIONS_URL` | dev/browser build | пусто, далее `/notifications` | Base URL для сервиса уведомлений |
+| `VITE_DEV_HOST` | Vite dev server | `0.0.0.0` | Host, на котором слушает dev server |
+| `VITE_DEV_PORT` | Vite dev server | `5173` | Порт dev server |
+| `VITE_ALLOWED_HOSTS` | Vite dev server | пусто | Дополнительные разрешенные hostnames, через запятую |
+| `FRONTEND_HOST` | `server.cjs` | `0.0.0.0` | Host, на котором слушает production server |
+| `FRONTEND_PUBLIC_HOST` | `server.cjs` | `111.88.152.26` | Публичный адрес, который показывается в логах запуска |
 | `API_GATEWAY_URL` | `server.cjs` | `http://localhost:8000` | Gateway для production proxy |
-| `PORT` | `server.cjs` | `3000` | Порт production server |
+| `PORT` | `server.cjs` | `3001` | Порт production server |
 
 ## Команды
 
@@ -66,7 +84,7 @@ TOKEN="..." API_URL="http://localhost:8000/api/v1" node scripts/import-workspace
 
 ```bash
 docker build -t t1-frontend .
-docker run --rm -p 3000:3000 -e API_GATEWAY_URL=http://host.docker.internal:8000 t1-frontend
+docker run --rm -p 3001:3001 -e API_GATEWAY_URL=http://host.docker.internal:8000 t1-frontend
 ```
 
 ## Архитектура
