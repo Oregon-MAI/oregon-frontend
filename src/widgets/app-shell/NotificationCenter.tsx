@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { confirmNotification, createNotificationsStream } from '../../features/notifications/api/notificationApi'
 import { useAuth } from '../../features/auth/model/AuthContext'
+import { listenLocalNotifications } from '../../features/notifications/lib/localNotifications'
 import { formatWorkspaceLocation } from '../../features/resources/lib/workspaceLocation'
 import styles from './NotificationCenter.module.css'
 
@@ -42,6 +44,23 @@ export default function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [hasStreamError, setHasStreamError] = useState(false)
   const unreadCount = notifications.filter(notification => notification.unread).length
+
+  useEffect(() => (
+    listenLocalNotifications(notification => {
+      setNotifications(prev => {
+        if (prev.some(item => item.id === notification.id || item.message === notification.message)) return prev
+
+        return [
+          {
+            ...notification,
+            time: 'Только что',
+            unread: true,
+          },
+          ...prev,
+        ]
+      })
+    })
+  ), [])
 
   useEffect(() => {
     if (!user?.id) {
@@ -90,6 +109,11 @@ export default function NotificationCenter() {
   async function handleNotificationClick(notification: Notification) {
     if (!user?.id) return
 
+    if (notification.id.startsWith('booking-created-')) {
+      setNotifications(prev => prev.filter(item => item.id !== notification.id))
+      return
+    }
+
     setNotifications(prev =>
       prev.map(item =>
         item.id === notification.id ? { ...item, unread: false } : item,
@@ -108,6 +132,61 @@ export default function NotificationCenter() {
     }
   }
 
+  const dialog = isOpen ? createPortal(
+    <>
+      <div className={styles.overlay} onClick={() => setIsOpen(false)} />
+      <section
+        className={styles.modal}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="notifications-title"
+      >
+        <div className={styles.header}>
+          <div>
+            <h2 id="notifications-title" className={styles.title}>Уведомления</h2>
+            <p className={styles.subtitle}>
+              {hasStreamError ? 'Сервис уведомлений недоступен' : 'Онлайн-уведомления'}
+            </p>
+          </div>
+          <button
+            type="button"
+            className={styles.closeButton}
+            onClick={() => setIsOpen(false)}
+            aria-label="Закрыть уведомления"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        <div className={styles.list}>
+          {notifications.length === 0 && (
+            <div className={styles.emptyState}>
+              Новых уведомлений нет
+            </div>
+          )}
+
+          {notifications.map(notification => (
+            <article
+              key={notification.id}
+              className={styles.item}
+              onClick={() => handleNotificationClick(notification)}
+            >
+              <div className={notification.unread ? styles.unreadDot : styles.readDot} />
+              <div className={styles.itemBody}>
+                <div className={styles.itemTop}>
+                  <h3 className={styles.itemTitle}>{notification.title}</h3>
+                  <time className={styles.itemTime}>{notification.time}</time>
+                </div>
+                <p className={styles.itemMessage}>{notification.message}</p>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </>,
+    document.body,
+  ) : null
+
   return (
     <>
       <button
@@ -120,59 +199,7 @@ export default function NotificationCenter() {
         {unreadCount > 0 && <span className={styles.badge}>{unreadCount}</span>}
       </button>
 
-      {isOpen && (
-        <>
-          <div className={styles.overlay} onClick={() => setIsOpen(false)} />
-          <section
-            className={styles.modal}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="notifications-title"
-          >
-            <div className={styles.header}>
-              <div>
-                <h2 id="notifications-title" className={styles.title}>Уведомления</h2>
-                <p className={styles.subtitle}>
-                  {hasStreamError ? 'Сервис уведомлений недоступен' : 'Онлайн-уведомления'}
-                </p>
-              </div>
-              <button
-                type="button"
-                className={styles.closeButton}
-                onClick={() => setIsOpen(false)}
-                aria-label="Закрыть уведомления"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            <div className={styles.list}>
-              {notifications.length === 0 && (
-                <div className={styles.emptyState}>
-                  Новых уведомлений нет
-                </div>
-              )}
-
-              {notifications.map(notification => (
-                <article
-                  key={notification.id}
-                  className={styles.item}
-                  onClick={() => handleNotificationClick(notification)}
-                >
-                  <div className={notification.unread ? styles.unreadDot : styles.readDot} />
-                  <div className={styles.itemBody}>
-                    <div className={styles.itemTop}>
-                      <h3 className={styles.itemTitle}>{notification.title}</h3>
-                      <time className={styles.itemTime}>{notification.time}</time>
-                    </div>
-                    <p className={styles.itemMessage}>{notification.message}</p>
-                  </div>
-                </article>
-              ))}
-            </div>
-          </section>
-        </>
-      )}
+      {dialog}
     </>
   )
 }

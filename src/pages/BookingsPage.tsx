@@ -88,7 +88,7 @@ type ResourceType = 'workspace' | 'room' | 'device'
 
 interface EnrichedBooking extends Booking {
   resourceType: ResourceType
-  meta: string  // floor · location info
+  meta: string
 }
 
 /** Converts backend resource type enum to the page grouping key. */
@@ -98,8 +98,23 @@ function detectType(r: Resource): ResourceType {
   return 'workspace'
 }
 
+function normalizeResourceName(name?: string): string {
+  return (name ?? '').trim().toLocaleLowerCase('ru-RU')
+}
+
+function getRawLocation(resource: Resource | undefined, bookingLocation?: string): string {
+  return (resource?.location ?? bookingLocation ?? '').trim() || '—'
+}
+
+function formatDeviceLocation(resource: Resource | undefined, bookingLocation?: string): string {
+  const location = getRawLocation(resource, bookingLocation)
+  return location.replace(/^(\d+)\s*этаж$/i, '$1')
+}
+
 /** Builds the compact location/capacity line displayed under a booking title. */
-function formatBookingMeta(resource: Resource | undefined, bookingLocation?: string): string {
+function formatBookingMeta(resourceType: ResourceType, resource: Resource | undefined, bookingLocation?: string): string {
+  if (resourceType === 'device') return formatDeviceLocation(resource, bookingLocation)
+
   const location = formatWorkspaceLocation(resource?.location ?? bookingLocation)
   if (!resource || resource.type !== 'RESOURCE_TYPE_MEETING_ROOM') return location
 
@@ -256,9 +271,14 @@ export default function BookingsPage() {
         try {
           const resources = await getResourcesList()
           const resMap = new Map<string, Resource>(resources.map(r => [r.resource_id, r]))
+          const resNameMap = new Map<string, Resource>()
+          resources.forEach(r => {
+            const key = normalizeResourceName(r.name)
+            if (key && !resNameMap.has(key)) resNameMap.set(key, r)
+          })
 
           const enriched: EnrichedBooking[] = rawBookings.map(b => {
-            const r = resMap.get(b.resourceId)
+            const r = resMap.get(b.resourceId) ?? resNameMap.get(normalizeResourceName(b.resourceName))
             // Use resource type from booking response if available, else detect from resource
             const rType: ResourceType = b.resourceType
               ? (b.resourceType === 'RESOURCE_TYPE_MEETING_ROOM' ? 'room'
@@ -269,14 +289,24 @@ export default function BookingsPage() {
             const resourceName = b.resourceName && b.resourceName !== b.resourceId
               ? b.resourceName
               : (r?.name ?? b.resourceId)
-            const meta = formatBookingMeta(r, b.resourceLocation)
+            const meta = formatBookingMeta(rType, r, b.resourceLocation)
             return { ...b, resourceName, resourceType: rType, meta }
           })
           setLocal(enriched)
         } catch {
-          const enriched: EnrichedBooking[] = rawBookings.map(b => ({
-            ...b, resourceType: 'workspace' as ResourceType, meta: formatBookingMeta(undefined, b.resourceLocation),
-          }))
+          const enriched: EnrichedBooking[] = rawBookings.map(b => {
+            const rType: ResourceType = b.resourceType === 'RESOURCE_TYPE_MEETING_ROOM'
+              ? 'room'
+              : b.resourceType === 'RESOURCE_TYPE_DEVICE'
+                ? 'device'
+                : 'workspace'
+
+            return {
+              ...b,
+              resourceType: rType,
+              meta: formatBookingMeta(rType, undefined, b.resourceLocation),
+            }
+          })
           setLocal(enriched)
         }
       })
@@ -465,7 +495,6 @@ export default function BookingsPage() {
                     </div>
                     <div className={styles.rightCardDate}>{fmtDate(b.date)}</div>
                   </div>
-                  <button className={styles.cancelBtn} onClick={() => handleCancel(b.id)}>×</button>
                 </div>
               ))}
             </div>

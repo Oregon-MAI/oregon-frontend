@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
 import NotificationCenter from '../widgets/app-shell/NotificationCenter'
 import styles from './EquipmentPage.module.css'
 import TimeSelect from '../shared/ui/TimeSelect/TimeSelect'
 import type { Resource } from '../shared/types/resource'
-import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
+import { cancelBooking, createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
+import { dispatchBookingNotification } from '../features/notifications/lib/localNotifications'
 import { getResourcesList } from '../features/resources/api/resourceApi'
 import { getDefaultBookingDate, isoToLocalTime } from '../shared/lib/dateTime'
 
@@ -26,6 +27,7 @@ interface Equipment {
   type: 'laptop' | 'monitor' | 'camera' | 'projector' | 'tv'
   status: EquipmentStatus
   busyUntil?: string
+  mineBookingId?: string
   mineUntil?: string
   location: string
   bookedSlots: string[]
@@ -42,7 +44,13 @@ const DEVICE_TYPE_MAP: Record<string, Equipment['type']> = {
 }
 
 /** Maps a backend device resource to the equipment-card model used by the page. */
-function resourceToEquipment(r: Resource, myResourceIds: Set<string>, slots: string[], mineUntil?: string): Equipment {
+function resourceToEquipment(
+  r: Resource,
+  myResourceIds: Set<string>,
+  slots: string[],
+  mineUntil?: string,
+  mineBookingId?: string,
+): Equipment {
   const isMine = myResourceIds.has(r.resource_id)
   const isStructurallyUnavailable = r.status === 'RESOURCE_STATUS_MAINTENANCE' || r.status === 'RESOURCE_STATUS_EMERGENCY'
   const status: EquipmentStatus =
@@ -61,17 +69,18 @@ function resourceToEquipment(r: Resource, myResourceIds: Set<string>, slots: str
     status,
     location: r.location,
     bookedSlots: slots,
+    mineBookingId,
     mineUntil,
   }
 }
 
 // Demo fallback keeps the MVP screen usable if the equipment endpoint is unavailable.
 const STUB_EQUIPMENT: Equipment[] = [
-  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: '20 этаж · Крыло А', bookedSlots: [] },
-  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: '20 этаж · Крыло Б', bookedSlots: [] },
-  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: '20 этаж · Крыло А', bookedSlots: [] },
-  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: '20 этаж · Ресепшн', bookedSlots: [] },
-  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: '20 этаж · Переговорная B2', bookedSlots: [] },
+  { id: 'stub-eq-1', name: 'MacBook Pro 14"', subtitle: 'Apple M3 · 16GB RAM', type: 'laptop', status: 'free', location: 'Склад техники', bookedSlots: [] },
+  { id: 'stub-eq-2', name: 'MacBook Air 13"', subtitle: 'Apple M2 · 8GB RAM', type: 'laptop', status: 'busy', busyUntil: '15:00', location: 'Склад техники', bookedSlots: [] },
+  { id: 'stub-eq-3', name: 'Dell UltraSharp 27"', subtitle: '4K · USB-C', type: 'monitor', status: 'free', location: 'Кабинет IT', bookedSlots: [] },
+  { id: 'stub-eq-4', name: 'Logitech C920', subtitle: 'Веб-камера · Full HD', type: 'camera', status: 'free', location: 'Ресепшн', bookedSlots: [] },
+  { id: 'stub-eq-5', name: 'Epson EB-X41', subtitle: 'Проектор · XGA', type: 'projector', status: 'free', location: 'Кабинет IT', bookedSlots: [] },
 ]
 
 const TYPE_LABELS: Record<Equipment['type'], string> = {
@@ -82,12 +91,15 @@ const TYPE_LABELS: Record<Equipment['type'], string> = {
   tv:       'Телевизор',
 }
 
-/** Checks whether a human-readable location belongs to the selected floor. */
-function isOnFloor(location: string, floor: number): boolean {
-  const normalized = location.trim()
-  if (!normalized) return floor === 20
+const EMPTY_LOCATION_KEY = '__empty__'
 
-  return new RegExp(`(^|\\D)${floor}(\\D|$)`).test(normalized)
+function getLocationKey(location: string): string {
+  const normalized = location.trim().toLocaleLowerCase('ru-RU')
+  return normalized || EMPTY_LOCATION_KEY
+}
+
+function getLocationLabel(location: string): string {
+  return location.trim() || 'Без локации'
 }
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
@@ -263,20 +275,19 @@ function ConfirmModal({
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
-/** Equipment catalogue with type, floor and time filters. */
+/** Equipment catalogue with type, location and time filters. */
 export default function EquipmentPage() {
   const navigate = useNavigate()
-  const { bookings, user } = useAuth()
+  const { bookings, setBookings, user } = useAuth()
   const displayName = user ? `${user.surname} ${user.name?.charAt(0)}.` : ''
 
   const [tab,      setTab]      = useState<'all' | 'mine'>('all')
   const [typeFilter, setTypeFilter] = useState<Equipment['type'] | 'all'>('all')
+  const [locationFilter, setLocationFilter] = useState('all')
   const [date,     setDate]     = useState(defaultDate())
   const [timeFrom, setTimeFrom] = useState('11:00')
   const [timeTo,   setTimeTo]   = useState('13:00')
   const [refreshKey, setRefreshKey] = useState(0)
-  const [floorsOpen, setFloorsOpen] = useState(false)
-  const [currentFloor, setCurrentFloor] = useState(20)
 
   const [equipment,   setEquipment]   = useState<Equipment[]>([])
   const [confirmItem, setConfirmItem] = useState<Equipment | null>(null)
@@ -325,14 +336,34 @@ export default function EquipmentPage() {
             b.resourceId === r.resource_id &&
             b.date === date && b.timeFrom < timeTo && b.timeTo > timeFrom
           )
-          return resourceToEquipment(rWithStatus, myResourceIds, slots, myBooking?.timeTo)
+          return resourceToEquipment(rWithStatus, myResourceIds, slots, myBooking?.timeTo, myBooking?.id)
         }))
       })
       .catch(() => setEquipment(STUB_EQUIPMENT))
   }, [bookings, date, timeFrom, timeTo, refreshKey])
 
+  const locationOptions = useMemo(() => {
+    const byKey = new Map<string, string>()
+
+    for (const item of equipment) {
+      const key = getLocationKey(item.location)
+      if (!byKey.has(key)) byKey.set(key, getLocationLabel(item.location))
+    }
+
+    return Array.from(byKey.entries())
+      .map(([key, label]) => ({ key, label }))
+      .sort((a, b) => a.label.localeCompare(b.label, 'ru-RU', { sensitivity: 'base' }))
+  }, [equipment])
+
+  useEffect(() => {
+    if (locationFilter === 'all') return
+    if (!locationOptions.some(option => option.key === locationFilter)) {
+      setLocationFilter('all')
+    }
+  }, [locationFilter, locationOptions])
+
   const filtered = equipment.filter(e => {
-    if (!isOnFloor(e.location, currentFloor)) return false
+    if (locationFilter !== 'all' && getLocationKey(e.location) !== locationFilter) return false
     if (tab === 'mine' && e.status !== 'mine') return false
     if (typeFilter !== 'all' && e.type !== typeFilter) return false
     return true
@@ -352,8 +383,15 @@ export default function EquipmentPage() {
     const item = confirmItem
     setConfirmItem(null)
     try {
-      await createBooking(item.id, user.id, date, timeFrom, timeTo)
+      const newBooking = await createBooking(item.id, user.id, date, timeFrom, timeTo)
       setRefreshKey(k => k + 1)
+      dispatchBookingNotification({
+        bookingId: newBooking.id,
+        resourceName: item.name,
+        date,
+        timeFrom,
+        timeTo,
+      })
       setToast(`${item.name} забронирована на ${timeFrom}–${timeTo}`)
     } catch {
       setToast('Не удалось создать бронь')
@@ -362,8 +400,26 @@ export default function EquipmentPage() {
   }
 
   /** Cancels the current user's active equipment booking. */
-  function handleReturn(item: Equipment) {
-    setToast(`${item.name} возвращена`)
+  async function handleReturn(item: Equipment) {
+    if (!item.mineBookingId) {
+      setToast('Не удалось найти бронь для отмены')
+      setTimeout(() => setToast(null), 3000)
+      return
+    }
+
+    try {
+      await cancelBooking(item.mineBookingId)
+      setBookings(prev => prev.filter(booking => booking.id !== item.mineBookingId))
+      setEquipment(prev => prev.map(e =>
+        e.id === item.id
+          ? { ...e, status: 'free', mineBookingId: undefined, mineUntil: undefined }
+          : e,
+      ))
+      setRefreshKey(k => k + 1)
+      setToast(`${item.name} возвращена`)
+    } catch {
+      setToast('Не удалось вернуть технику')
+    }
     setTimeout(() => setToast(null), 3000)
   }
 
@@ -399,28 +455,23 @@ export default function EquipmentPage() {
             <IconFile /> Мои брони
           </button>
 
-          <div className={styles.groupLabel}>Этажи</div>
-          <button
-            className={`${styles.sideBtn} ${styles.floorBtn}`}
-            onClick={() => setFloorsOpen(!floorsOpen)}
-          >
-            {currentFloor} этаж ▾
-          </button>
-          {floorsOpen && (
-            <div>
-              {[20, 21, 22].map(floor => (
-                <button
-                  key={floor}
-                  className={`${styles.sideBtn} ${currentFloor === floor ? styles.sideBtnActive : ''}`}
-                  onClick={() => { setCurrentFloor(floor); setFloorsOpen(false) }}
-                >
-                  {floor} этаж
-                </button>
-              ))}
-            </div>
-          )}
-
           <div className={styles.groupLabel}>Фильтр</div>
+
+          <div className={styles.filterBlock}>
+            <div className={styles.filterLabel}>Локация</div>
+            <div className={styles.filterInputWrap}>
+              <select
+                value={locationFilter}
+                onChange={e => setLocationFilter(e.target.value)}
+                className={styles.filterSelect}
+              >
+                <option value="all">Все локации</option>
+                {locationOptions.map(option => (
+                  <option key={option.key} value={option.key}>{option.label}</option>
+                ))}
+              </select>
+            </div>
+          </div>
 
           <div className={styles.filterBlock}>
             <div className={styles.filterLabel}>Техника</div>
@@ -497,18 +548,17 @@ export default function EquipmentPage() {
           </div>
 
           <section className={styles.mobileFilters}>
-            <div className={styles.mobileFloorPicker} aria-label="Выбор этажа">
-              {[20, 21, 22].map(floor => (
-                <button
-                  key={floor}
-                  type="button"
-                  className={`${styles.mobileFloorBtn} ${currentFloor === floor ? styles.mobileFloorBtnActive : ''}`}
-                  onClick={() => setCurrentFloor(floor)}
-                >
-                  {floor}
-                </button>
+            <select
+              value={locationFilter}
+              onChange={e => setLocationFilter(e.target.value)}
+              className={styles.mobileSelect}
+              aria-label="Локация техники"
+            >
+              <option value="all">Все локации</option>
+              {locationOptions.map(option => (
+                <option key={option.key} value={option.key}>{option.label}</option>
               ))}
-            </div>
+            </select>
             <select
               value={typeFilter}
               onChange={e => setTypeFilter(e.target.value as Equipment['type'] | 'all')}

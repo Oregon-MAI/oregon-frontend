@@ -312,10 +312,33 @@
   width: 18px; height: 18px;
   background: rgba(17,24,39,.15); color: #fff;
   border: none; border-radius: 50%;
-  font-size: 12px; cursor: pointer;
+  padding: 0;
+  font-size: 0;
+  cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   opacity: 0; transition: opacity .15s;
   z-index: 10;
+}
+
+.cancelBarBtn::before,
+.cancelBarBtn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 1.5px;
+  border-radius: 999px;
+  background: currentColor;
+  transform-origin: center;
+}
+
+.cancelBarBtn::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.cancelBarBtn::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
 }
 
 .bookingRow:hover .cancelBarBtn { opacity: 1; }
@@ -383,18 +406,6 @@
   border-radius: 20px; padding: 2px 8px;
 }
 
-.cancelBtn {
-  position: absolute; top: 8px; right: 8px;
-  width: 18px; height: 18px;
-  background: none; border: 1px solid #E5E7EB;
-  border-radius: 50%; font-size: 12px;
-  color: #9CA3AF; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .12s;
-}
-
-.cancelBtn:hover { background: #FEF2F2; border-color: #FECACA; color: #DC2626; }
-
 .rightEmpty {
   padding: 24px 14px;
   font-size: 13px; color: #9CA3AF; text-align: center;
@@ -419,7 +430,9 @@
 
 @media (max-width: 768px) {
   .page {
-    height: 100dvh;
+    height: var(--app-height);
+    width: var(--app-width);
+    max-width: var(--app-width);
     overflow: hidden;
     background: #F3F5F9;
   }
@@ -427,7 +440,14 @@
   .topbar {
     height: auto;
     min-height: 58px;
+    width: var(--app-width);
+    max-width: var(--app-width);
+    overflow: hidden;
     padding: calc(8px + env(safe-area-inset-top, 0px)) 14px 8px;
+  }
+
+  .logo {
+    min-width: 0;
   }
 
   .logoText {
@@ -436,7 +456,15 @@
 
   .topbarRight {
     gap: 8px;
+    min-width: 0;
     font-size: 13px;
+  }
+
+  .topbarRight > span {
+    max-width: 82px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .logoutBtn {
@@ -447,6 +475,8 @@
   .body {
     display: block;
     flex: 1;
+    width: var(--app-width);
+    max-width: var(--app-width);
     min-height: 0;
     overflow: hidden;
   }
@@ -458,6 +488,8 @@
   }
 
   .content {
+    width: var(--app-width);
+    max-width: var(--app-width);
     height: 100%;
     min-height: 0;
     overflow: hidden;
@@ -467,6 +499,9 @@
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
+    width: 100%;
+    max-width: var(--app-width);
+    overflow: hidden;
     padding: 10px 14px;
     background: #fff;
     border-bottom: 1px solid #E5E7EB;
@@ -484,6 +519,7 @@
     color: #374151;
     font-size: 12px;
     font-weight: 800;
+    min-width: 0;
   }
 
   .mobileNavBtnActive {
@@ -498,6 +534,8 @@
     gap: 10px;
     padding: 14px;
     border-bottom: none;
+    max-width: 100vw;
+    overflow: hidden;
   }
 
   .pageTitle {

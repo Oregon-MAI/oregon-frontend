@@ -3,6 +3,7 @@ import type { TouchEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../features/auth/model/AuthContext'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
+import { dispatchBookingNotification } from '../features/notifications/lib/localNotifications'
 import OfficeMap from '../widgets/office-map/OfficeMap'
 import NotificationCenter from '../widgets/app-shell/NotificationCenter'
 import type { Zone, Desk, MapRoom } from '../shared/types/map'
@@ -590,15 +591,22 @@ export default function MapPage() {
     setConfirmItem(null)
     try {
       const newBooking = await createBooking(resourceId, userId, date, selectedFrom, selectedTo)
+      const resourceLabel = isMapRoom(item) ? item.id : `Место ${item.id}`
       setBookings(prev => [...prev, newBooking])
       setTimeFrom(selectedFrom)
       setTimeTo(selectedTo)
       setRefreshKey(k => k + 1)
-      setToast(`${isMapRoom(item) ? item.id : `Место ${item.id}`} забронировано на ${selectedFrom}–${selectedTo}`)
+      dispatchBookingNotification({
+        bookingId: newBooking.id,
+        resourceName: resourceLabel,
+        date,
+        timeFrom: selectedFrom,
+        timeTo: selectedTo,
+      })
     } catch {
       setToast('Не удалось забронировать. Попробуйте ещё раз.')
+      setTimeout(() => setToast(null), 3500)
     }
-    setTimeout(() => setToast(null), 3500)
   }
 
   return (

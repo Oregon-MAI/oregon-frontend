@@ -6,6 +6,7 @@ import styles from './MeetingRoomsPage.module.css'
 import TimeSelect from '../shared/ui/TimeSelect/TimeSelect'
 import type { Resource } from '../shared/types/resource'
 import { createBooking, getResourceBookings } from '../features/bookings/api/bookingApi'
+import { dispatchBookingNotification } from '../features/notifications/lib/localNotifications'
 import { getResourcesList } from '../features/resources/api/resourceApi'
 import { getDefaultBookingDate, isoToLocalTime } from '../shared/lib/dateTime'
 
@@ -472,8 +473,15 @@ export default function MeetingRoomsPage() {
     const room = confirmRoom
     setConfirmRoom(null)
     try {
-      await createBooking(room.id, user.id, date, timeFrom, timeTo)
+      const newBooking = await createBooking(room.id, user.id, date, timeFrom, timeTo)
       setRefreshKey(k => k + 1)
+      dispatchBookingNotification({
+        bookingId: newBooking.id,
+        resourceName: room.name,
+        date,
+        timeFrom,
+        timeTo,
+      })
       setToast(`${room.name} забронирована на ${timeFrom}–${timeTo}`)
     } catch {
       setToast('Не удалось создать бронь')
