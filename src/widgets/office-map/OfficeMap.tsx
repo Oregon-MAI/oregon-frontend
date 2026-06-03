@@ -1,5 +1,5 @@
 import type { Zone, Desk, MapRoom } from '../../shared/types/map'
-import type { CSSProperties } from 'react'
+import { useEffect, useRef, type CSSProperties } from 'react'
 import { parseWorkspaceLocation } from '../../features/resources/lib/workspaceLocation'
 import styles from './OfficeMap.module.css'
 
@@ -223,10 +223,23 @@ function RoomCapacityLabel({ capacity, vertical }: { capacity: number; vertical:
 }
 
 export default function OfficeMap({ zones, rooms = [], onDeskClick, onRoomClick }: Props) {
+  const mapRef = useRef<HTMLDivElement | null>(null)
   const desks = flattenDesks(zones)
 
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !window.matchMedia('(max-width: 768px)').matches) return
+
+    requestAnimationFrame(() => {
+      const maxScroll = map.scrollWidth - map.clientWidth
+      if (maxScroll > 0) {
+        map.scrollLeft = maxScroll / 2
+      }
+    })
+  }, [zones, rooms])
+
   return (
-    <div className={styles.map}>
+    <div ref={mapRef} className={styles.map}>
       <div className={styles.plan}>
         <FloorPlanSvg />
         {desks.map((desk, index) => {
